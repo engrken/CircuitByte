@@ -32,3 +32,9 @@ Before production, verify: anonymous mutation rejected; allowed admin login/logo
 The owner receives a private one-time setup link. Its token is stored only in Vercel, not this repository. Set a password with at least 12 characters. Setup refuses to create another administrator after the configured account exists. The standard public auth handler keeps registration disabled.
 
 Database variable fallback: DATABASE_URL or circuitbyte_DATABASE_URL. Production migrations use the same connection and never treat legacy quantity labels as inventory counts.
+
+### Catalog photos and administration
+
+The admin inventory supports marketplace category filters combined with search and inventory status. New and existing products accept a JPEG, PNG or WebP photo up to 3 MB, with a preview before saving. Product details save first; if the photo upload fails, the form retains the saved product and selected file for retry.
+
+Legacy photo URLs are recorded in `scripts/legacy-images.json`. Production initialization restores only missing image URLs and records each restoration in the product audit log. To regenerate the manifest from downloaded original JPEG files, run `node --env-file=.env.local scripts/upload-legacy.mjs /path/to/images` with the Blob token configured. The uploader resumes from the existing manifest.

@@ -66,5 +66,17 @@
   "acs712": {
     "label": "Allegro ACS712 manufacturer datasheet",
     "url": "https://www.allegromicro.com/-/media/files/datasheets/acs712-datasheet.pdf"
+  },
+  "blink": {
+    "label": "Arduino Blink teaching example",
+    "url": "https://docs.arduino.cc/built-in-examples/basics/Blink/"
+  },
+  "analog": {
+    "label": "Arduino Analog Read Serial teaching example",
+    "url": "https://docs.arduino.cc/built-in-examples/basics/AnalogReadSerial/"
+  },
+  "tone": {
+    "label": "Arduino tone() reference",
+    "url": "https://docs.arduino.cc/language-reference/en/functions/advanced-io/tone/"
   }
 }

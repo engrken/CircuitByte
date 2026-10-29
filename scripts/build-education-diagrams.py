@@ -30,4 +30,4 @@ for p in projects:
   if i<3:svg+=f'<path d="M400 {y+80} V{y+108} m-7 -8 l7 8 l7 -8" stroke="#daf58e" stroke-width="2" fill="none"/>'
  svg+='</svg>'
  (root/'public/education/diagrams'/f'{p["slug"]}-flow.svg').write_text(svg)
-print('Generated 16 diagrams from the eight guide records.')
+print(f'Generated {len(projects)*2} wiring and flow diagrams.')

@@ -4,6 +4,11 @@ root=pathlib.Path(__file__).resolve().parents[1]
 projects=json.loads((root/'content/diy-projects.json').read_text())
 # name, signal pairs (controller pin, peripheral pin), supply net, component kind
 layouts={
+'beginner-blinking-light':[('Red LED',[('D9','Anode')],'','led')],
+'beginner-sos-light':[('Red LED',[('D9','Anode')],'','led')],
+'beginner-traffic-lights':[('Red LED',[('D8','Anode')],'','led'),('Yellow LED',[('D9','Anode')],'','led'),('Green LED',[('D10','Anode')],'','led')],
+'beginner-knob-reader':[('10 kΩ potentiometer',[('A0','Wiper')],'UNO +5V','pot')],
+'beginner-musical-buzzer':[('Passive piezo module',[('D3','S')],'UNO +5V','sensor')],
 'button-led':[('Momentary switch',[('D2','Contact')],'','switch'),('Red LED',[('D9','Anode')],'','led')],
 'pwm-dimmer':[('10 kΩ potentiometer',[('A0','Wiper')],'UNO +5V','pot'),('Red LED',[('D9','Anode')],'','led')],
 'automatic-night-light':[('Photoresistor module',[('A0','S / AO')],'UNO +5V','sensor'),('Red LED',[('D9','Anode')],'','led')],
@@ -63,4 +68,4 @@ for p in projects:
  s+=label(30,height-15,'Use the full connection table for pin labels, power details, polarity and module-variant checks.',14)
  s+='</svg>'
  (root/'public/education/diagrams'/f'{slug}-schematic.svg').write_text(s)
-print('Generated 8 module circuit schematics.')
+print(f'Generated {len(projects)} module circuit schematics.')

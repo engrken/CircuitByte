@@ -1,5 +1,667 @@
 [
   {
+    "slug": "beginner-blinking-light",
+    "title": "Make your first blinking light",
+    "level": "Beginner",
+    "topic": "First circuit",
+    "time": "30–60 min, plus first-time setup",
+    "introduction": "An LED is a tiny light that allows current to flow mainly in one direction. A resistor reduces the current. The UNO turns this light on and off automatically.",
+    "purpose": "Build one visible circuit and learn to upload your very first program.",
+    "learn": [
+      "Identify an LED, resistor and GND",
+      "Connect breadboard rows",
+      "Upload code and change a delay"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "The small computer that follows your code"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red bare LED",
+        "role": "Makes electricity visible"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W resistor",
+        "role": "Limits current to protect the LED"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds connections without soldering"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Male-to-male jumper wires; at least 10",
+        "role": "Connects board pins and breadboard rows"
+      }
+    ],
+    "extras": [
+      "Computer with Arduino IDE 2 and an internet connection for initial installation.",
+      "USB Type-C data cable compatible with the listed UNO; confirm whether the board includes one."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D9",
+        "via": "330 Ω resistor",
+        "to": "LED anode (+)",
+        "note": "Put the resistor legs in different connected rows."
+      },
+      {
+        "from": "LED cathode (−)",
+        "via": "Jumper wire",
+        "to": "UNO GND",
+        "note": "Short lead / flat rim usually marks the cathode; verify untrimmed part."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB socket",
+        "note": "Unplug before changing wires; no other supply is needed."
+      }
+    ],
+    "steps": [
+      "Unplug the UNO. Place the LED long lead in row 10 and short lead in row 11 on the same side of the breadboard; keep the leads separate.",
+      "Connect the resistor from row 8 to row 10. A resistor has no positive or negative end.",
+      "Connect UNO D9 to row 8 and UNO GND to row 11. This creates one path: D9 → resistor → LED → GND.",
+      "Follow First-time setup below, then open and upload beginner-blinking-light.ino.",
+      "Watch for one second on, one second off. Change both 1000 values to 500, upload again, and compare."
+    ],
+    "expected": [
+      "The external red LED is on for one second and off for one second, repeatedly.",
+      "Changing the delays to 500 makes the cycle twice as fast."
+    ],
+    "troubleshooting": [
+      [
+        "No light",
+        "Unplug and check LED direction, D9, resistor and the exact numbered rows."
+      ],
+      [
+        "Always on",
+        "Check that the wire is on D9, not 5V."
+      ],
+      [
+        "Upload fails",
+        "Select Arduino Uno and the correct port; use a data cable and close other apps using that port."
+      ],
+      [
+        "Board becomes hot or USB disconnects",
+        "Unplug immediately. Check for a short between 5V and GND before reconnecting."
+      ]
+    ],
+    "extension": "Try 200 ms on and 1800 ms off. Predict the result before uploading.",
+    "sources": [
+      "uno",
+      "blink"
+    ],
+    "flow": [
+      "Set D9 as output",
+      "Light on for 1 second",
+      "Light off for 1 second",
+      "Repeat the two states"
+    ],
+    "notes": [
+      "Unplug USB before building or changing any connection. Power only from computer USB for these small circuits.",
+      "On a typical breadboard, a–e in one numbered row are connected; f–j form a separate group. The center gap separates them. Different numbered rows are separate.",
+      "Do not put both LED leads or both resistor leads in the same connected row. Do not connect 5V directly to GND."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — only Arduino AVR Boards core functions; tested with core 1.8.8"
+    ],
+    "serial": "Not needed unless a step asks for it",
+    "code": "beginner-blinking-light.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware has not been bench-tested; check exact parts before connecting.",
+    "firstTime": [
+      "Install Arduino IDE 2 from the official Arduino website on a computer. An IDE is the app used to send instructions to the board. No coding experience is needed.",
+      "Connect the UNO using a USB data cable. Open Boards Manager, search Arduino AVR Boards and install it. Choose Arduino Uno in the board selector, then select the port that appears when your board is connected.",
+      "Download the program below. Put the .ino file in a folder with the same name without .ino and open it. A sketch is simply an Arduino program.",
+      "Click Verify (check mark) to check the program, then Upload (right arrow) to send it to the board. Wait for the upload-complete message. If no port appears, try a known data cable; identify the board’s USB chip before installing its manufacturer driver.",
+      "setup() runs once when the board starts. loop() repeats. Lines beginning with // are explanations for you. HIGH switches an output on, LOW switches it off, and delay(1000) waits one second."
+    ]
+  },
+  {
+    "slug": "beginner-sos-light",
+    "title": "Send an SOS pattern with one LED",
+    "level": "Beginner",
+    "topic": "Light patterns",
+    "time": "30–60 min, plus first-time setup",
+    "introduction": "A light can carry a pattern. This teaching project sends three short flashes, three long flashes and three short flashes, the Morse SOS pattern. Reuse the same circuit as the first blinking light.",
+    "purpose": "Discover how one simple output can communicate a message through timing. This is a classroom model, not an emergency signalling device.",
+    "learn": [
+      "Recognize short and long pulses",
+      "Reuse a function",
+      "Read a simple repeat loop"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "The small computer that follows your code"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red bare LED",
+        "role": "Makes electricity visible"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W resistor",
+        "role": "Limits current to protect the LED"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds connections without soldering"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Male-to-male jumper wires; at least 10",
+        "role": "Connects board pins and breadboard rows"
+      }
+    ],
+    "extras": [
+      "Computer with Arduino IDE 2 and an internet connection for initial installation.",
+      "USB Type-C data cable compatible with the listed UNO; confirm whether the board includes one."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D9",
+        "via": "330 Ω resistor",
+        "to": "LED anode (+)",
+        "note": "Put the resistor legs in different connected rows."
+      },
+      {
+        "from": "LED cathode (−)",
+        "via": "Jumper wire",
+        "to": "UNO GND",
+        "note": "Short lead / flat rim usually marks the cathode; verify untrimmed part."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB socket",
+        "note": "Unplug before changing wires; no other supply is needed."
+      }
+    ],
+    "steps": [
+      "Unplug USB and place the LED leads in two different numbered rows.",
+      "Connect D9 through a 330 Ω resistor to the long LED lead (anode).",
+      "Connect the short LED lead (cathode) to GND. Check the connection table.",
+      "Follow First-time setup, then upload beginner-sos-light.ino.",
+      "Count three short, three long and three short flashes. Wait through the pause before the next group.",
+      "Compare the flash() function with loop(): the function describes one flash, and the loops tell it how many times to run."
+    ],
+    "expected": [
+      "Short flashes last 200 ms; long flashes last 600 ms.",
+      "There is a 600 ms gap between letters and a 1400 ms gap between repeated messages."
+    ],
+    "troubleshooting": [
+      [
+        "Hard to count",
+        "Increase UNIT_MS from 200 to 400, then upload. All timings scale together."
+      ],
+      [
+        "No flashes",
+        "Unplug and check LED direction and D9 wiring."
+      ],
+      [
+        "Upload fails",
+        "Select Arduino Uno and the correct port; use a data cable and close other apps using that port."
+      ],
+      [
+        "Board becomes hot or USB disconnects",
+        "Unplug immediately. Check for a short between 5V and GND before reconnecting."
+      ]
+    ],
+    "extension": "Change the last group to one short flash and explain how changing a repeat count changes the pattern.",
+    "sources": [
+      "uno",
+      "blink"
+    ],
+    "flow": [
+      "Flash S: three short",
+      "Flash O: three long",
+      "Flash S: three short",
+      "Pause, then repeat"
+    ],
+    "notes": [
+      "Unplug USB before building or changing any connection. Power only from computer USB for these small circuits.",
+      "On a typical breadboard, a–e in one numbered row are connected; f–j form a separate group. The center gap separates them. Different numbered rows are separate.",
+      "Do not put both LED leads or both resistor leads in the same connected row. Do not connect 5V directly to GND."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — only Arduino AVR Boards core functions; tested with core 1.8.8"
+    ],
+    "serial": "Not needed unless a step asks for it",
+    "code": "beginner-sos-light.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware has not been bench-tested; check exact parts before connecting.",
+    "firstTime": [
+      "Install Arduino IDE 2 from the official Arduino website on a computer. An IDE is the app used to send instructions to the board. No coding experience is needed.",
+      "Connect the UNO using a USB data cable. Open Boards Manager, search Arduino AVR Boards and install it. Choose Arduino Uno in the board selector, then select the port that appears when your board is connected.",
+      "Download the program below. Put the .ino file in a folder with the same name without .ino and open it. A sketch is simply an Arduino program.",
+      "Click Verify (check mark) to check the program, then Upload (right arrow) to send it to the board. Wait for the upload-complete message. If no port appears, try a known data cable; identify the board’s USB chip before installing its manufacturer driver.",
+      "setup() runs once when the board starts. loop() repeats. Lines beginning with // are explanations for you. HIGH switches an output on, LOW switches it off, and delay(1000) waits one second."
+    ]
+  },
+  {
+    "slug": "beginner-traffic-lights",
+    "title": "Build miniature traffic lights",
+    "level": "Beginner",
+    "topic": "Timed sequences",
+    "time": "30–60 min, plus first-time setup",
+    "introduction": "Three LEDs represent stop, wait and go. The board switches them in order. Each LED needs its own resistor so one light cannot take the current meant for another.",
+    "purpose": "Make a tabletop traffic-light model and understand a sequence of timed actions.",
+    "learn": [
+      "Build three independent LED branches",
+      "Read pin names",
+      "Set a sequence and measure its timing"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "The small computer that follows your code"
+      },
+      {
+        "id": "cb-009",
+        "qty": 3,
+        "variant": "Three bare 5 mm LEDs: red, yellow and green (one each); confirm color availability",
+        "role": "Three separate signal lights"
+      },
+      {
+        "id": "cb-002",
+        "qty": 3,
+        "variant": "330 Ω, ¼ W; one for EACH LED",
+        "role": "Independent current limiting"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds connections without soldering"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Male-to-male jumper wires; at least 10",
+        "role": "Connects board pins and breadboard rows"
+      }
+    ],
+    "extras": [
+      "Computer with Arduino IDE 2 and an internet connection for initial installation.",
+      "USB Type-C data cable compatible with the listed UNO; confirm whether the board includes one."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D8",
+        "via": "330 Ω → red LED anode",
+        "to": "Red cathode → GND",
+        "note": "One resistor for this branch."
+      },
+      {
+        "from": "UNO D9",
+        "via": "330 Ω → yellow LED anode",
+        "to": "Yellow cathode → GND",
+        "note": "One resistor for this branch."
+      },
+      {
+        "from": "UNO D10",
+        "via": "330 Ω → green LED anode",
+        "to": "Green cathode → GND",
+        "note": "One resistor for this branch."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB socket",
+        "note": "Unplug before changing wires; no other supply is needed."
+      }
+    ],
+    "steps": [
+      "Unplug USB. Arrange three LEDs on the breadboard in red, yellow, green order, with every lead in its own connected row.",
+      "Connect D8 through one 330 Ω resistor to the red anode; connect its cathode to GND.",
+      "Repeat with D9 and yellow, then D10 and green. Use a new resistor for each LED.",
+      "Use jumpers to connect each cathode row to the same GND connection; never join the anode rows together.",
+      "Follow First-time setup, then upload beginner-traffic-lights.ino.",
+      "Time the cycle: red for 3 seconds, green for 3 seconds, yellow for 1 second."
+    ],
+    "expected": [
+      "Only one LED lights at a time. The cycle is red → green → yellow → red.",
+      "If colors are unavailable, three red LEDs labelled STOP, GO and WAIT work electrically; label each position."
+    ],
+    "troubleshooting": [
+      [
+        "Wrong color lights",
+        "Match D8 to red, D9 to yellow and D10 to green."
+      ],
+      [
+        "One LED is dark",
+        "Unplug, check that LED polarity and its own resistor; compare its branch with a working one."
+      ],
+      [
+        "Upload fails",
+        "Select Arduino Uno and the correct port; use a data cable and close other apps using that port."
+      ],
+      [
+        "Board becomes hot or USB disconnects",
+        "Unplug immediately. Check for a short between 5V and GND before reconnecting."
+      ]
+    ],
+    "extension": "Change the green time to 5 seconds and predict the new total cycle time.",
+    "sources": [
+      "uno",
+      "blink"
+    ],
+    "flow": [
+      "Red on: 3 seconds",
+      "Green on: 3 seconds",
+      "Yellow on: 1 second",
+      "Repeat from red"
+    ],
+    "notes": [
+      "Unplug USB before building or changing any connection. Power only from computer USB for these small circuits.",
+      "On a typical breadboard, a–e in one numbered row are connected; f–j form a separate group. The center gap separates them. Different numbered rows are separate.",
+      "Do not put both LED leads or both resistor leads in the same connected row. Do not connect 5V directly to GND."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — only Arduino AVR Boards core functions; tested with core 1.8.8"
+    ],
+    "serial": "Not needed unless a step asks for it",
+    "code": "beginner-traffic-lights.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware has not been bench-tested; check exact parts before connecting.",
+    "firstTime": [
+      "Install Arduino IDE 2 from the official Arduino website on a computer. An IDE is the app used to send instructions to the board. No coding experience is needed.",
+      "Connect the UNO using a USB data cable. Open Boards Manager, search Arduino AVR Boards and install it. Choose Arduino Uno in the board selector, then select the port that appears when your board is connected.",
+      "Download the program below. Put the .ino file in a folder with the same name without .ino and open it. A sketch is simply an Arduino program.",
+      "Click Verify (check mark) to check the program, then Upload (right arrow) to send it to the board. Wait for the upload-complete message. If no port appears, try a known data cable; identify the board’s USB chip before installing its manufacturer driver.",
+      "setup() runs once when the board starts. loop() repeats. Lines beginning with // are explanations for you. HIGH switches an output on, LOW switches it off, and delay(1000) waits one second."
+    ]
+  },
+  {
+    "slug": "beginner-knob-reader",
+    "title": "Read a knob on your computer",
+    "level": "Beginner",
+    "topic": "First analog input",
+    "time": "30–60 min, plus first-time setup",
+    "introduction": "A potentiometer is a resistor with a movable contact called a wiper. Turning its knob changes the voltage at this contact. The UNO turns that voltage into a number and sends it to the computer.",
+    "purpose": "See how a physical action becomes a number without connecting a screen or motor.",
+    "learn": [
+      "Identify a potentiometer wiper",
+      "Use analogRead",
+      "Open Serial Monitor"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "The small computer that follows your code"
+      },
+      {
+        "id": "cb-012",
+        "qty": 1,
+        "variant": "10 kΩ, three-terminal potentiometer; confirm terminal markings",
+        "role": "Hand-operated input"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds connections without soldering"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Male-to-male jumper wires; at least 10",
+        "role": "Connects board pins and breadboard rows"
+      }
+    ],
+    "extras": [
+      "Computer with Arduino IDE 2 and an internet connection for initial installation.",
+      "USB Type-C data cable compatible with the listed UNO; confirm whether the board includes one."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Jumper",
+        "to": "Potentiometer end 1",
+        "note": "Use the terminal map for your exact part."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Jumper",
+        "to": "Potentiometer end 2",
+        "note": "Do not confuse an end with the wiper."
+      },
+      {
+        "from": "Potentiometer wiper",
+        "via": "Jumper",
+        "to": "UNO A0",
+        "note": "Usually center terminal; verify before powering."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB socket",
+        "note": "Unplug before changing wires; no other supply is needed."
+      }
+    ],
+    "steps": [
+      "Identify the two end terminals and wiper using the part diagram or ask the seller to label them. Do not guess from an unfamiliar package.",
+      "Unplug USB. Insert the potentiometer so its terminals are in separate connected rows; use jumpers if needed.",
+      "Connect one end to UNO 5V and the other end to GND.",
+      "Connect only the wiper to A0. A0 reads a voltage; it does not power the knob.",
+      "Follow First-time setup and upload beginner-knob-reader.ino.",
+      "Open Tools → Serial Monitor in Arduino IDE and choose 9600 baud. This is a text window for messages from the board.",
+      "Turn the knob slowly from one end to the other and record minimum, middle and maximum values."
+    ],
+    "expected": [
+      "Serial Monitor displays a new value about five times per second.",
+      "The number varies approximately from 0 to 1023; the middle is near 512. Small fluctuations are normal."
+    ],
+    "troubleshooting": [
+      [
+        "Unreadable characters",
+        "Set Serial Monitor to 9600 baud to match Serial.begin(9600)."
+      ],
+      [
+        "Number stays at 0 or 1023",
+        "Unplug and check the wiper wire to A0 and both supply ends."
+      ],
+      [
+        "Number rises in the opposite direction",
+        "This is normal. Unplug and swap the two end-terminal wires if desired; leave the wiper on A0."
+      ],
+      [
+        "Upload fails",
+        "Select Arduino Uno and the correct port; use a data cable and close other apps using that port."
+      ],
+      [
+        "Board becomes hot or USB disconnects",
+        "Unplug immediately. Check for a short between 5V and GND before reconnecting."
+      ]
+    ],
+    "extension": "Change delay(200) to delay(1000) and compare how often the number updates.",
+    "sources": [
+      "uno",
+      "analog"
+    ],
+    "flow": [
+      "Turn the knob",
+      "Read A0 voltage as a number",
+      "Print number at 9600 baud",
+      "Wait 200 ms, then repeat"
+    ],
+    "notes": [
+      "Unplug USB before building or changing any connection. Power only from computer USB for these small circuits.",
+      "On a typical breadboard, a–e in one numbered row are connected; f–j form a separate group. The center gap separates them. Different numbered rows are separate.",
+      "Do not put both LED leads or both resistor leads in the same connected row. Do not connect 5V directly to GND."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — only Arduino AVR Boards core functions; tested with core 1.8.8"
+    ],
+    "serial": "9600 baud",
+    "code": "beginner-knob-reader.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware has not been bench-tested; check exact parts before connecting.",
+    "firstTime": [
+      "Install Arduino IDE 2 from the official Arduino website on a computer. An IDE is the app used to send instructions to the board. No coding experience is needed.",
+      "Connect the UNO using a USB data cable. Open Boards Manager, search Arduino AVR Boards and install it. Choose Arduino Uno in the board selector, then select the port that appears when your board is connected.",
+      "Download the program below. Put the .ino file in a folder with the same name without .ino and open it. A sketch is simply an Arduino program.",
+      "Click Verify (check mark) to check the program, then Upload (right arrow) to send it to the board. Wait for the upload-complete message. If no port appears, try a known data cable; identify the board’s USB chip before installing its manufacturer driver.",
+      "setup() runs once when the board starts. loop() repeats. Lines beginning with // are explanations for you. HIGH switches an output on, LOW switches it off, and delay(1000) waits one second."
+    ]
+  },
+  {
+    "slug": "beginner-musical-buzzer",
+    "title": "Play a three-note tune",
+    "level": "Beginner",
+    "topic": "First sound",
+    "time": "30–60 min, plus first-time setup",
+    "introduction": "A passive piezo buzzer needs a changing signal to make a tone. The UNO changes the signal frequency to make three notes. Frequency means vibrations per second; higher frequency sounds higher.",
+    "purpose": "Make sound with a simple module and learn the difference between pitch and duration.",
+    "learn": [
+      "Connect a three-pin module",
+      "Distinguish passive and active buzzers",
+      "Change pitch and duration"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "The small computer that follows your code"
+      },
+      {
+        "id": "cb-029",
+        "qty": 1,
+        "variant": "5 V-compatible passive piezo MODULE with S, + and − terminals and a documented logic signal input",
+        "role": "Sound output; not an active buzzer or speaker"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds connections without soldering"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Male-to-male jumper wires; at least 10",
+        "role": "Connects board pins and breadboard rows"
+      }
+    ],
+    "extras": [
+      "Computer with Arduino IDE 2 and an internet connection for initial installation.",
+      "USB Type-C data cable compatible with the listed UNO; confirm whether the board includes one."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D3",
+        "via": "Jumper",
+        "to": "Module S (signal)",
+        "note": "Use a documented logic-input module; no bare magnetic buzzer or speaker."
+      },
+      {
+        "from": "UNO 5V",
+        "via": "Jumper",
+        "to": "Module + / VCC",
+        "note": "Confirm 5 V operation for this exact module."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Jumper",
+        "to": "Module − / GND",
+        "note": "Follow labels, not physical pin order."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB socket",
+        "note": "Unplug before changing wires; no other supply is needed."
+      }
+    ],
+    "steps": [
+      "Confirm the seller supplied the passive piezo module, with a logic input S and 5 V-compatible power. Ask for labelled terminals if unclear; do not substitute a speaker.",
+      "Unplug USB and place the module so its terminals do not share connected breadboard rows.",
+      "Connect + to UNO 5V and − to GND.",
+      "Connect S to D3. Check all three labels against the diagram before plugging in USB.",
+      "Follow First-time setup and upload beginner-musical-buzzer.ino.",
+      "Listen at arm’s length: three rising notes, then silence, repeated. Unplug USB to stop.",
+      "Find tone(), delay() and noTone() in the code: they start a pitch, hold it, and stop it."
+    ],
+    "expected": [
+      "The module repeats three rising tones, each lasting about 300 ms.",
+      "There is a short gap between notes and a longer pause after the third."
+    ],
+    "troubleshooting": [
+      [
+        "Only a fixed beep",
+        "Confirm it is a passive piezo module rather than an active buzzer."
+      ],
+      [
+        "No sound",
+        "Check the module signal pin, common GND, 5 V compatibility and D3 connection while unplugged."
+      ],
+      [
+        "Upload fails",
+        "Select Arduino Uno and the correct port; use a data cable and close other apps using that port."
+      ],
+      [
+        "Board becomes hot or USB disconnects",
+        "Unplug immediately. Check for a short between 5V and GND before reconnecting."
+      ]
+    ],
+    "extension": "Change 523 to 440 and compare the first note. Change 300 to 600 to hold each note twice as long.",
+    "sources": [
+      "uno",
+      "tone"
+    ],
+    "flow": [
+      "Play 523 Hz",
+      "Play 659 Hz",
+      "Play 784 Hz",
+      "Pause and repeat"
+    ],
+    "notes": [
+      "Unplug USB before building or changing any connection. Power only from computer USB for these small circuits.",
+      "On a typical breadboard, a–e in one numbered row are connected; f–j form a separate group. The center gap separates them. Different numbered rows are separate.",
+      "Do not put both LED leads or both resistor leads in the same connected row. Do not connect 5V directly to GND.",
+      "Keep the buzzer away from ears. This guide requires a documented 5 V logic-input piezo module; ask CircuitByte to confirm the exact variant before purchase."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — only Arduino AVR Boards core functions; tested with core 1.8.8"
+    ],
+    "serial": "Not needed unless a step asks for it",
+    "code": "beginner-musical-buzzer.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware has not been bench-tested; check exact parts before connecting.",
+    "firstTime": [
+      "Install Arduino IDE 2 from the official Arduino website on a computer. An IDE is the app used to send instructions to the board. No coding experience is needed.",
+      "Connect the UNO using a USB data cable. Open Boards Manager, search Arduino AVR Boards and install it. Choose Arduino Uno in the board selector, then select the port that appears when your board is connected.",
+      "Download the program below. Put the .ino file in a folder with the same name without .ino and open it. A sketch is simply an Arduino program.",
+      "Click Verify (check mark) to check the program, then Upload (right arrow) to send it to the board. Wait for the upload-complete message. If no port appears, try a known data cable; identify the board’s USB chip before installing its manufacturer driver.",
+      "setup() runs once when the board starts. loop() repeats. Lines beginning with // are explanations for you. HIGH switches an output on, LOW switches it off, and delay(1000) waits one second."
+    ]
+  },
+  {
     "slug": "button-led",
     "title": "Build your first button-controlled LED",
     "level": "Basic",

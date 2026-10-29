@@ -71,7 +71,7 @@ multi-session advisory-lock contention; production PostgreSQL supplies those loc
 - `/learn` browses the live product catalog with category/search filters and learning profiles.
 - `/learn/[id]` explains the component, interface, reference specifications, applications,
   variant checks and related builds. Current catalog prices and availability come from `/api/products`.
-- `/diy` has eight searchable Basic/Intermediate guides; `/diy/[slug]` includes introduction,
+- `/diy` has thirteen searchable Beginner/Basic/Intermediate guides; `/diy/[slug]` includes introduction,
   purpose, catalog-linked BOM, additional supplies, circuit schematic, pin table, operation
   diagram, full sketch, installation steps, expected behavior and troubleshooting.
 - Storefront product dialogs link to lessons. `/index.html?product=cb-059` opens a product directly.

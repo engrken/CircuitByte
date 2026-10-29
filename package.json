@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
-    "build:vercel": "node scripts/migrate.mjs && next build"
+    "build:vercel": "node scripts/migrate.mjs && next build",
+    "test": "node --experimental-test-module-mocks --test tests/*.test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -28,5 +29,8 @@
     "@vercel/cli-config": {
       "zod": "4.6.7"
     }
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.13"
   }
 }

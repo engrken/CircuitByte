@@ -38,3 +38,30 @@ Database variable fallback: DATABASE_URL or circuitbyte_DATABASE_URL. Production
 The admin inventory supports marketplace category filters combined with search and inventory status. New and existing products accept a JPEG, PNG or WebP photo up to 3 MB, with a preview before saving. Product details save first; if the photo upload fails, the form retains the saved product and selected file for retry.
 
 Legacy photo URLs are recorded in `scripts/legacy-images.json`. Production initialization restores only missing image URLs and records each restoration in the product audit log. To regenerate the manifest from downloaded original JPEG files, run `node --env-file=.env.local scripts/upload-legacy.mjs /path/to/images` with the Blob token configured. The uploader resumes from the existing manifest.
+
+
+## Orders and Roxas City meetups
+
+Guest checkout stores orders in PostgreSQL. Customers propose a meetup point anywhere
+within Roxas City, Capiz; the admin agrees on the exact location and schedule through
+the supplied contact number. Payment for this rollout is cash at meetup.
+
+- `/admin/orders`: authenticated queue, search, status filters, paging and customer updates.
+- `/track.html`: private tracking code/link, no customer account required. Keep the code
+  safe; it grants access to order contents and meetup details (not phone/name).
+- Pending orders do not reserve stock. Confirmed orders reserve counted inventory;
+  Ready preserves reservations; Completed deducts on-hand and reserved quantities.
+  Cancelled releases reservations. Closed orders cannot be reopened.
+- Catalog quantities exclude reservations. Uncounted items can be requested but must
+  be counted before confirmation. Product edits cannot reduce stock below reservations.
+- Checkout snapshots server-validated prices, rejects stale prices and unavailable items,
+  serializes duplicate request IDs, and limits submissions per IP/contact per hour.
+- Stock transitions run in transactions, locking the order and all products in ID order.
+  Product versions and audit records change with reservations and deductions.
+- Customer updates are visible on tracking; this rollout does not send SMS/email.
+
+`scripts/schema.sql` is additive and repeatable. The existing production migration
+command applies it before the build. No existing catalog rows or stock counts are reset.
+Run `npm test` (Node 24) and `npm run build` before release. Integration tests use an
+isolated PGlite PostgreSQL engine, not production data. PGlite does not test real
+multi-session advisory-lock contention; production PostgreSQL supplies those locks.

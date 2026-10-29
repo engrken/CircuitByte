@@ -1,0 +1,6 @@
+import {requireAdmin,sameOrigin} from '../../../../lib/auth';
+import {db} from '../../../../lib/db';
+import {updateOrder,errorResponse,readBody} from '../../../../lib/orders';
+export const dynamic='force-dynamic';
+export async function GET(req){try{await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:401});}try{const url=new URL(req.url),status=url.searchParams.get('status')||'',query=(url.searchParams.get('q')||'').slice(0,100),offset=Math.max(0,Math.min(100000,Number(url.searchParams.get('offset'))||0));const {rows}=await db().query(`SELECT id,reference,customer_name,contact,proposed_location,confirmed_location,notes,customer_update,items,total_cents,status,version,created_at,updated_at FROM orders WHERE ($1='' OR status=$1) AND ($2='' OR reference ILIKE '%'||$2||'%' OR customer_name ILIKE '%'||$2||'%') ORDER BY created_at DESC LIMIT 51 OFFSET $3`,[status,query,offset]);return Response.json({orders:rows.slice(0,50),hasMore:rows.length>50},{headers:{'Cache-Control':'no-store'}});}catch(e){return errorResponse(e);}}
+export async function POST(req){let user;try{sameOrigin(req);user=await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403});}try{return Response.json(await updateOrder(await readBody(req),user.email));}catch(e){return errorResponse(e);}}

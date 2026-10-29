@@ -65,3 +65,24 @@ command applies it before the build. No existing catalog rows or stock counts ar
 Run `npm test` (Node 24) and `npm run build` before release. Integration tests use an
 isolated PGlite PostgreSQL engine, not production data. PGlite does not test real
 multi-session advisory-lock contention; production PostgreSQL supplies those locks.
+
+## Learning Lab and DIY guides
+
+- `/learn` browses the live product catalog with category/search filters and learning profiles.
+- `/learn/[id]` explains the component, interface, reference specifications, applications,
+  variant checks and related builds. Current catalog prices and availability come from `/api/products`.
+- `/diy` has eight searchable Basic/Intermediate guides; `/diy/[slug]` includes introduction,
+  purpose, catalog-linked BOM, additional supplies, circuit schematic, pin table, operation
+  diagram, full sketch, installation steps, expected behavior and troubleshooting.
+- Storefront product dialogs link to lessons. `/index.html?product=cb-059` opens a product directly.
+- Lessons and projects are authored in `content/`; source sketches are in `public/education/code`.
+  Supplier notes are labelled separately from reference facts, and known disputed notes are
+  omitted on educational detail pages in favor of explicit component corrections.
+- Regenerate diagrams with `python scripts/build-education-diagrams.py` and
+  `python scripts/build-project-schematics.py`. Module schematics and pin maps are complementary;
+  check both against the sketch whenever changing pins.
+- Code and SVG assets can be downloaded from each guide; print styles support Save as PDF.
+  Listed parts do not imply confirmed stock. External supplies and GSM support hardware are
+  clearly separated from catalog lines. No lessons claim physical hardware validation.
+- Validation: `npm test`, `npm run build`, and real Arduino CLI compilation (toolchain details
+  are in each guide). No production database migration is introduced by the learning pages.

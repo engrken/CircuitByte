@@ -3,3 +3,5 @@
 .header{flex-shrink:0}#scroll-area{flex:1;min-height:0}
 
 .product-visual img{position:absolute;inset:0}.product-visual.has-photo>svg,.product-visual.has-photo>small{display:none}
+
+.learning-strip{display:flex;justify-content:space-between;align-items:center;gap:25px;background:#e6eed9;padding:28px 5%;border-bottom:1px solid #d0dbc3}.learning-strip span{font:10px monospace;letter-spacing:1.6px;color:#55734d}.learning-strip h2{font-size:25px;font-weight:500;letter-spacing:-.6px;margin:10px 0}.learning-strip p{font-size:13px;color:#64716c;line-height:1.7;margin-bottom:0}.learning-strip .primary{font-size:12px;flex-shrink:0}.header nav{flex-wrap:wrap;gap:18px}@media(max-width:650px){.learning-strip{display:block;padding:24px 5%}.learning-strip .primary{margin-top:18px}.header nav{justify-content:flex-start;gap:12px 20px}.learning-strip h2{font-size:23px}}@media print{.learning-strip{display:none}}

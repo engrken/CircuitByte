@@ -1,0 +1,1491 @@
+{
+  "cb-001": {
+    "concept": "A diode conducts mainly in one direction. Rectifier, signal and Schottky types serve different jobs.",
+    "interface": "Two-terminal component",
+    "applications": [
+      "Reverse-polarity protection",
+      "Inductive-load flyback suppression",
+      "Signal rectification"
+    ],
+    "check": "Select the exact diode number, current rating and reverse-voltage rating; do not treat all listed types as substitutes.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-002": {
+    "concept": "Resistance limits current and divides voltage. Use Ohm’s law to select a value before connecting an LED.",
+    "interface": "Passive / two terminals",
+    "applications": [
+      "LED current limiting",
+      "Pull-up and pull-down networks",
+      "Voltage dividers"
+    ],
+    "check": "Choose the required resistance, tolerance and power rating. R = (supply voltage − LED forward voltage) / target current.",
+    "specs": [
+      [
+        "Listed family",
+        "¼ W metal film; select value"
+      ]
+    ],
+    "sources": [
+      "uno"
+    ]
+  },
+  "cb-003": {
+    "concept": "A capacitor stores charge. Its value, working voltage and polarity determine where it can be used.",
+    "interface": "Passive / two terminals",
+    "applications": [
+      "Supply decoupling",
+      "Timing networks",
+      "Ripple filtering"
+    ],
+    "check": "Electrolytic types are polarized. Use a voltage rating above the circuit voltage and discharge before rewiring.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-004": {
+    "concept": "A capacitor stores charge. Its value, working voltage and polarity determine where it can be used.",
+    "interface": "Passive / two terminals",
+    "applications": [
+      "Supply decoupling",
+      "Timing networks",
+      "Ripple filtering"
+    ],
+    "check": "Electrolytic types are polarized. Use a voltage rating above the circuit voltage and discharge before rewiring.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-005": {
+    "concept": "A transistor lets a small control signal switch or amplify a larger current.",
+    "interface": "Base / collector / emitter",
+    "applications": [
+      "Low-voltage load switching",
+      "Signal amplification",
+      "Motor or relay driver stages"
+    ],
+    "check": "Confirm NPN/PNP type and package pinout. Include a base resistor; inductive loads need a flyback path. Pinouts vary by part.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-006": {
+    "concept": "A transistor lets a small control signal switch or amplify a larger current.",
+    "interface": "Base / collector / emitter",
+    "applications": [
+      "Low-voltage load switching",
+      "Signal amplification",
+      "Motor or relay driver stages"
+    ],
+    "check": "Confirm NPN/PNP type and package pinout. Include a base resistor; inductive loads need a flyback path. Pinouts vary by part.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-007": {
+    "concept": "The 555 timer uses thresholds and an internal latch to generate delays or pulses.",
+    "interface": "Analog timing IC",
+    "applications": [
+      "LED flasher",
+      "One-shot pulse generator",
+      "Oscillator demonstration"
+    ],
+    "check": "Use the NE555 manufacturer pinout and supply limits for your exact part; add supply decoupling.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-008": {
+    "concept": "An operational amplifier amplifies the difference between its inputs when used with feedback.",
+    "interface": "Dual analog amplifier",
+    "applications": [
+      "Audio preamplifier",
+      "Active filter",
+      "Signal conditioning"
+    ],
+    "check": "The LM833 is not a generic rail-to-rail 5 V sensor amplifier. Check supply rails, input range and stability first.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-009": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-034": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-035": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-036": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-037": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-041": {
+    "concept": "An LED converts current into light. Brightness depends on current, and PWM controls average brightness.",
+    "interface": "Digital output / PWM",
+    "applications": [
+      "Status indication",
+      "Color mixing",
+      "Light patterns"
+    ],
+    "check": "Bare LEDs need a resistor per independent color. Confirm polarity and any onboard resistors; the 7-color auto-flashing type is not individually programmable.",
+    "specs": [
+      [
+        "Control",
+        "DC current or PWM"
+      ]
+    ],
+    "sources": [
+      "pwm"
+    ]
+  },
+  "cb-010": {
+    "concept": "A potentiometer is an adjustable voltage divider. The wiper produces a variable voltage between the end terminals.",
+    "interface": "Analog input",
+    "applications": [
+      "Brightness adjustment",
+      "Threshold setting",
+      "Servo position control"
+    ],
+    "check": "Choose the specified resistance; trimmers and panel knobs have different mechanical ranges. Never apply above the ADC supply voltage.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-011": {
+    "concept": "A potentiometer is an adjustable voltage divider. The wiper produces a variable voltage between the end terminals.",
+    "interface": "Analog input",
+    "applications": [
+      "Brightness adjustment",
+      "Threshold setting",
+      "Servo position control"
+    ],
+    "check": "Choose the specified resistance; trimmers and panel knobs have different mechanical ranges. Never apply above the ADC supply voltage.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-012": {
+    "concept": "A potentiometer is an adjustable voltage divider. The wiper produces a variable voltage between the end terminals.",
+    "interface": "Analog input",
+    "applications": [
+      "Brightness adjustment",
+      "Threshold setting",
+      "Servo position control"
+    ],
+    "check": "Choose the specified resistance; trimmers and panel knobs have different mechanical ranges. Never apply above the ADC supply voltage.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-013": {
+    "concept": "A regulator holds the output near a chosen voltage while input voltage or load changes.",
+    "interface": "Power supply",
+    "applications": [
+      "Logic supply regulation",
+      "Adjustable low-current supply",
+      "Voltage conditioning"
+    ],
+    "check": "Identify positive/negative/adjustable regulator and pinout. Check dropout and heat: a linear regulator dissipates roughly (Vin − Vout) × current.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-014": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-065": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-076": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-087": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-088": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-089": {
+    "concept": "Reliable connections matter as much as code. Verify continuity and keep power wiring short.",
+    "interface": "Interconnect / prototyping",
+    "applications": [
+      "Breadboard prototypes",
+      "Sensor interconnections",
+      "Permanent low-voltage assemblies"
+    ],
+    "check": "Breadboard rails may be split. Select wire gauge for actual current and length; do not route motor or modem surge currents through weak breadboard contacts.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-015": {
+    "concept": "Two potentiometers report joystick position and a switch reports a press.",
+    "interface": "Two analog axes + digital switch",
+    "applications": [
+      "Manual robot control",
+      "Menu navigation",
+      "Pan/tilt input"
+    ],
+    "check": "Check pin labels and center readings; map calibrated endpoints rather than assuming an exact midpoint.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-016": {
+    "concept": "A momentary switch closes a contact while pressed. A pull-up gives the input a defined idle state.",
+    "interface": "Digital input",
+    "applications": [
+      "User buttons",
+      "Mode selection",
+      "Counter input"
+    ],
+    "check": "Check connected pairs with a continuity meter. Debounce the input; voltage/current contact ratings are not a requirement to apply that voltage.",
+    "specs": [
+      [
+        "UNO wiring",
+        "Switch between input and GND; INPUT_PULLUP"
+      ]
+    ],
+    "sources": [
+      "digital"
+    ]
+  },
+  "cb-043": {
+    "concept": "A momentary switch closes a contact while pressed. A pull-up gives the input a defined idle state.",
+    "interface": "Digital input",
+    "applications": [
+      "User buttons",
+      "Mode selection",
+      "Counter input"
+    ],
+    "check": "Check connected pairs with a continuity meter. Debounce the input; voltage/current contact ratings are not a requirement to apply that voltage.",
+    "specs": [
+      [
+        "UNO wiring",
+        "Switch between input and GND; INPUT_PULLUP"
+      ]
+    ],
+    "sources": [
+      "digital"
+    ]
+  },
+  "cb-017": {
+    "concept": "A relay uses a coil to operate isolated contacts. The logic input and contact circuit serve different roles.",
+    "interface": "Digital control + COM / NO / NC",
+    "applications": [
+      "Low-voltage lamp automation",
+      "DC fan control",
+      "Switching an isolated signal"
+    ],
+    "check": "Verify trigger polarity, driver/optocoupler circuit, coil supply and contact rating. These guides use low-voltage DC only; a printed relay rating does not qualify the whole assembly for mains.",
+    "specs": [
+      [
+        "Listed coil supply",
+        "5 V for cb-017 / cb-060; shield supply differs"
+      ],
+      [
+        "Contacts",
+        "NO closes when energized; NC opens"
+      ]
+    ],
+    "sources": []
+  },
+  "cb-060": {
+    "concept": "A relay uses a coil to operate isolated contacts. The logic input and contact circuit serve different roles.",
+    "interface": "Digital control + COM / NO / NC",
+    "applications": [
+      "Low-voltage lamp automation",
+      "DC fan control",
+      "Switching an isolated signal"
+    ],
+    "check": "Verify trigger polarity, driver/optocoupler circuit, coil supply and contact rating. These guides use low-voltage DC only; a printed relay rating does not qualify the whole assembly for mains.",
+    "specs": [
+      [
+        "Listed coil supply",
+        "5 V for cb-017 / cb-060; shield supply differs"
+      ],
+      [
+        "Contacts",
+        "NO closes when energized; NC opens"
+      ]
+    ],
+    "sources": []
+  },
+  "cb-078": {
+    "concept": "A relay uses a coil to operate isolated contacts. The logic input and contact circuit serve different roles.",
+    "interface": "Digital control + COM / NO / NC",
+    "applications": [
+      "Low-voltage lamp automation",
+      "DC fan control",
+      "Switching an isolated signal"
+    ],
+    "check": "Verify trigger polarity, driver/optocoupler circuit, coil supply and contact rating. These guides use low-voltage DC only; a printed relay rating does not qualify the whole assembly for mains.",
+    "specs": [
+      [
+        "Listed coil supply",
+        "5 V for cb-017 / cb-060; shield supply differs"
+      ],
+      [
+        "Contacts",
+        "NO closes when energized; NC opens"
+      ]
+    ],
+    "sources": []
+  },
+  "cb-018": {
+    "concept": "A Bluetooth serial module bridges UART data to a compatible Bluetooth Classic serial connection.",
+    "interface": "UART",
+    "applications": [
+      "Wireless serial console",
+      "Simple robot commands",
+      "Phone-to-controller experiments"
+    ],
+    "check": "Breakout supply tolerance is not UART input tolerance. Confirm level shifting and host support; do not apply 5 V directly to an unprotected RX pin.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-019": {
+    "concept": "A small OLED displays pixels rather than fixed character cells.",
+    "interface": "I²C display",
+    "applications": [
+      "Compact status display",
+      "Sensor dashboard",
+      "Menu screen"
+    ],
+    "check": "Check SSD1306 versus other controllers, I²C address and pull-up voltage before using a library.",
+    "specs": [
+      [
+        "Catalog display",
+        "128 × 64; nominal 0.96 inch"
+      ]
+    ],
+    "sources": []
+  },
+  "cb-020": {
+    "concept": "A microphone and amplifier turn sound into a changing electrical signal; a comparator can provide a threshold output.",
+    "interface": "Analog / threshold digital",
+    "applications": [
+      "Clap trigger",
+      "Sound activity indicator",
+      "Envelope detection"
+    ],
+    "check": "This uncalibrated module is not a sound-level meter in dB. Adjust thresholds and verify output polarity.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-021": {
+    "concept": "A microphone and amplifier turn sound into a changing electrical signal; a comparator can provide a threshold output.",
+    "interface": "Analog / threshold digital",
+    "applications": [
+      "Clap trigger",
+      "Sound activity indicator",
+      "Envelope detection"
+    ],
+    "check": "This uncalibrated module is not a sound-level meter in dB. Adjust thresholds and verify output polarity.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-022": {
+    "concept": "An infrared optical path changes with reflection or interruption. Surface and ambient light influence the result.",
+    "interface": "Digital optical sensing",
+    "applications": [
+      "Line following",
+      "Object counting",
+      "End-position detection"
+    ],
+    "check": "Verify pin labels, output polarity and required voltage. Reflective detection distance depends strongly on the target.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-023": {
+    "concept": "An infrared optical path changes with reflection or interruption. Surface and ambient light influence the result.",
+    "interface": "Digital optical sensing",
+    "applications": [
+      "Line following",
+      "Object counting",
+      "End-position detection"
+    ],
+    "check": "Verify pin labels, output polarity and required voltage. Reflective detection distance depends strongly on the target.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-058": {
+    "concept": "An infrared optical path changes with reflection or interruption. Surface and ambient light influence the result.",
+    "interface": "Digital optical sensing",
+    "applications": [
+      "Line following",
+      "Object counting",
+      "End-position detection"
+    ],
+    "check": "Verify pin labels, output polarity and required voltage. Reflective detection distance depends strongly on the target.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-024": {
+    "concept": "An IR-sensitive sensor responds to certain flame-like light sources. It can also respond to other infrared sources.",
+    "interface": "Analog / digital threshold",
+    "applications": [
+      "Infrared response demonstration",
+      "Classroom light-source experiments"
+    ],
+    "check": "This is an educational sensor, not a certified fire alarm. Do not test with an uncontrolled flame or rely on it for life safety.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-025": {
+    "concept": "A Hall sensor responds to magnetic fields; linear and switching variants behave differently.",
+    "interface": "Analog or switching output",
+    "applications": [
+      "Magnetic position detection",
+      "Rotation counting",
+      "Contactless limit switch"
+    ],
+    "check": "Identify linear, latch or switch type, required magnet polarity, supply and output circuit. NJK-5002C is a magnetic proximity device, not a general metal detector.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-051": {
+    "concept": "A Hall sensor responds to magnetic fields; linear and switching variants behave differently.",
+    "interface": "Analog or switching output",
+    "applications": [
+      "Magnetic position detection",
+      "Rotation counting",
+      "Contactless limit switch"
+    ],
+    "check": "Identify linear, latch or switch type, required magnet polarity, supply and output circuit. NJK-5002C is a magnetic proximity device, not a general metal detector.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-052": {
+    "concept": "A Hall sensor responds to magnetic fields; linear and switching variants behave differently.",
+    "interface": "Analog or switching output",
+    "applications": [
+      "Magnetic position detection",
+      "Rotation counting",
+      "Contactless limit switch"
+    ],
+    "check": "Identify linear, latch or switch type, required magnet polarity, supply and output circuit. NJK-5002C is a magnetic proximity device, not a general metal detector.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-092": {
+    "concept": "A Hall sensor responds to magnetic fields; linear and switching variants behave differently.",
+    "interface": "Analog or switching output",
+    "applications": [
+      "Magnetic position detection",
+      "Rotation counting",
+      "Contactless limit switch"
+    ],
+    "check": "Identify linear, latch or switch type, required magnet polarity, supply and output circuit. NJK-5002C is a magnetic proximity device, not a general metal detector.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-026": {
+    "concept": "A touch module detects an electrical change when a conductive surface is touched.",
+    "interface": "Digital / analog touch",
+    "applications": [
+      "Touch button",
+      "Interactive exhibit",
+      "User input"
+    ],
+    "check": "Keep accessible surfaces at extra-low voltage and check sensitivity and output polarity.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-027": {
+    "concept": "A thermistor changes resistance with temperature; a comparator may add an adjustable threshold.",
+    "interface": "Analog / threshold digital",
+    "applications": [
+      "Temperature trend display",
+      "Threshold experiments",
+      "Thermal response study"
+    ],
+    "check": "These modules do not automatically provide calibrated degrees Celsius. Identify the thermistor and divider before applying a conversion equation.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-054": {
+    "concept": "A thermistor changes resistance with temperature; a comparator may add an adjustable threshold.",
+    "interface": "Analog / threshold digital",
+    "applications": [
+      "Temperature trend display",
+      "Threshold experiments",
+      "Thermal response study"
+    ],
+    "check": "These modules do not automatically provide calibrated degrees Celsius. Identify the thermistor and divider before applying a conversion equation.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-028": {
+    "concept": "An active buzzer contains an oscillator and sounds when enabled.",
+    "interface": "Digital enable",
+    "applications": [
+      "Status beep",
+      "Timer indication",
+      "Prototype notification"
+    ],
+    "check": "Check whether it is a driven module or bare buzzer, its current and trigger polarity. A GPIO is a signal source, not a general power supply.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-029": {
+    "concept": "A passive piezo needs an alternating drive signal; changing frequency changes pitch.",
+    "interface": "Frequency / tone output",
+    "applications": [
+      "Distance-dependent tones",
+      "Melody experiments",
+      "Audible feedback"
+    ],
+    "check": "Confirm piezo versus magnetic buzzer and input current. Use a driver if the GPIO cannot safely supply the load.",
+    "specs": [
+      [
+        "UNO function",
+        "tone(pin, frequency)"
+      ]
+    ],
+    "sources": [
+      "uno"
+    ]
+  },
+  "cb-030": {
+    "concept": "A GNSS receiver estimates position from satellite signals and commonly outputs NMEA sentences.",
+    "interface": "UART",
+    "applications": [
+      "Position logger",
+      "Outdoor navigation display",
+      "Time reference experiment"
+    ],
+    "check": "Confirm the exact module and antenna connection; the no-antenna listing needs a compatible antenna. TTL UART is not ±RS232. Test outdoors with clear sky.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-083": {
+    "concept": "A GNSS receiver estimates position from satellite signals and commonly outputs NMEA sentences.",
+    "interface": "UART",
+    "applications": [
+      "Position logger",
+      "Outdoor navigation display",
+      "Time reference experiment"
+    ],
+    "check": "Confirm the exact module and antenna connection; the no-antenna listing needs a compatible antenna. TTL UART is not ±RS232. Test outdoors with clear sky.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-031": {
+    "concept": "A battery clip connects a rectangular 9 V battery to a barrel plug.",
+    "interface": "Power accessory",
+    "applications": [
+      "Short low-current demonstrations",
+      "Portable logic experiments"
+    ],
+    "check": "Confirm polarity. A small rectangular 9 V battery is unsuitable for modem surges, motors or long runtime.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-032": {
+    "concept": "A switching converter trades voltage and current while regulating its output. Boost raises voltage; buck lowers it.",
+    "interface": "Power converter",
+    "applications": [
+      "Low-voltage power distribution",
+      "Battery-powered prototypes",
+      "Regulated accessory supply"
+    ],
+    "check": "Check input range, topology, output setting and thermal capacity. Advertised switch current is not guaranteed continuous output current. Measure the output before connecting electronics.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-069": {
+    "concept": "A switching converter trades voltage and current while regulating its output. Boost raises voltage; buck lowers it.",
+    "interface": "Power converter",
+    "applications": [
+      "Low-voltage power distribution",
+      "Battery-powered prototypes",
+      "Regulated accessory supply"
+    ],
+    "check": "Check input range, topology, output setting and thermal capacity. Advertised switch current is not guaranteed continuous output current. Measure the output before connecting electronics.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-075": {
+    "concept": "A switching converter trades voltage and current while regulating its output. Boost raises voltage; buck lowers it.",
+    "interface": "Power converter",
+    "applications": [
+      "Low-voltage power distribution",
+      "Battery-powered prototypes",
+      "Regulated accessory supply"
+    ],
+    "check": "Check input range, topology, output setting and thermal capacity. Advertised switch current is not guaranteed continuous output current. Measure the output before connecting electronics.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-084": {
+    "concept": "A switching converter trades voltage and current while regulating its output. Boost raises voltage; buck lowers it.",
+    "interface": "Power converter",
+    "applications": [
+      "Low-voltage power distribution",
+      "Battery-powered prototypes",
+      "Regulated accessory supply"
+    ],
+    "check": "Check input range, topology, output setting and thermal capacity. Advertised switch current is not guaranteed continuous output current. Measure the output before connecting electronics.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-085": {
+    "concept": "A switching converter trades voltage and current while regulating its output. Boost raises voltage; buck lowers it.",
+    "interface": "Power converter",
+    "applications": [
+      "Low-voltage power distribution",
+      "Battery-powered prototypes",
+      "Regulated accessory supply"
+    ],
+    "check": "Check input range, topology, output setting and thermal capacity. Advertised switch current is not guaranteed continuous output current. Measure the output before connecting electronics.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-033": {
+    "concept": "A single-cell charger controls charging of a compatible lithium-ion cell. Protection is separate from charging.",
+    "interface": "Single-cell battery charging",
+    "applications": [
+      "Battery charging demonstration",
+      "Portable low-power prototypes"
+    ],
+    "check": "Confirm chemistry, protection circuit and cell rating. This is not automatically a load-sharing UPS; a connected load can interfere with charge termination.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-038": {
+    "concept": "A magnetic field changes a reed contact. It can indicate whether a magnet remains near a door or lid.",
+    "interface": "Digital magnetic input",
+    "applications": [
+      "Door-open notification",
+      "Lid position detection",
+      "Contactless counter"
+    ],
+    "check": "Confirm module pinout and signal polarity with Serial Monitor. Use a magnet; do not infer closed/open from wire colors.",
+    "specs": [
+      [
+        "Behavior",
+        "Contact state depends on magnet position"
+      ]
+    ],
+    "sources": [
+      "digital"
+    ]
+  },
+  "cb-039": {
+    "concept": "A magnetic field changes a reed contact. It can indicate whether a magnet remains near a door or lid.",
+    "interface": "Digital magnetic input",
+    "applications": [
+      "Door-open notification",
+      "Lid position detection",
+      "Contactless counter"
+    ],
+    "check": "Confirm module pinout and signal polarity with Serial Monitor. Use a magnet; do not infer closed/open from wire colors.",
+    "specs": [
+      [
+        "Behavior",
+        "Contact state depends on magnet position"
+      ]
+    ],
+    "sources": [
+      "digital"
+    ]
+  },
+  "cb-040": {
+    "concept": "An optical sensor can show small light changes associated with a pulse.",
+    "interface": "Analog optical signal",
+    "applications": [
+      "Signal filtering lesson",
+      "Pulse waveform observation",
+      "Sampling experiments"
+    ],
+    "check": "Educational use only. Movement and lighting affect readings; this is not a diagnostic medical device.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-042": {
+    "concept": "A laser module emits a narrow beam that can be aimed at a detector.",
+    "interface": "Optical output",
+    "applications": [
+      "Enclosed beam-break experiment",
+      "Optical alignment demonstration"
+    ],
+    "check": "Confirm laser class and output power. Never aim at eyes, vehicles, aircraft or reflective surfaces; use an enclosed beam path.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-044": {
+    "concept": "A mechanical contact changes briefly during a vibration or knock.",
+    "interface": "Digital input",
+    "applications": [
+      "Tap detection",
+      "Vibration-event counter",
+      "Motion-trigger experiment"
+    ],
+    "check": "Debounce and time-filter the signal; it is not a calibrated acceleration sensor.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-057": {
+    "concept": "A mechanical contact changes briefly during a vibration or knock.",
+    "interface": "Digital input",
+    "applications": [
+      "Tap detection",
+      "Vibration-event counter",
+      "Motion-trigger experiment"
+    ],
+    "check": "Debounce and time-filter the signal; it is not a calibrated acceleration sensor.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-045": {
+    "concept": "A rotary encoder outputs phase-shifted pulses to describe incremental rotation.",
+    "interface": "Quadrature A/B + button",
+    "applications": [
+      "Menu selection",
+      "Position increment input",
+      "Digital volume knob"
+    ],
+    "check": "Debounce contacts and decode direction. Incremental counts do not provide an absolute shaft angle after power loss.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-046": {
+    "concept": "A tilt-sensitive contact changes with orientation; some listed variants contain mercury.",
+    "interface": "Digital tilt input",
+    "applications": [
+      "Orientation indicator",
+      "Motion switch demonstration",
+      "Interactive light experiment"
+    ],
+    "check": "Use the non-mercury tilt switch when possible. Never open or break a mercury-containing part; handle disposal appropriately.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-047": {
+    "concept": "A tilt-sensitive contact changes with orientation; some listed variants contain mercury.",
+    "interface": "Digital tilt input",
+    "applications": [
+      "Orientation indicator",
+      "Motion switch demonstration",
+      "Interactive light experiment"
+    ],
+    "check": "Use the non-mercury tilt switch when possible. Never open or break a mercury-containing part; handle disposal appropriately.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-048": {
+    "concept": "A tilt-sensitive contact changes with orientation; some listed variants contain mercury.",
+    "interface": "Digital tilt input",
+    "applications": [
+      "Orientation indicator",
+      "Motion switch demonstration",
+      "Interactive light experiment"
+    ],
+    "check": "Use the non-mercury tilt switch when possible. Never open or break a mercury-containing part; handle disposal appropriately.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-049": {
+    "concept": "A photoresistor changes resistance with illumination. Its module converts this change into an analog voltage.",
+    "interface": "Analog input",
+    "applications": [
+      "Automatic night light",
+      "Light trend logger",
+      "Light-level trigger"
+    ],
+    "check": "Output direction depends on the onboard divider. Calibrate bright and dark readings first; raw ADC counts are not lux.",
+    "specs": [
+      [
+        "Guide input",
+        "UNO A0"
+      ],
+      [
+        "Calibration",
+        "Measure dark and bright ADC values"
+      ]
+    ],
+    "sources": [
+      "uno"
+    ]
+  },
+  "cb-050": {
+    "concept": "A DHT sensor provides digitally encoded humidity and temperature measurements.",
+    "interface": "Single data wire (not I²C)",
+    "applications": [
+      "Room monitor",
+      "Temperature-triggered fan",
+      "Local Wi-Fi dashboard"
+    ],
+    "check": "Use the matching sensor type in code and a data pull-up to the controller supply. Allow at least 2 seconds between reads and detect invalid readings.",
+    "specs": [
+      [
+        "DHT11 typical range",
+        "0–50 °C; 20–80% RH"
+      ],
+      [
+        "DHT22 typical range",
+        "−40–80 °C; 0–100% RH"
+      ]
+    ],
+    "sources": [
+      "dht"
+    ]
+  },
+  "cb-079": {
+    "concept": "A DHT sensor provides digitally encoded humidity and temperature measurements.",
+    "interface": "Single data wire (not I²C)",
+    "applications": [
+      "Room monitor",
+      "Temperature-triggered fan",
+      "Local Wi-Fi dashboard"
+    ],
+    "check": "Use the matching sensor type in code and a data pull-up to the controller supply. Allow at least 2 seconds between reads and detect invalid readings.",
+    "specs": [
+      [
+        "DHT11 typical range",
+        "0–50 °C; 20–80% RH"
+      ],
+      [
+        "DHT22 typical range",
+        "−40–80 °C; 0–100% RH"
+      ]
+    ],
+    "sources": [
+      "dht"
+    ]
+  },
+  "cb-053": {
+    "concept": "This catalog entry describes a digital temperature sensor, but its chip identity is not specified.",
+    "interface": "Digital bus — verify chip",
+    "applications": [
+      "Temperature logging",
+      "Remote temperature probe",
+      "Multi-sensor experiments"
+    ],
+    "check": "Read the package marking before selecting a library. Do not assume a DS18B20 or a particular pinout from the generic product name.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-055": {
+    "concept": "Infrared remote controls encode bursts of carrier-modulated light; a receiver demodulates compatible signals.",
+    "interface": "Modulated IR",
+    "applications": [
+      "Remote-control decoder",
+      "IR command transmitter",
+      "Optical communication lesson"
+    ],
+    "check": "Confirm receiver pinout and carrier frequency. A transmitter generally needs a suitable driver for useful range.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-056": {
+    "concept": "Infrared remote controls encode bursts of carrier-modulated light; a receiver demodulates compatible signals.",
+    "interface": "Modulated IR",
+    "applications": [
+      "Remote-control decoder",
+      "IR command transmitter",
+      "Optical communication lesson"
+    ],
+    "check": "Confirm receiver pinout and carrier frequency. A transmitter generally needs a suitable driver for useful range.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-059": {
+    "concept": "The UNO-compatible board turns a sketch into digital and analog input/output behavior.",
+    "interface": "USB / UART / I²C / SPI",
+    "applications": [
+      "First microcontroller project",
+      "Sensor measurement",
+      "Basic automation"
+    ],
+    "check": "Reference specifications describe an ATmega328P UNO R3. Verify the clone chip and USB interface; USB-C does not imply different logic voltage.",
+    "specs": [
+      [
+        "Logic",
+        "5 V"
+      ],
+      [
+        "Digital I/O",
+        "14; six PWM outputs"
+      ],
+      [
+        "Analog inputs",
+        "Six, 10-bit ADC"
+      ],
+      [
+        "Clock",
+        "16 MHz"
+      ]
+    ],
+    "sources": [
+      "uno"
+    ]
+  },
+  "cb-061": {
+    "concept": "A GSM modem exchanges AT commands with a controller to send SMS or use legacy cellular data.",
+    "interface": "UART / AT commands",
+    "applications": [
+      "Door-open SMS prototype",
+      "Remote status message",
+      "Cellular communication lab"
+    ],
+    "check": "SIM900A is a 2G GSM/GPRS device (900/1800 MHz), not a 3G/4G modem. Verify local 2G SMS service, kit power input and UART levels before assembly.",
+    "specs": [
+      [
+        "Network",
+        "2G GSM/GPRS"
+      ],
+      [
+        "Raw UART",
+        "Approximately 2.8 V logic; level translation required"
+      ],
+      [
+        "Power",
+        "Bursty load; use a suitable separate supply"
+      ]
+    ],
+    "sources": [
+      "gsm",
+      "at",
+      "translator"
+    ]
+  },
+  "cb-062": {
+    "concept": "The ESP8266 combines a microcontroller with 2.4 GHz Wi-Fi. It does not include Bluetooth.",
+    "interface": "3.3 V GPIO / Wi-Fi",
+    "applications": [
+      "Local web sensor",
+      "Wireless data logger",
+      "Wi-Fi-controlled indicator"
+    ],
+    "check": "NodeMCU USB power input and ADC scaling depend on the breakout. ESP8266 GPIO is not 5 V tolerant.",
+    "specs": [
+      [
+        "Wireless",
+        "2.4 GHz Wi-Fi; no Bluetooth"
+      ],
+      [
+        "GPIO logic",
+        "3.3 V"
+      ]
+    ],
+    "sources": [
+      "esp8266"
+    ]
+  },
+  "cb-063": {
+    "concept": "A classic ESP32 module combines a microcontroller with Wi-Fi and Bluetooth. An expansion board exposes connections; it does not create extra independent GPIO.",
+    "interface": "3.3 V GPIO / Wi-Fi / Bluetooth",
+    "applications": [
+      "Local web dashboard",
+      "Wireless sensor node",
+      "Connected automation"
+    ],
+    "check": "Verify the exact ESP32 variant and 30-pin layout. Board header labels are not sequential GPIO numbers; avoid boot-strapping pins unless their behavior is understood.",
+    "specs": [
+      [
+        "GPIO logic",
+        "3.3 V; do not connect 5 V signals directly"
+      ],
+      [
+        "Listed board family",
+        "ESP-WROOM-32 / CH340"
+      ]
+    ],
+    "sources": [
+      "esp32",
+      "wifi"
+    ]
+  },
+  "cb-064": {
+    "concept": "A classic ESP32 module combines a microcontroller with Wi-Fi and Bluetooth. An expansion board exposes connections; it does not create extra independent GPIO.",
+    "interface": "3.3 V GPIO / Wi-Fi / Bluetooth",
+    "applications": [
+      "Local web dashboard",
+      "Wireless sensor node",
+      "Connected automation"
+    ],
+    "check": "Verify the exact ESP32 variant and 30-pin layout. Board header labels are not sequential GPIO numbers; avoid boot-strapping pins unless their behavior is understood.",
+    "specs": [
+      [
+        "GPIO logic",
+        "3.3 V; do not connect 5 V signals directly"
+      ],
+      [
+        "Listed board family",
+        "ESP-WROOM-32 / CH340"
+      ]
+    ],
+    "sources": [
+      "esp32",
+      "wifi"
+    ]
+  },
+  "cb-066": {
+    "concept": "A character LCD displays two lines through an I²C backpack.",
+    "interface": "I²C",
+    "applications": [
+      "Sensor readout",
+      "Menu display",
+      "Counter display"
+    ],
+    "check": "Scan for the backpack address instead of assuming 0x27. Check supply, contrast and pull-up voltage when using a 3.3 V controller.",
+    "specs": [
+      [
+        "Display",
+        "16 characters × 2 rows"
+      ]
+    ],
+    "sources": []
+  },
+  "cb-067": {
+    "concept": "A real-time clock keeps calendar time independently of the main program.",
+    "interface": "I²C",
+    "applications": [
+      "Timed automation",
+      "Timestamped logging",
+      "Clock display"
+    ],
+    "check": "Inspect the module battery charging circuit before fitting a coin cell. Do not charge a non-rechargeable CR2032; verify the board design.",
+    "specs": [
+      [
+        "Chip",
+        "DS3231 temperature-compensated RTC"
+      ]
+    ],
+    "sources": [
+      "rtc"
+    ]
+  },
+  "cb-068": {
+    "concept": "A real-time clock maintains time using a dedicated timekeeping chip and backup supply.",
+    "interface": "Three-wire serial (not I²C)",
+    "applications": [
+      "Clock display",
+      "Scheduled logging",
+      "Timer experiments"
+    ],
+    "check": "Use a DS1302-specific library and check backup-battery/trickle-charge configuration. It is not pin-compatible with DS3231.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-070": {
+    "concept": "A hobby servo responds to repeated control pulses. Positional and continuous-rotation versions respond differently.",
+    "interface": "Servo pulse control",
+    "applications": [
+      "Model gate",
+      "Pan/tilt mechanism",
+      "Robot joint"
+    ],
+    "check": "Choose the 180° positional version for angle commands. A 360° continuous-rotation version controls speed/direction instead. Use a separate supply sized for stall current.",
+    "specs": [
+      [
+        "Guide variant",
+        "MG90S 180° positional"
+      ],
+      [
+        "Typical control period",
+        "About 20 ms; verify pulse limits"
+      ]
+    ],
+    "sources": [
+      "servo",
+      "servoLib"
+    ]
+  },
+  "cb-071": {
+    "concept": "A hobby servo responds to repeated control pulses. Positional and continuous-rotation versions respond differently.",
+    "interface": "Servo pulse control",
+    "applications": [
+      "Model gate",
+      "Pan/tilt mechanism",
+      "Robot joint"
+    ],
+    "check": "Choose the 180° positional version for angle commands. A 360° continuous-rotation version controls speed/direction instead. Use a separate supply sized for stall current.",
+    "specs": [
+      [
+        "Guide variant",
+        "MG90S 180° positional"
+      ],
+      [
+        "Typical control period",
+        "About 20 ms; verify pulse limits"
+      ]
+    ],
+    "sources": [
+      "servo",
+      "servoLib"
+    ]
+  },
+  "cb-072": {
+    "concept": "A stepper motor moves in increments when its coils are energized in sequence through a driver.",
+    "interface": "Four digital driver inputs",
+    "applications": [
+      "Small indexing table",
+      "Positioning demonstration",
+      "Slow geared mechanism"
+    ],
+    "check": "Use the ULN2003 driver and the correct 5 V motor supply. Gear ratios and steps per revolution vary; calibrate actual movement.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-073": {
+    "concept": "An H-bridge reverses current through a motor, allowing forward/reverse control.",
+    "interface": "Direction inputs / PWM",
+    "applications": [
+      "Small robot drive",
+      "DC motor speed control",
+      "Motor direction demonstration"
+    ],
+    "check": "Select the driver by motor stall current, not free-running current. Account for voltage drop and heat; L298N and L9110S ratings differ.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-080": {
+    "concept": "An H-bridge reverses current through a motor, allowing forward/reverse control.",
+    "interface": "Direction inputs / PWM",
+    "applications": [
+      "Small robot drive",
+      "DC motor speed control",
+      "Motor direction demonstration"
+    ],
+    "check": "Select the driver by motor stall current, not free-running current. Account for voltage drop and heat; L298N and L9110S ratings differ.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-074": {
+    "concept": "An ultrasonic sensor measures the time taken for a sound burst to return from a target.",
+    "interface": "Trigger / echo timing",
+    "applications": [
+      "Distance indicator",
+      "Model barrier trigger",
+      "Object proximity demonstration"
+    ],
+    "check": "Standard HC-SR04 uses 5 V echo. Level-shift for ESP32. Soft, angled or small targets may give no reliable echo.",
+    "specs": [
+      [
+        "Supply",
+        "5 V (standard version)"
+      ],
+      [
+        "Nominal range",
+        "2–400 cm"
+      ],
+      [
+        "Trigger",
+        "At least 10 µs"
+      ],
+      [
+        "Measurement interval",
+        "More than 60 ms"
+      ]
+    ],
+    "sources": [
+      "ultrasonic"
+    ]
+  },
+  "cb-077": {
+    "concept": "A microSD adapter exposes a card through an SPI interface for removable storage.",
+    "interface": "SPI",
+    "applications": [
+      "Sensor data logger",
+      "CSV recording",
+      "Offline measurements"
+    ],
+    "check": "Check onboard regulation AND logic translation; a 3.3 V regulator alone does not make all SPI inputs 5 V tolerant. Use a compatible card and filesystem.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-081": {
+    "concept": "A Hall-effect current sensor produces a voltage related to the current passing through its conductor.",
+    "interface": "Analog output",
+    "applications": [
+      "Low-voltage DC current logging",
+      "Load trend display",
+      "Sensor calibration lesson"
+    ],
+    "check": "Identify the 30 A variant and calibrate zero offset and sensitivity. Breakout trace and terminal ratings may be below the chip rating; use low-voltage DC for student work.",
+    "specs": [],
+    "sources": [
+      "acs712"
+    ]
+  },
+  "cb-082": {
+    "concept": "A resistor divider scales a measured voltage down before the ADC.",
+    "interface": "Analog voltage divider",
+    "applications": [
+      "Battery voltage monitor",
+      "Low-voltage supply logging",
+      "Divider calibration lesson"
+    ],
+    "check": "A nominal 5:1 divider reaches 5 V at 25 V input and 3.3 V at 16.5 V. Stay below ADC limits with margin; verify actual divider ratio and common ground.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-086": {
+    "concept": "Soldering joins conductors; desoldering braid removes solder by capillary action.",
+    "interface": "Assembly tool / consumable",
+    "applications": [
+      "Permanent prototype assembly",
+      "Joint rework",
+      "Through-hole soldering practice"
+    ],
+    "check": "Use eye protection and fume extraction, avoid skin contact with hot tools, and wash hands after handling leaded solder.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-090": {
+    "concept": "Soldering joins conductors; desoldering braid removes solder by capillary action.",
+    "interface": "Assembly tool / consumable",
+    "applications": [
+      "Permanent prototype assembly",
+      "Joint rework",
+      "Through-hole soldering practice"
+    ],
+    "check": "Use eye protection and fume extraction, avoid skin contact with hot tools, and wash hands after handling leaded solder.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-091": {
+    "concept": "An inductive proximity sensor detects a metal target without touching it.",
+    "interface": "NPN switching output — verify model",
+    "applications": [
+      "Metal-object counting",
+      "Position sensing",
+      "Automation input demonstration"
+    ],
+    "check": "Read the exact supply rating and NPN/PNP NO/NC wiring. Do not feed an industrial sensor supply directly into a microcontroller pin.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-093": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-094": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-095": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-096": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-097": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-098": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": [
+      "mq7"
+    ]
+  },
+  "cb-099": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-100": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": []
+  },
+  "cb-101": {
+    "concept": "An MQ metal-oxide sensor changes resistance in response to gases. Its heater and calibration strongly affect the reading.",
+    "interface": "Analog / comparator threshold",
+    "applications": [
+      "Gas-response classroom study",
+      "Warm-up characterization",
+      "Sensor drift experiment"
+    ],
+    "check": "These are not certified safety detectors. Do not interpret raw ADC counts as ppm or use a short warm-up as full calibration. MQ7/MQ9 need the specified heater cycle; MQ135 is not a selective CO₂ meter.",
+    "specs": [],
+    "sources": [
+      "mq135"
+    ]
+  }
+}

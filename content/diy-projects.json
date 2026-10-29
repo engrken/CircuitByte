@@ -1,0 +1,1166 @@
+[
+  {
+    "slug": "button-led",
+    "title": "Build your first button-controlled LED",
+    "level": "Basic",
+    "topic": "Inputs & outputs",
+    "time": "30–45 min",
+    "introduction": "A microcontroller repeatedly reads an input and decides what to do with an output. This small circuit makes that loop visible: press a button and a red LED lights.",
+    "purpose": "Learn the complete upload-and-test workflow before connecting more expensive sensors or actuators.",
+    "learn": [
+      "Read an active-low input",
+      "Explain why inputs need a pull-up",
+      "Limit LED current",
+      "Debounce a mechanical switch"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-016",
+        "qty": 1,
+        "variant": "6 × 6 mm tactile switch",
+        "role": "Momentary input"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red, bare LED",
+        "role": "Visible output"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W",
+        "role": "LED current limiting"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D2",
+        "via": "Momentary switch",
+        "to": "GND",
+        "note": "Use opposite contact groups; D2 has an internal pull-up enabled in code."
+      },
+      {
+        "from": "UNO D9",
+        "via": "330 Ω → LED anode (+)",
+        "to": "LED cathode (−) → GND",
+        "note": "LED flat side / short lead is usually cathode; verify if trimmed."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "USB powers this low-current circuit."
+      }
+    ],
+    "steps": [
+      "With power disconnected, identify the switch contact groups using continuity mode. The two legs on one side may already be joined.",
+      "Place the switch across the breadboard center gap. Connect D2 through the switch to GND.",
+      "Connect D9 through the 330 Ω resistor to the LED anode, and the cathode to GND.",
+      "In Arduino IDE select Arduino AVR Boards → Arduino Uno and the correct serial port. Open the downloaded sketch and upload.",
+      "Press and release the button repeatedly. The code accepts a new state only after it stays stable for 30 ms."
+    ],
+    "expected": [
+      "Released: LED off. Pressed: LED on.",
+      "At 5 V with a roughly 2 V red LED, 330 Ω gives about 9 mA."
+    ],
+    "troubleshooting": [
+      [
+        "LED never lights",
+        "Check LED polarity, resistor connection and selected board/port."
+      ],
+      [
+        "LED always on",
+        "Check switch contact grouping and accidental GND connection to D2."
+      ]
+    ],
+    "extension": "Modify the sketch to toggle the LED on each press. Detect a stable HIGH-to-LOW transition so holding the button does not toggle repeatedly.",
+    "sources": [
+      "uno",
+      "digital"
+    ],
+    "flow": [
+      "Read button",
+      "Stable for 30 ms?",
+      "Pressed: LED ON",
+      "Released: LED OFF"
+    ],
+    "notes": [
+      "Disconnect USB before moving wires. A bare LED must have its series resistor."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — uses Arduino core functions"
+    ],
+    "serial": "9600 baud",
+    "code": "button-led.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "pwm-dimmer",
+    "title": "Build an adjustable LED dimmer",
+    "level": "Basic",
+    "topic": "Analog & PWM",
+    "time": "30–45 min",
+    "introduction": "A potentiometer creates a variable voltage. The UNO reads that voltage and uses pulse-width modulation to change the LED’s average brightness.",
+    "purpose": "Connect an analog input to a controllable output, then observe how digital values describe physical settings.",
+    "learn": [
+      "Wire a three-terminal potentiometer",
+      "Read a 10-bit ADC",
+      "Map 0–1023 to PWM 0–255",
+      "Distinguish PWM from a true variable DC output"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-012",
+        "qty": 1,
+        "variant": "10 kΩ potentiometer",
+        "role": "Brightness input"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red, bare LED",
+        "role": "Visible output"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W",
+        "role": "LED current limiting"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Potentiometer end 1",
+        "to": "10 kΩ potentiometer",
+        "note": "The opposite end goes to GND."
+      },
+      {
+        "from": "Potentiometer end 2",
+        "via": "Direct connection",
+        "to": "GND",
+        "note": "Swapping the ends reverses knob direction."
+      },
+      {
+        "from": "Potentiometer wiper",
+        "via": "Direct connection",
+        "to": "UNO A0",
+        "note": "The wiper is usually the center terminal; verify."
+      },
+      {
+        "from": "UNO D9",
+        "via": "330 Ω → LED anode (+)",
+        "to": "LED cathode (−) → GND",
+        "note": "D9 supports PWM on UNO R3."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "All grounds share a common reference."
+      }
+    ],
+    "steps": [
+      "Identify the wiper terminal and end terminals with a meter.",
+      "Wire the potentiometer between 5 V and GND, with its wiper connected to A0.",
+      "Wire the LED and resistor to D9 as shown.",
+      "Select Arduino Uno, upload the sketch, and open Serial Monitor at 9600 baud.",
+      "Turn the knob slowly and compare the ADC/PWM values with the visible brightness."
+    ],
+    "expected": [
+      "ADC moves approximately from 0 to 1023; PWM moves from 0 to 255.",
+      "At the minimum setting the LED is off; at maximum it is brightest."
+    ],
+    "troubleshooting": [
+      [
+        "Reading stays at one end",
+        "Check the wiper wire and breadboard row placement."
+      ],
+      [
+        "Brightness does not change",
+        "Use D9, not a non-PWM pin; inspect the LED path."
+      ]
+    ],
+    "extension": "Limit the output to PWM 180 and explain why brightness perception does not increase linearly with the number.",
+    "sources": [
+      "uno",
+      "pwm"
+    ],
+    "flow": [
+      "Read A0",
+      "Divide ADC value by 4",
+      "Write PWM on D9",
+      "Observe brightness"
+    ],
+    "notes": [
+      "Never connect the potentiometer to a voltage above the UNO ADC supply."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — uses Arduino core functions"
+    ],
+    "serial": "9600 baud",
+    "code": "pwm-dimmer.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "automatic-night-light",
+    "title": "Build an automatic night light",
+    "level": "Basic",
+    "topic": "Basic automation",
+    "time": "45–60 min",
+    "introduction": "A photoresistor module senses relative brightness. Two thresholds turn an LED on in darkness and off in brighter conditions, avoiding flicker around a single switching point.",
+    "purpose": "Introduce calibration and hysteresis using an accessible light-control project.",
+    "learn": [
+      "Collect calibration readings",
+      "Handle modules with reversed output direction",
+      "Use hysteresis",
+      "Average noisy ADC samples"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-049",
+        "qty": 1,
+        "variant": "Analog photoresistor module with S/AO output",
+        "role": "Light sensing"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red, bare LED",
+        "role": "Visible output"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W",
+        "role": "LED current limiting"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Direct connection",
+        "to": "Photoresistor + / VCC",
+        "note": "Use the module labels, not the physical pin order."
+      },
+      {
+        "from": "Photoresistor − / GND",
+        "via": "Direct connection",
+        "to": "UNO GND",
+        "note": "Common ground."
+      },
+      {
+        "from": "Photoresistor S / AO",
+        "via": "Direct connection",
+        "to": "UNO A0",
+        "note": "Use analog output, not DO if your board has both."
+      },
+      {
+        "from": "UNO D9",
+        "via": "330 Ω → LED anode (+)",
+        "to": "LED cathode (−) → GND",
+        "note": "Place the LED so it does not shine into the sensor."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "Low-current demonstration only."
+      }
+    ],
+    "steps": [
+      "Wire the module and LED with USB disconnected.",
+      "Upload the sketch and open Serial Monitor at 9600 baud. The initial 200/800 values are examples only.",
+      "Cover the sensor and record its raw value; illuminate it normally and record the bright value.",
+      "Replace DARK_READING and BRIGHT_READING with your measurements, then upload again. The code supports either slope direction.",
+      "Shade the sensor gradually. It should switch on below 30% relative light and remain on until light exceeds 45%."
+    ],
+    "expected": [
+      "The LED switches at two different levels instead of rapidly flickering.",
+      "The percentage is a calibrated relative scale, not a lux measurement."
+    ],
+    "troubleshooting": [
+      [
+        "Switches in reverse",
+        "Measure and correctly label dark/bright calibration values."
+      ],
+      [
+        "Oscillates after switching on",
+        "Move the LED away from the sensor or shield the sensor from its own lamp."
+      ],
+      [
+        "Calibration error",
+        "Use conditions giving at least 50 counts of separation."
+      ]
+    ],
+    "extension": "Record the raw reading at several locations and compare repeatability. Replace the LED with a properly driven low-voltage relay only after mastering the relay guide.",
+    "sources": [
+      "uno",
+      "pwm"
+    ],
+    "flow": [
+      "Average 16 readings",
+      "Normalize dark/bright scale",
+      "Below 30%: ON",
+      "Above 45%: OFF"
+    ],
+    "notes": [
+      "This guide controls only an LED. Do not connect a household lamp directly to a breadboard."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — uses Arduino core functions"
+    ],
+    "serial": "9600 baud",
+    "code": "automatic-night-light.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "ultrasonic-distance-alarm",
+    "title": "Build an ultrasonic proximity indicator",
+    "level": "Basic",
+    "topic": "Distance sensing",
+    "time": "45–60 min",
+    "introduction": "The HC-SR04 sends a sound burst and reports the echo time. A desk-sized demonstration lights an LED and beeps when a target is closer than 20 cm.",
+    "purpose": "Translate pulse timing into distance and learn to handle missing measurements.",
+    "learn": [
+      "Generate a trigger pulse",
+      "Measure echo duration with a timeout",
+      "Validate sensor range",
+      "Create threshold-based audible feedback"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-074",
+        "qty": 1,
+        "variant": "Standard 5 V HC-SR04",
+        "role": "Distance sensor"
+      },
+      {
+        "id": "cb-029",
+        "qty": 1,
+        "variant": "Passive piezo module with signal input",
+        "role": "Audible output"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "variant": "5 mm red, bare LED",
+        "role": "Visible output"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "330 Ω, ¼ W",
+        "role": "LED current limiting"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only.",
+      "Ruler and a flat, rigid target such as a book."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Power net",
+        "to": "HC-SR04 VCC + piezo module +",
+        "note": "Only use a driven/low-current piezo module compatible with the GPIO signal."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Ground net",
+        "to": "HC-SR04 GND + piezo −",
+        "note": "Common ground for sensor and sound module."
+      },
+      {
+        "from": "UNO D9",
+        "via": "Trigger signal",
+        "to": "HC-SR04 TRIG",
+        "note": "10 µs trigger pulse."
+      },
+      {
+        "from": "HC-SR04 ECHO",
+        "via": "Direct connection (5 V UNO)",
+        "to": "UNO D10",
+        "note": "Not safe directly into a 3.3 V ESP32 input."
+      },
+      {
+        "from": "UNO D3",
+        "via": "Tone signal",
+        "to": "Passive piezo module S",
+        "note": "tone() produces the audible frequency."
+      },
+      {
+        "from": "UNO D6",
+        "via": "330 Ω → LED anode (+)",
+        "to": "LED cathode (−) → GND",
+        "note": "Separate LED output; not D9."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "Keep the target perpendicular to the transducers."
+      }
+    ],
+    "steps": [
+      "Connect HC-SR04 VCC/GND first, then TRIG to D9 and ECHO to D10.",
+      "Connect the passive piezo module signal to D3 and its supply pins as marked. Add the LED circuit on D6.",
+      "Upload for Arduino Uno and open Serial Monitor at 9600 baud.",
+      "Place a flat target at 10, 20 and 40 cm using a ruler. Compare the printed readings.",
+      "Remove or angle the target. A missing echo should print a clear message rather than reporting zero distance as an obstacle."
+    ],
+    "expected": [
+      "Below 20 cm: LED on and short repeated tones.",
+      "Above 20 cm: LED off and no tone.",
+      "Invalid echo: output off and an explicit Serial Monitor message."
+    ],
+    "troubleshooting": [
+      [
+        "Always no echo",
+        "Check TRIG/ECHO order, 5 V supply and common GND."
+      ],
+      [
+        "Noisy readings",
+        "Use a flat target, avoid soft fabric and wait between measurements."
+      ],
+      [
+        "No sound",
+        "An active buzzer is not the specified passive piezo module; confirm its input type."
+      ]
+    ],
+    "extension": "Add a middle warning band from 20–40 cm with a slower beep pattern using millis().",
+    "sources": [
+      "uno",
+      "ultrasonic"
+    ],
+    "flow": [
+      "10 µs trigger",
+      "Wait for echo (30 ms max)",
+      "Valid and under 20 cm?",
+      "LED + tone or quiet"
+    ],
+    "notes": [
+      "This is a classroom proximity indicator, not a vehicle parking aid or collision-prevention system."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — uses Arduino core functions"
+    ],
+    "serial": "9600 baud",
+    "code": "ultrasonic-distance-alarm.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "temperature-fan-automation",
+    "title": "Build a temperature-controlled DC fan",
+    "level": "Intermediate",
+    "topic": "Basic automation",
+    "time": "60–90 min",
+    "introduction": "A DHT22 measures room temperature. The controller energizes a relay above 30 °C and releases it below 28 °C, creating a small dead band that prevents relay chatter.",
+    "purpose": "Demonstrate sensing, decision-making and switching a separate low-voltage load.",
+    "learn": [
+      "Read a digital temperature sensor",
+      "Separate logic and load power",
+      "Apply hysteresis",
+      "Define a sensor-failure policy"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-079",
+        "qty": 1,
+        "variant": "DHT22 / AM2302",
+        "role": "Temperature input"
+      },
+      {
+        "id": "cb-017",
+        "qty": 1,
+        "variant": "5 V driven relay module",
+        "role": "Switches the fan supply"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "10 kΩ, ¼ W",
+        "role": "DHT DATA pull-up"
+      },
+      {
+        "id": "cb-001",
+        "qty": 1,
+        "variant": "1N4007",
+        "role": "Reverse-biased clamp across the small DC fan"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only.",
+      "5 V DC fan rated at no more than 0.3 A for this demonstration (not currently a catalog listing).",
+      "Regulated 5 V DC supply rated at least 1 A for fan and relay; size wiring and protection for the load."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Sensor supply",
+        "to": "DHT22 VCC",
+        "note": "For a bare 4-pin DHT22: front grille facing you, pin 1 VCC; pin 2 DATA; pin 3 NC; pin 4 GND."
+      },
+      {
+        "from": "DHT22 DATA",
+        "via": "Direct signal",
+        "to": "UNO D2",
+        "note": "Verify module labels if using a breakout."
+      },
+      {
+        "from": "UNO 5V",
+        "via": "10 kΩ pull-up",
+        "to": "DHT22 DATA / D2 net",
+        "note": "Skip an extra resistor only if an appropriate pull-up is already present."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Common ground net",
+        "to": "DHT GND + relay GND + supply −",
+        "note": "Do not join external +5 V to USB +5 V."
+      },
+      {
+        "from": "External +5 V",
+        "via": "Power branch",
+        "to": "Relay VCC + relay COM",
+        "note": "Power relay coil from the external supply; verify compatible 5 V IN input."
+      },
+      {
+        "from": "UNO D8",
+        "via": "Control signal",
+        "to": "Relay IN",
+        "note": "Example assumes active-low; verify before attaching the fan."
+      },
+      {
+        "from": "Relay NO",
+        "via": "Switched +5 V",
+        "to": "Fan +",
+        "note": "NC remains unused."
+      },
+      {
+        "from": "Fan −",
+        "via": "Direct connection",
+        "to": "External supply −",
+        "note": "Small low-voltage DC fan only."
+      },
+      {
+        "from": "Fan +",
+        "via": "1N4007 cathode (band)",
+        "to": "1N4007 anode → Fan −",
+        "note": "Diode is reverse biased in normal operation; never reverse it."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "Separate logic power; only grounds are common."
+      }
+    ],
+    "steps": [
+      "Disconnect all power. Identify relay VCC/GND/IN and COM/NO/NC; keep the fan disconnected initially.",
+      "Wire the DHT22 data and pull-up. Install DHT sensor library by Adafruit and Adafruit Unified Sensor through Library Manager.",
+      "Wire the relay control side. Set RELAY_ACTIVE_LOW to match the module; verify idle OFF and commanded ON with no load.",
+      "Wire the external 5 V supply, COM/NO contacts and fan. Add the reverse-biased diode across the fan, with its band toward fan positive.",
+      "Upload and watch temperature at 9600 baud. For a room-temperature test, temporarily set ON_C just above ambient and OFF_C two degrees lower.",
+      "Warm the sensor gently with your hand or nearby warm air, without liquids or a heat gun. Check turn-on/turn-off and disconnect the sensor data lead to observe the fault policy."
+    ],
+    "expected": [
+      "At or above ON_C: fan on. At or below OFF_C: fan off. Between thresholds: retain state.",
+      "Invalid sensor reading: demonstration turns fan off and prints a fault."
+    ],
+    "troubleshooting": [
+      [
+        "Relay runs backward",
+        "Correct RELAY_ACTIVE_LOW with the load disconnected."
+      ],
+      [
+        "DHT returns NaN",
+        "Check sensor type, pull-up, data pin and at least 2 s reading interval."
+      ],
+      [
+        "UNO resets when fan starts",
+        "Use an adequate separate supply, short wires and common ground; check diode polarity."
+      ]
+    ],
+    "extension": "Add a manual override button and a maximum runtime. For actual cooling, assess whether a sensor fault should force the fan ON instead.",
+    "sources": [
+      "uno",
+      "dht"
+    ],
+    "flow": [
+      "Read DHT22 every 2.5 s",
+      "Invalid? Demo fan OFF",
+      "≥30 °C: fan ON",
+      "≤28 °C: fan OFF"
+    ],
+    "notes": [
+      "Low-voltage DC only. Do not wire mains AC to this student circuit.",
+      "Some relay modules need additional interface circuitry or idle bias to stay off during reset. Verify startup with the fan disconnected."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "DHT sensor library 1.4.7 — Adafruit",
+      "Adafruit Unified Sensor 1.1.15 — Adafruit"
+    ],
+    "serial": "9600 baud",
+    "code": "temperature-fan-automation.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "servo-model-barrier",
+    "title": "Build a hands-free model barrier",
+    "level": "Intermediate",
+    "topic": "Motion & mechanisms",
+    "time": "60–90 min",
+    "introduction": "A small positional servo lifts a cardboard barrier when an object is near. The controller closes it only after the measured space stays clear for three seconds.",
+    "purpose": "Combine sensing, timed logic and a mechanically moving output in a lightweight tabletop model.",
+    "learn": [
+      "Choose positional versus continuous rotation",
+      "Power a servo separately",
+      "Use distance hysteresis",
+      "Handle missing echoes conservatively"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-074",
+        "qty": 1,
+        "variant": "Standard 5 V HC-SR04",
+        "role": "Presence/distance input"
+      },
+      {
+        "id": "cb-070",
+        "qty": 1,
+        "variant": "MG90S 180° positional — not 360°",
+        "role": "Moves a lightweight arm"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only.",
+      "Separate regulated 5 V supply rated at least 1 A for the small servo; verify stall demand.",
+      "Cardboard/paper arm, stable base, fasteners and tape."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Sensor supply",
+        "to": "HC-SR04 VCC",
+        "note": "Sensor is powered from the UNO, not the servo signal."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Common ground net",
+        "to": "HC-SR04 GND + servo GND + supply −",
+        "note": "Only common ground joins the separate supplies."
+      },
+      {
+        "from": "UNO D9",
+        "via": "Trigger signal",
+        "to": "HC-SR04 TRIG",
+        "note": "D9 is not the servo signal in this guide."
+      },
+      {
+        "from": "HC-SR04 ECHO",
+        "via": "5 V signal",
+        "to": "UNO D10",
+        "note": "Use UNO R3 with this direct connection."
+      },
+      {
+        "from": "UNO D6",
+        "via": "Servo control pulses",
+        "to": "MG90S signal",
+        "note": "Confirm wire colors from the actual servo."
+      },
+      {
+        "from": "External regulated +5 V",
+        "via": "Dedicated power",
+        "to": "MG90S positive",
+        "note": "Do not power the servo from an I/O pin or join external +5 V to USB +5 V."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "UNO logic supply is independent."
+      }
+    ],
+    "steps": [
+      "Select the 180° positional servo. The continuous-rotation version cannot hold a commanded angle.",
+      "Wire the HC-SR04 and servo signal, keeping servo power on its separate 5 V supply with common GND.",
+      "Install Servo by Arduino if it is not already available, and upload the sketch with the horn detached.",
+      "Check the 10° and 90° positions; adjust constants if needed without forcing mechanical end stops.",
+      "Attach a very light cardboard arm. Move a flat target within 15 cm: the arm opens. Move beyond 25 cm and keep it clear for 3 s: the arm closes.",
+      "Remove the echo/target and verify that invalid measurements command OPEN. Keep fingers out of the moving area."
+    ],
+    "expected": [
+      "Starts open. Near target opens it. A clear reading beyond 25 cm for 3 s closes it.",
+      "No valid echo commands open. The 15–25 cm band holds the previous position and resets the clear timer."
+    ],
+    "troubleshooting": [
+      [
+        "Servo spins continuously",
+        "You have a 360° continuous-rotation model; use the 180° version."
+      ],
+      [
+        "Servo jitters or board resets",
+        "Check separate supply capacity, common GND and mechanical load."
+      ],
+      [
+        "Never closes",
+        "The target must stay beyond 25 cm and within reliable sensor range for 3 s."
+      ]
+    ],
+    "extension": "Add a second sensor and an indicator LED. Explain why one ultrasonic sensor is insufficient for a real gate safety system.",
+    "sources": [
+      "uno",
+      "ultrasonic",
+      "servo",
+      "servoLib"
+    ],
+    "flow": [
+      "Sample distance",
+      "Near / invalid: OPEN",
+      "Clear >25 cm for 3 s?",
+      "Yes: CLOSE / else hold"
+    ],
+    "notes": [
+      "Tabletop model only: no full-size gate, heavy arm or moving machinery."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "Servo 1.3.0 — Arduino"
+    ],
+    "serial": "9600 baud",
+    "code": "servo-model-barrier.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "gsm-door-alert",
+    "title": "Build a GSM-based door-open notifier",
+    "level": "Intermediate",
+    "topic": "GSM & communication",
+    "time": "90–150 min",
+    "introduction": "A magnetic reed module reports a door or lid opening. An UNO sends AT commands to a SIM900A modem to request an SMS, then limits repeated messages.",
+    "purpose": "Learn how a sensor event becomes a cellular message, including power, logic levels, registration and response handling.",
+    "learn": [
+      "Verify UART voltage domains",
+      "Check SIM readiness and network registration",
+      "Wait for AT response prompts",
+      "Rate-limit messages and handle failures"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Runs the program"
+      },
+      {
+        "id": "cb-061",
+        "qty": 1,
+        "variant": "SIM900A V4.0 kit — verify VCC5 and raw UART labels",
+        "role": "2G SMS modem"
+      },
+      {
+        "id": "cb-039",
+        "qty": 1,
+        "variant": "Mini magnetic reed switch module",
+        "role": "Door state"
+      },
+      {
+        "id": "cb-003",
+        "qty": 2,
+        "variant": "100 nF / 104 ceramic",
+        "role": "Translator supply decoupling"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only.",
+      "Compatible antenna, active SIM with SMS credit/service, and verified 2G GSM 900/1800 coverage at the installation site.",
+      "Magnet and mounting hardware.",
+      "Separate regulated 5 V supply with at least 2 A transient capability for a kit documented to accept 5 V at VCC5; follow the kit manufacturer’s requirements.",
+      "TXU0202 UART level-translator breakout with both supply pins and OE exposed (not in current catalog).",
+      "Regulated 2.8 V logic supply for the translator low side, or an accessible verified modem VDD_EXT 2.8 V output within its current budget."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Logic supply",
+        "to": "TXU0202 VCCA + OE + reed VCC",
+        "note": "OE high enables translation; follow the breakout datasheet."
+      },
+      {
+        "from": "Regulated 2.8 V",
+        "via": "Low-side logic supply",
+        "to": "TXU0202 VCCB",
+        "note": "Use a verified 2.8 V rail, not the modem 5 V kit input."
+      },
+      {
+        "from": "UNO D8 (TX)",
+        "via": "TXU0202 A1 → B1",
+        "to": "SIM900A raw RXD",
+        "note": "5 V controller TX is translated to approximately 2.8 V."
+      },
+      {
+        "from": "SIM900A raw TXD",
+        "via": "TXU0202 B2 → A2",
+        "to": "UNO D7 (RX)",
+        "note": "2.8 V modem TX is translated up to 5 V."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Common ground net",
+        "to": "Modem GND + translator GND + reed GND + all supply −",
+        "note": "All UART signals require the same ground reference."
+      },
+      {
+        "from": "Reed module S",
+        "via": "Digital input",
+        "to": "UNO D2",
+        "note": "Verify CLOSED_LEVEL with magnet present before SMS testing."
+      },
+      {
+        "from": "External regulated +5 V",
+        "via": "Short dedicated power wires",
+        "to": "Kit VCC5 only, if documented",
+        "note": "Never connect +5 V to bare module VBAT or a VCC4 pin."
+      },
+      {
+        "from": "TXU0202 VCCA",
+        "via": "100 nF capacitor",
+        "to": "GND",
+        "note": "Place close to translator supply pin."
+      },
+      {
+        "from": "TXU0202 VCCB",
+        "via": "100 nF capacitor",
+        "to": "GND",
+        "note": "Second local decoupling capacitor."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB",
+        "note": "Do not power the modem through the UNO 5 V pin."
+      }
+    ],
+    "steps": [
+      "Confirm that your location and SIM support 2G GSM SMS. A newer SIM does not turn SIM900A into a 4G modem. Attach the compatible antenna before transmission.",
+      "Identify the kit power input and raw TTL UART pins using its documentation. If only RS232 or unidentified pins are exposed, stop and obtain the matching pinout; do not guess.",
+      "Wire the TXU0202 translator exactly as shown, with 5 V VCCA, 2.8 V VCCB, OE high, shared ground and both 100 nF capacitors. Do not substitute a bare divider for the modem-to-UNO receive level conversion.",
+      "Power the modem from its separate supply. Use its documented power-key/startup procedure; this sketch does not drive PWRKEY.",
+      "Verify the reed state with a meter or a small digitalRead test. Set CLOSED_LEVEL accordingly. Confirm the modem UART is configured for 9600 baud.",
+      "Replace PHONE with your own or a consenting recipient’s number in international format. Upload for Arduino Uno and open Serial Monitor at 9600 baud.",
+      "Allow startup and registration. Move the magnet away for at least one second; watch AT responses and the +CMGS acknowledgement. Close/reopen the contact and confirm the five-minute global cooldown."
+    ],
+    "expected": [
+      "A stable open condition after startup triggers one SMS attempt.",
+      "Success is logged only after +CMGS; this acknowledges network/modem acceptance, not guaranteed handset delivery.",
+      "A persistent opening is not repeatedly messaged after success. Failed attempts wait at least five minutes before retrying."
+    ],
+    "troubleshooting": [
+      [
+        "No AT reply",
+        "Check RX/TX crossover, shared GND, translator rails/OE, modem power state and 9600-baud setting."
+      ],
+      [
+        "Resets during SMS",
+        "Check voltage at the kit while transmitting, cable resistance and supply transient capacity."
+      ],
+      [
+        "Not registered",
+        "Check 2G service, antenna, SIM PIN/credit and AT+CREG? response."
+      ],
+      [
+        "No alert after changing code",
+        "PHONE must contain + followed by digits; placeholder X characters intentionally disable sending."
+      ]
+    ],
+    "extension": "Add a local status LED and a manually acknowledged event log. A later revision could use a locally supported LTE modem with the appropriate power and AT-command changes.",
+    "sources": [
+      "uno",
+      "digital",
+      "gsm",
+      "at",
+      "translator"
+    ],
+    "flow": [
+      "Debounce reed (1 s)",
+      "Open and cooldown elapsed?",
+      "Check SIM + registration",
+      "Send SMS / wait +CMGS"
+    ],
+    "notes": [
+      "The actual V4.0 kit schematic must be checked before wiring power or UART. The diagram explicitly uses an external translator for raw UART.",
+      "This teaching sketch blocks while waiting for AT responses and is not a certified security or emergency alarm. SMS attempts may incur carrier charges."
+    ],
+    "board": "Arduino UNO R3",
+    "libraries": [
+      "None — uses Arduino core functions"
+    ],
+    "serial": "9600 baud",
+    "code": "gsm-door-alert.ino",
+    "validation": "Compile-checked with Arduino AVR Boards 1.8.8 (UNO). Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "esp32-room-dashboard",
+    "title": "Build a local Wi-Fi room dashboard",
+    "level": "Intermediate",
+    "topic": "Wi-Fi & IoT",
+    "time": "60–90 min",
+    "introduction": "An ESP32 reads temperature and humidity and serves a small dashboard to a phone connected directly to its Wi-Fi access point. No cloud account is needed.",
+    "purpose": "Introduce embedded web interfaces while keeping the first networked project local and understandable.",
+    "learn": [
+      "Use 3.3 V sensor signals",
+      "Run an ESP32 SoftAP",
+      "Serve HTML and JSON",
+      "Handle stale or failed readings"
+    ],
+    "parts": [
+      {
+        "id": "cb-063",
+        "qty": 1,
+        "variant": "Classic ESP-WROOM-32 30-pin development board",
+        "role": "Wi-Fi controller"
+      },
+      {
+        "id": "cb-079",
+        "qty": 1,
+        "variant": "DHT22 / AM2302",
+        "role": "Temperature and humidity"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "10 kΩ, ¼ W",
+        "role": "Data pull-up to 3.3 V"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper set; select enough leads and correct connector types",
+        "role": "Connections shown in the schematic"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point",
+        "role": "Low-current prototyping"
+      }
+    ],
+    "extras": [
+      "USB data cable and computer with Arduino IDE 2; cable must support data, not charging only.",
+      "Phone or laptop with Wi-Fi."
+    ],
+    "wiring": [
+      {
+        "from": "ESP32 3V3",
+        "via": "Sensor supply",
+        "to": "DHT22 VCC",
+        "note": "Power the sensor from 3.3 V for this guide."
+      },
+      {
+        "from": "ESP32 GND",
+        "via": "Common ground",
+        "to": "DHT22 GND",
+        "note": "Bare 4-pin sensor: pin 3 is not connected."
+      },
+      {
+        "from": "DHT22 DATA",
+        "via": "Direct signal",
+        "to": "ESP32 GPIO27",
+        "note": "Use GPIO number, not a physical header position."
+      },
+      {
+        "from": "ESP32 3V3",
+        "via": "10 kΩ pull-up",
+        "to": "DATA / GPIO27 net",
+        "note": "Never pull an ESP32 input to 5 V."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "ESP32 USB",
+        "note": "Use the development board USB input, not 5 V on 3V3."
+      }
+    ],
+    "steps": [
+      "Verify that the board is the classic ESP32/ESP-WROOM-32 with GPIO27 exposed; this pin map is not for ESP32-C3/S3 boards.",
+      "Install esp32 by Espressif Systems in Boards Manager. Select ESP32 Dev Module and the correct port. Install the two Adafruit libraries listed below.",
+      "Wire the sensor to 3V3/GND/GPIO27 and add a 10 kΩ data pull-up to 3V3.",
+      "Replace AP_PASSWORD with a unique password of at least 8 characters. Upload, then open Serial Monitor at 115200 baud.",
+      "Join CircuitByte-Lab from your phone; accept staying connected when the phone reports no Internet. Open the local HTTP address printed by Serial Monitor, usually 192.168.4.1.",
+      "Watch readings refresh every 3 s. Disconnect sensor data to verify the unavailable message, then reconnect and allow the next sample."
+    ],
+    "expected": [
+      "The ESP32 creates its own password-protected Wi-Fi network.",
+      "The page displays temperature, humidity and sample age; invalid samples display --.",
+      "Readings remain local to the device. This sketch does not upload history to CircuitByte or the cloud."
+    ],
+    "troubleshooting": [
+      [
+        "Cannot find Wi-Fi",
+        "Confirm the upload completed, check power and read Serial Monitor for AP errors."
+      ],
+      [
+        "Page cannot load",
+        "Stay on the ESP32 Wi-Fi and use http:// with the printed IP, not https://. Disable automatic switching to mobile data if needed."
+      ],
+      [
+        "Sensor unavailable",
+        "Check GPIO27, 3.3 V supply, pull-up, sensor type and wiring length."
+      ]
+    ],
+    "extension": "Add minimum/maximum readings and a small history buffer. Explain what is lost when power is removed and how microSD logging could preserve it.",
+    "sources": [
+      "esp32",
+      "wifi",
+      "dht"
+    ],
+    "flow": [
+      "Sample DHT22 (2.5 s)",
+      "Cache valid / invalid sample",
+      "Phone requests /readings",
+      "Render dashboard (3 s)"
+    ],
+    "notes": [
+      "Do not connect 5 V logic to ESP32 GPIO. The dashboard is a local HTTP teaching example; do not expose it directly to the public Internet."
+    ],
+    "board": "ESP32 Dev Module (classic ESP-WROOM-32)",
+    "libraries": [
+      "esp32 board package 3.3.0 — Espressif Systems",
+      "DHT sensor library 1.4.7 — Adafruit",
+      "Adafruit Unified Sensor 1.1.15 — Adafruit"
+    ],
+    "serial": "115200 baud",
+    "code": "esp32-room-dashboard.ino",
+    "validation": "Compile-checked with Espressif ESP32 core 3.3.0. Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  }
+]

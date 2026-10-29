@@ -1,0 +1,70 @@
+{
+  "uno": {
+    "label": "Arduino UNO R3 hardware reference",
+    "url": "https://docs.arduino.cc/hardware/uno-rev3"
+  },
+  "digital": {
+    "label": "Arduino digital inputs and pull-ups",
+    "url": "https://docs.arduino.cc/language-reference/en/variables/constants/inputOutputPullup/"
+  },
+  "pwm": {
+    "label": "Arduino analogWrite / PWM",
+    "url": "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/"
+  },
+  "dht": {
+    "label": "Adafruit DHT sensor guide and library",
+    "url": "https://learn.adafruit.com/dht"
+  },
+  "ultrasonic": {
+    "label": "Elecfreaks HC-SR04 datasheet (SparkFun-hosted)",
+    "url": "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf"
+  },
+  "esp32": {
+    "label": "Espressif ESP32 datasheet",
+    "url": "https://documentation.espressif.com/esp32_datasheet_en.html"
+  },
+  "wifi": {
+    "label": "Espressif Arduino Wi-Fi API",
+    "url": "https://docs.espressif.com/projects/arduino-esp32/en/latest/api/wifi.html"
+  },
+  "esp8266": {
+    "label": "Espressif ESP8266EX datasheet",
+    "url": "https://documentation.espressif.com/0a-esp8266ex_datasheet_en.html"
+  },
+  "gsm": {
+    "label": "SIMCom SIM900A hardware design (manufacturer PDF, mirrored)",
+    "url": "https://make.net.za/wp-content/datasheets/SIM900A%20Hardware%20Design%20Manual%20v1.01.pdf"
+  },
+  "at": {
+    "label": "SIMCom SIM900 AT command manual",
+    "url": "https://simcom.ee/documents/SIM900/SIM900_AT%20Command%20Manual_V1.11.pdf"
+  },
+  "translator": {
+    "label": "Texas Instruments TXU0202 UART level translator",
+    "url": "https://www.ti.com/product/TXU0202"
+  },
+  "servo": {
+    "label": "TowerPro MG90S manufacturer reference",
+    "url": "https://towerpro.com.tw/product/mg90s-3/"
+  },
+  "rtc": {
+    "label": "Analog Devices DS3231 reference",
+    "url": "https://www.analog.com/en/products/ds3231.html"
+  },
+  "servoLib": {
+    "label": "Arduino Servo library",
+    "url": "https://docs.arduino.cc/libraries/servo/"
+  },
+  "mq135": {
+    "label": "Winsen MQ135 manufacturer manual",
+    "url": "https://www.winsen-sensor.com/manual/mq135.html"
+  },
+  "mq7": {
+    "label": "Winsen MQ-7B heater-cycle reference; confirm exact variant",
+    "url": "https://www.winsen-sensor.com/sensors/co-sensor/mq-7b.html"
+  },
+  "acs712": {
+    "label": "Allegro ACS712 manufacturer datasheet",
+    "url": "https://www.allegromicro.com/-/media/files/datasheets/acs712-datasheet.pdf"
+  }
+}

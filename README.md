@@ -1,6 +1,6 @@
 # CircuitByte
 
-Next.js catalog and administration rebuild. **Draft: not yet deployed or database-integration tested.**
+Next.js catalog and administration rebuild. Deployment uses the Vercel project circuitbyte. Initial database setup runs during production builds.
 
 ## Included
 
@@ -24,6 +24,11 @@ Next.js catalog and administration rebuild. **Draft: not yet deployed or databas
 
 ## Validation and remaining work
 
-Production compilation passed. Live database CRUD, administrator sign-in, upload, concurrency and mobile browser flows still need testing after provisioning. Product audit records exist in Postgres; a dedicated history view is not implemented yet. Existing Blob photos are retained when replaced, so historical audit references remain usable. No product photos were included in the source archive.
+Production compilation passed. Live database CRUD, administrator sign-in, upload, concurrency and mobile browser flows still need testing after provisioning. The admin panel includes the latest 100 audit entries with Philippine timestamps, plus published, archived, low-stock and uncounted filters. Existing Blob photos are retained when replaced, so historical audit references remain usable. No product photos were included in the source archive.
 
 Before production, verify: anonymous mutation rejected; allowed admin login/logout; add/update/archive; stale edit returns 409; invalid uploads rejected; photo visible in storefront; prices and stock persisted after reload; stock display and cart quantity behavior; mobile cart and keyboard controls.
+
+## First administrator
+The owner receives a private one-time setup link. Its token is stored only in Vercel, not this repository. Set a password with at least 12 characters. Setup refuses to create another administrator after the configured account exists. The standard public auth handler keeps registration disabled.
+
+Database variable fallback: DATABASE_URL or circuitbyte_DATABASE_URL. Production migrations use the same connection and never treat legacy quantity labels as inventory counts.

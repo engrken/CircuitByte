@@ -1,1 +1,14 @@
 *{box-sizing:border-box}body{margin:0;background:#f2f5f1;color:#173d34;font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1200px!important;margin:36px auto!important;padding:24px!important}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1.8px;margin:24px 0 10px}h2{letter-spacing:-.5px}a{color:#26715b;text-decoration:none}nav{padding:18px;background:#fff;border:1px solid #dce5dc;border-radius:16px;margin:24px 0;align-items:center}button{transition:background .15s,box-shadow .15s;min-height:44px}button:hover{background:#286e56!important}button:disabled{opacity:.5;cursor:wait}input:focus,textarea:focus,select:focus,button:focus-visible{outline:3px solid #b6d780;outline-offset:2px}table{border-radius:14px;overflow:hidden;min-width:700px}th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#617769;background:#e7eee5}td:first-child{font-weight:600}tbody tr:hover{background:#f3f8ef}form{background:#fff;padding:28px;border:1px solid #dce5dc;border-radius:18px;margin-top:24px;width:100%}label{font-size:13px;font-weight:600;text-transform:capitalize}label input,label textarea,label select{width:100%;color:#173d34;background:#fafcf8}input[type=checkbox]{width:auto}nav input{flex:1;min-width:180px}p[role=status]:not(:empty){padding:14px;background:#e3edd9;border-radius:10px}section.history{background:white;border:1px solid #dce5dc;border-radius:16px;padding:24px;margin:24px 0}section.history article{padding:16px 0;border-bottom:1px solid #e5ebe1}section.history small{display:block;color:#607364;margin-top:5px}.inventory-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.inventory-stats div{background:#fff;border:1px solid #dce5dc;border-radius:16px;padding:22px}.inventory-stats strong{font-size:30px;display:block}.inventory-stats span{font-size:12px;color:#627463}@media(max-width:650px){main{margin:12px auto!important;padding:16px!important}form{padding:18px}.inventory-stats{gap:8px}.inventory-stats div{padding:14px}.inventory-stats strong{font-size:24px}nav{padding:12px}nav button{flex:1}}
+
+@media screen and (max-width:650px){
+  input,select,textarea{font-size:16px!important;min-width:0;max-width:100%}
+  nav input{min-width:0;width:100%;flex-basis:100%}
+  nav select{width:100%}
+  .inventory-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .inventory-stats div{padding:12px 8px;overflow-wrap:anywhere}
+  .orders-admin .order-grid{grid-template-columns:minmax(0,1fr)}
+  .order-filters input,.order-filters select{width:100%}
+  .order-card,.order-editor,section.history{overflow-wrap:anywhere;min-width:0}
+  .orders-admin .order-card,.orders-admin .order-editor{padding:16px}
+  nav a{display:inline-flex;align-items:center;min-height:44px}
+}

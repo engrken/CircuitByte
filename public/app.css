@@ -5,3 +5,36 @@
 .product-visual img{position:absolute;inset:0}.product-visual.has-photo>svg,.product-visual.has-photo>small{display:none}
 
 .learning-strip{display:flex;justify-content:space-between;align-items:center;gap:25px;background:#e6eed9;padding:28px 5%;border-bottom:1px solid #d0dbc3}.learning-strip span{font:10px monospace;letter-spacing:1.6px;color:#55734d}.learning-strip h2{font-size:25px;font-weight:500;letter-spacing:-.6px;margin:10px 0}.learning-strip p{font-size:13px;color:#64716c;line-height:1.7;margin-bottom:0}.learning-strip .primary{font-size:12px;flex-shrink:0}.header nav{flex-wrap:wrap;gap:18px}@media(max-width:650px){.learning-strip{display:block;padding:24px 5%}.learning-strip .primary{margin-top:18px}.header nav{justify-content:flex-start;gap:12px 20px}.learning-strip h2{font-size:23px}}@media print{.learning-strip{display:none}}
+
+/* Small-screen controls and containment; keep long content inside its own scroller. */
+@media screen and (max-width:650px){
+  .header nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 10px}
+  .header nav a,.header nav button{display:flex;align-items:center;min-height:44px;font-size:12px;text-align:left}
+  input,select,textarea,.search-wrap input,.toolbar select{font-size:16px}
+  button,.primary,.category-menu summary{min-height:44px}
+  .category-menu summary{padding:12px 0}
+  .hero-copy,.catalog-main,.catalog-layout>aside,.product-body{min-width:0}
+  .product h3,.dialog-head h2,#detail-desc{overflow-wrap:anywhere}
+  .toolbar{flex-wrap:wrap;align-items:flex-start}
+  .toolbar label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .toolbar select{margin-left:0;max-width:100%}
+  .dialog-head{align-items:flex-start}
+  .icon-button{min-width:44px;flex-shrink:0}
+  .cart-controls{flex-wrap:wrap}
+  .cart-controls button{min-width:44px;min-height:44px}
+  dialog{padding:20px;overflow-y:auto;overscroll-behavior:contain}
+  .cart-dialog{padding-bottom:max(22px,env(safe-area-inset-bottom));height:100dvh}
+  .cart-total{gap:12px;flex-wrap:wrap}
+  #toast{bottom:max(16px,env(safe-area-inset-bottom));overflow-wrap:anywhere}
+  body .tracking{margin:16px auto;padding:16px}
+  body .tracking h1{font-size:36px;letter-spacing:-1.5px}
+  body .tracking form,body .tracking article{padding:18px}
+}
+@media screen and (max-width:360px){
+  .header{column-gap:8px}.brand{font-size:21px}.brand-mark{display:none}
+  .hero h1{font-size:44px}.hero-foot{flex-wrap:wrap;gap:12px}
+  .products{grid-template-columns:1fr}.product-visual{height:160px}
+}
+@media screen and (max-height:500px) and (max-width:950px){
+  .shell{height:auto;min-height:100dvh}#scroll-area{overflow:visible}
+}

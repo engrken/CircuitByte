@@ -1,0 +1,1131 @@
+[
+  {
+    "id": "cb-001",
+    "name": "Diodes",
+    "description": "1N4007, 1N4148, 1N5399, 1N5819, 1N5822, 1N5408, FR107, FR207",
+    "categories": [
+      "components"
+    ],
+    "price": 15.0,
+    "quantityLabel": "Quantity: 2",
+    "image": "images/diodes.jpg"
+  },
+  {
+    "id": "cb-002",
+    "name": "Resistors",
+    "description": "1/4 watt Metal Film Resistors [1Ω, 10Ω, 20Ω, 33Ω, 47Ω, 51Ω, 68Ω, 75Ω, 82Ω, 91Ω, 100Ω, 200Ω, 220Ω, 330Ω, 470Ω, 510Ω, 680Ω, 750Ω, 820Ω, 910Ω, 1KΩ, 10KΩ, 20KΩ, 33KΩ, 47KΩ, 51KΩ, 68KΩ, 75KΩ, 82KΩ, 91KΩ, 100KΩ, 200KΩ, 220KΩ, 330KΩ, 470KΩ, 510KΩ, 680KΩ, 750KΩ,820KΩ, 910KΩ, 1MΩ]",
+    "categories": [
+      "components"
+    ],
+    "price": 3.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/resistors.jpg"
+  },
+  {
+    "id": "cb-003",
+    "name": "Capacitors",
+    "description": "50V Ceramic Capacitors [2P, 3P, 5P, 10P, 15P, 22P, 30P, 33P, 47P, 68P, 75P, 82P, 101, 151, 221, 331, 471, 681, 102, 152, 222, 332, 472, 682, 103, 153, 223, 473, 683, 104, 154, 224, 334, 474, 684, 105, 225, 475, 106]",
+    "categories": [
+      "components"
+    ],
+    "price": 10.0,
+    "quantityLabel": "Quantity: 3",
+    "image": "images/capacitors.jpg"
+  },
+  {
+    "id": "cb-004",
+    "name": "Electrolytic Capacitors",
+    "description": "[50V 0.22uF, 50V 0.47uF, 50V 1uF, 50V 2.2uF, 50V 4.7uF, 25V 10uF, 16V 22uF, 16V 33uF, 16V 47uF, 16V 220uF, 16V 100uF, 16V 470uF]",
+    "categories": [
+      "components"
+    ],
+    "price": 15.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/electrolytic.jpg"
+  },
+  {
+    "id": "cb-005",
+    "name": "Transistors",
+    "description": "[59012, 59013, 59014, 59015, 59018, A1015, C1815, S8050, S8550, A42, 2N5401, 2N5551, A733, C945, 2N3906, 2N3904, 2N2222, 2N2907, A92, BC547, BC548, BC557, BC550, BC560, BC337, BC327]",
+    "categories": [
+      "components"
+    ],
+    "price": 10.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/transistors.jpg"
+  },
+  {
+    "id": "cb-006",
+    "name": "TIP Power Transistors",
+    "description": "[TIP41C, TIP42C]",
+    "categories": [
+      "components"
+    ],
+    "price": 40.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/tip.jpg"
+  },
+  {
+    "id": "cb-007",
+    "name": "NE555P",
+    "description": "NE555P DIP8 Single High Precision Timer IC Chip",
+    "categories": [
+      "components"
+    ],
+    "price": 35.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/ne555.jpg"
+  },
+  {
+    "id": "cb-008",
+    "name": "LM833N",
+    "description": "The LM833 is a monolithic dual operational amplifier particularly well-suited to audio applications.",
+    "categories": [
+      "components"
+    ],
+    "price": 35.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/lm833.jpg"
+  },
+  {
+    "id": "cb-009",
+    "name": "LED",
+    "description": "[3mm Red, 3mm Yellow, 3mm Blue, 3mm White, 3mm Green, 5mm Red, 5mm Yellow, 5mm Blue, 5mm White, 5mm Green]",
+    "categories": [
+      "components"
+    ],
+    "price": 5.0,
+    "quantityLabel": "Quantity: 2",
+    "image": "images/led.jpg"
+  },
+  {
+    "id": "cb-010",
+    "name": "3296 Adjustable Potentiometer",
+    "description": "[101 (100Ω), 201 (200Ω), 501 (500Ω), 102 (1KΩ), 202 (2KΩ), 502 (5KΩ), 103 (10KΩ), 203 (20KΩ), 503 (50KΩ), 104 (100KΩ), 204 (200KΩ), 504 (500KΩ), 105 (1MΩ)]",
+    "categories": [
+      "components"
+    ],
+    "price": 25.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/3296.jpg"
+  },
+  {
+    "id": "cb-011",
+    "name": "RM063 Adjustable Resistance",
+    "description": "[101 (100Ω), 201 (200Ω), 501 (500Ω), 102 (1KΩ), 202 (2KΩ), 502 (5KΩ), 103 (10KΩ), 203 (20KΩ), 503 (50KΩ), 104 (100KΩ), 204 (200KΩ), 504 (500KΩ), 105 (1MΩ)]",
+    "categories": [
+      "components"
+    ],
+    "price": 25.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/rm063.jpg"
+  },
+  {
+    "id": "cb-012",
+    "name": "3-Pin Potentiometer",
+    "description": "[5K Ω, 10K Ω, 20K Ω, 50K Ω, 100K Ω]",
+    "categories": [
+      "components"
+    ],
+    "price": 50.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/3pin.jpg"
+  },
+  {
+    "id": "cb-013",
+    "name": "Voltage Regulators",
+    "description": "[L7805, L7809, L7812, L7815, L7905, L7905, L7912, LM317]",
+    "categories": [
+      "components"
+    ],
+    "price": 40.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/regulator.jpg"
+  },
+  {
+    "id": "cb-014",
+    "name": "Prototype PCB",
+    "description": "[2cm x 8cm; 3cm x 7cm; 4cm x 6cm; 5cm x 7cm; 7cm x 9cm]",
+    "categories": [
+      "boards"
+    ],
+    "price": 15.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/pcb.jpg"
+  },
+  {
+    "id": "cb-015",
+    "name": "Joystick Breakout Module",
+    "description": "Joystick Breakout Module offers an affordable solution for many robotic based projects and applications. With our joystick module, you can easily integrate 2-Axis control into your project! Size: 4 cm x 2.6 cm x 3.2 cm. Supply voltage: 5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/joy.jpg"
+  },
+  {
+    "id": "cb-016",
+    "name": "Tactile Switch",
+    "description": "4 Pin Tact Switch 6x6x5mm Momentary Push Button Micro Tactile Switch for PCB Board Arduino",
+    "categories": [
+      "components"
+    ],
+    "price": 10.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/tact.jpg"
+  },
+  {
+    "id": "cb-017",
+    "name": "1 Channel Relay",
+    "description": "Specification: •Channel: 1 Channel •Relay Voltage: 5V •Dimensions: 56.5mm x 17mm x 20mm •Weight: 16.5g",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/relay.jpg"
+  },
+  {
+    "id": "cb-018",
+    "name": "HC-05 Bluetooth Module",
+    "description": "Specification: •Bluetooth V2.0+EDR •2.4 GHz ISM Band• Dimensions: 12.7mmx27mm •Its operating voltage is 5V",
+    "categories": [
+      "modules"
+    ],
+    "price": 460.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/hc05.jpg"
+  },
+  {
+    "id": "cb-019",
+    "name": "OLED Display Module",
+    "description": "Specification: •0.96 128x64 I2C White •Input Voltage: 3.3V ~ 6V •Driver IC: SSD1306 •Resolution: 128 x 64",
+    "categories": [
+      "modules"
+    ],
+    "price": 90.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/oled.jpg"
+  },
+  {
+    "id": "cb-020",
+    "name": "Big Sound Sensor",
+    "description": "The Big Sound Sensor Module, also known as a Sound Detector Module, is a sensor that can detect sound and noise levels in its surroundings. It converts sound vibrations into electrical signals, making it useful for sound-activated projects, noise monitoring systems, and interactive audio applications.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mic.jpg"
+  },
+  {
+    "id": "cb-021",
+    "name": "Small Sound Sensor",
+    "description": "The Small Sound Sensor module is a compact component capable of detecting ambient sound levels and converting them into electrical signals. It enables your Arduino projects to interact with surrounding sounds, making it ideal for sound-activated applications.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/smic.jpg"
+  },
+  {
+    "id": "cb-022",
+    "name": "Line Tracking Sensor",
+    "description": "Line Tracking module is an infrared sensor that detects whether the surface in front of it is reflective or opaque. Sensitivity to ambient light can be adjusted using the knob to achieve a fairly accurate reading. Operating Voltage: 3.3V to 5V. Size: 1cm x 4.2cm [0.39in x 1.65in]",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/line.jpg"
+  },
+  {
+    "id": "cb-023",
+    "name": "Obstacle Avoidance Sensor",
+    "description": "The sensor detection distance ranges from 2cm to 40cm, it can be adjusted by turning the potentiometer knob. Its operating voltage is 3.3V – 5V so it is suitable for a variety of micro-controllers like Arduino, ESP32, Teensy, ESP8266, Raspberry Pi, and others.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/avoid.jpg"
+  },
+  {
+    "id": "cb-024",
+    "name": "Flame Sensor",
+    "description": "Flame Sensor module detects infrared light emitted by fire. This module has both digital and analog outputs and a potentiometer to adjust the sensitivity. Commonly used in fire detection systems. Operating Voltage: 3.3V ~ 5.5V",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/flame.jpg"
+  },
+  {
+    "id": "cb-025",
+    "name": "Linear magnetic Hall",
+    "description": "Linear magnetic Hall sensor reacts in the presence of a magnetic field. It has a potentiometer to adjust the sensitivity of the sensor and it provides both analog and digital outputs. Operating Voltage: 2.7V to 6.5V",
+    "categories": [
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/linear.jpg"
+  },
+  {
+    "id": "cb-026",
+    "name": "Metal Touch Sensor",
+    "description": "Metal Touch Sensor Module is an analog/digital sensor that uses a transistor to detect changes in electrical conductivity. When the transistor is touched with a finger, the conductivity changes and the module emits a digital and analog signal. Operating Voltage: 3.3V ~ 5.5V. Board Dimensions 15mm x 36mm [0.6in x 1.4in].",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/touch.jpg"
+  },
+  {
+    "id": "cb-027",
+    "name": "Digital Temperature Sensor",
+    "description": "Digital Temperature Sensor measures temperature changes based on thermistor resistance. This module has both digital and analog outputs, there’s a potentiometer to adjust the detection threshold on the digital interface. Operating Voltage: 3.3V ~ 5.5V. Board Dimensions 15mm x 36mm [0.6in x 1.4in].",
+    "categories": [
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/dtemp.jpg"
+  },
+  {
+    "id": "cb-028",
+    "name": "Active Buzzer",
+    "description": "Active Buzzer module produces a single-tone sound when it receives a high signal. Operating Voltage: 3.5V ~ 5.5V. Board Dimensions 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/buzz.jpg"
+  },
+  {
+    "id": "cb-029",
+    "name": "Passive Piezoelectric Buzzer",
+    "description": "Passive Piezoelectric Buzzer module can produce a range of sound tones depending on the input signal fequency. Operating Voltage: 1.5V ~ 15V DC. Board Dimensions 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/pbuzz.jpg"
+  },
+  {
+    "id": "cb-030",
+    "name": "NEO-6M GPS Module",
+    "description": "This module has an external antenna and built-in EEPROM.\n    Interface: RS232 TTL\n    Power supply: 3V to 5V\n    Default baudrate: 9600 bps\n    Works with standard NMEA sentences",
+    "categories": [
+      "modules"
+    ],
+    "price": 280.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/gpsneo.jpg"
+  },
+  {
+    "id": "cb-031",
+    "name": "9V Battery Snap",
+    "description": "9v Battery Clip with 2.1mm X 5.5mm Male DC Plug for Arduino",
+    "categories": [
+      "tools"
+    ],
+    "price": 35.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/snap.jpg"
+  },
+  {
+    "id": "cb-032",
+    "name": "MT3608 DC-DC Adjustable Boost Module",
+    "description": "The boost converter can convert 2V~24V DC to maximum 28V DC, output voltage is adjustable with potentiometer. Specifications:Input Voltage: 2V~24VMax. Output Voltage: 28VMax. Output Current: 2A Efficiency: >93% Size: 37*17*14mm/1.41*0.67*0.55\"",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/3608.jpg"
+  },
+  {
+    "id": "cb-033",
+    "name": "Type C Micro USB 5V 1A 18650 TP4056 Lithium Battery Charger Module Charging Board With Protection",
+    "description": "TP4056 TC4056 1A Lipo Battery Charging Board Type C\n\nSpecifications:\n    Input Interface: Type C\n    Input Voltage: 5V\n    Charging Cut-Off Voltage: 4.2V ± 1%\n    Maximum Charge Current: 1000mA\n    Battery Over-Discharge Protection Voltage: 2.5V\n    Battery Overcurrent Protection Current: 3A\n    Board Size: 2.6 * 1.7CM",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/4056.jpg"
+  },
+  {
+    "id": "cb-034",
+    "name": "Full Color RGB LED",
+    "description": "Full Color RGB LED emits a wide range of different colors by mixing red, green and blue light. Operating Voltage: 5V DC. Board Dimensions 15mm x 19mm [0.59in x 0.75in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/rgb.jpg"
+  },
+  {
+    "id": "cb-035",
+    "name": "Full Color RGB LED (SMD)",
+    "description": "Full Color LED module emits a range of colors by mixing red, green, and blue light. Each color is adjusted by using PWM. Operating Voltage: 5V max; Red 1.8V ~2.4V; Green 2.8V ~ 3.6V; Blue 2.8V ~ 3.6V. Board Dimensions 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/srgb.jpg"
+  },
+  {
+    "id": "cb-036",
+    "name": "Two Color LED",
+    "description": "Two Color LED module emits red and green light. You can adjust the intensity of each color using PWM. Operating Voltage: 2.0v ~ 2.5v.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/twocolor.jpg"
+  },
+  {
+    "id": "cb-037",
+    "name": "Dual Color LED",
+    "description": "Dual Color LED module emits red and green light. You can adjust the intensity of each color using PWM. Operating Voltage: 2.3-2.6V for green, 1.9-2.2V for red.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/dual.jpg"
+  },
+  {
+    "id": "cb-038",
+    "name": "Reed Switch",
+    "description": "Reed Switch Module is a small electrical switch operated by an applied magnetic field, commonly used as proximity sensor. The module has both digital and analog outputs. A trimmer is used to calibrate the sensitivity of the sensor. Operating Voltage: 3.3V ~ 5.5V. Board Dimensions: 1.5cm x 3.6cm [0.6in x 1.4in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/reed.jpg"
+  },
+  {
+    "id": "cb-039",
+    "name": "Mini Magnetic Reed Switch",
+    "description": "Magnetic Reed Switch module is a switch that is normally open and gets closed when exposed to a magnetic field, sending a digital signal. Commonly used in mechanical systems as proximity sensors. Operating Voltage: 3.3V ~ 5.5V. Board Dimensions: 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mreed.jpg"
+  },
+  {
+    "id": "cb-040",
+    "name": "Heartbeat Sensor",
+    "description": "Heartbeat sensor module can be used to detect the heartbeat signal using finger. This sensor has an analog output. By placing your finger on the module, you can see the heartbeat signal through the analog output pin. Operating Voltage: 5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/hbeat.jpg"
+  },
+  {
+    "id": "cb-041",
+    "name": "7 color LED",
+    "description": "A 7 color LED that flashes through a sequence of colors, creating a multicolored pattern of flashing light. The sequence is predefined and cannot be modified. Operating Voltage: 3V-5V. Board Size: 16.5mm x 18.5mm [0.65in x 1.73in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/scolor.jpg"
+  },
+  {
+    "id": "cb-042",
+    "name": "Laser Transmitter",
+    "description": "Laser Transmitter module can be used as a laser pointer. It emits a dot shaped, red laser beam. Operating Voltage: 5V. Board Size: 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/laser.jpg"
+  },
+  {
+    "id": "cb-043",
+    "name": "Key Switch",
+    "description": "Key Switch Module is a push button that will close the circuit when pressed, sending a high signal. Operating Voltage: 50mA 12V. Board Size: 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/button.jpg"
+  },
+  {
+    "id": "cb-044",
+    "name": "Vibration Switch",
+    "description": "Vibration Switch Module detects shaking and knocking. When the module is moved, a spring mechanism will close the circuit sending a short high signal. Operating Voltage: 5V. Board Size: 18.5mm x 15mm [0.728in x 0.591in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/shock.jpg"
+  },
+  {
+    "id": "cb-045",
+    "name": "Rotary Encoder",
+    "description": "By rotating the rotary encoder can be counted in the positive direction and the reverse direction during rotation of the output pulse frequency, unlike rotary potentiometer count, this rotation counts are not limited. With the buttons on the rotary encoder can be reset to its initial state, that starts counting from 0. Operating Voltage: 5V. Board Size: 31mm x 19mm [0.75in x 1.14in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/rotary.jpg"
+  },
+  {
+    "id": "cb-046",
+    "name": "Magic Light Cup",
+    "description": "Magic Light Cup module is a set of two boards. Each one has a LED and a mercury tilt switch. Using PWM to drive the LEDs on each module, you can achieve the effect of light being “magically” transferred from one module to the other when tilting them, similar to pouring water from one cup to the other, hence the name. Operating Voltage: 3.3V ~ 5.5V. Board Size: 1.5cm x 3.6cm [0.6in x 1.4in].",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mlight.jpg"
+  },
+  {
+    "id": "cb-047",
+    "name": "Mercury Tilt Switch",
+    "description": "Mercury Tilt Switch module is a switch that responds to movement. It uses a small mercury ball that completes the circuit when the module is tilted. Operating Voltage: 3.3V ~ 5.5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/tiltsw.jpg"
+  },
+  {
+    "id": "cb-048",
+    "name": "Tilt Switch",
+    "description": "Tilt Switch Sensor module is a switch that reacts to movement. It closes the circuit when it’s tilted to the side as long as it is moved with enough force and degree of inclination to activate the ball switch inside. Operating Voltage: 3.3V ~ 5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/bsw.jpg"
+  },
+  {
+    "id": "cb-049",
+    "name": "Photoresistor",
+    "description": "Photoresistor module is used to measure light intensity. The resistance will decrease in the presence of light and increase in the absence of it. The output is analog and determines the intensity of light. Operating Voltage: 3.3V ~ 5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/photoresistor.jpg"
+  },
+  {
+    "id": "cb-050",
+    "name": "DHT11 Temperature and Humidity Sensor",
+    "description": "DHT11 Temperature and Humidity Sensor module provides a digital serial interface to measure environment humidity and temperature. Operating Voltage: 3.3V ~ 5.5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/dht11.jpg"
+  },
+  {
+    "id": "cb-051",
+    "name": "Analog Magnetic Hall Sensor",
+    "description": "Analog Magnetic Hall Sensor is a module that reacts in the presence of a magnet. It can measure the polarity and relative strength of a magnetic field. Operating Voltage: 2.7V to 6V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/ahall.jpg"
+  },
+  {
+    "id": "cb-052",
+    "name": "Magnetic Hall Sensor",
+    "description": "Hall Magnetic Sensor module is a switch that reacts to the presence of a magnetic field, turning itself on or off. Operating Voltage: 4.5V to 24V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/hall.jpg"
+  },
+  {
+    "id": "cb-053",
+    "name": "Temperature Sensor",
+    "description": "Temperature Sensor Module allows ambient temperature measurement using digital serial bus. It is possible to connect more than one module on the same bus. Operating Voltage: 3.0V to 5.5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/temp.jpg"
+  },
+  {
+    "id": "cb-054",
+    "name": "Analog Temperature Sensor",
+    "description": "Analog Temperature Sensor module can measure ambient temperature based on the resistance of the thermistor on the board. Operating Voltage: 5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/atemp.jpg"
+  },
+  {
+    "id": "cb-055",
+    "name": "Infrared Transmitter",
+    "description": "Infrared Transmitter module emits infrared light at 38kHz. It can be used to control TVs, stereos, air conditioners and other devices with IR receivers. Operating Voltage: 5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/ir.jpg"
+  },
+  {
+    "id": "cb-056",
+    "name": "Infrared Receiver",
+    "description": "Infrared Receiver module reacts to 38kHz IR light. It can be used to receive commands from IR remote controllers from TVs, stereos and other devices. Operating Voltage: 2.7V to 5.5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/irr.jpg"
+  },
+  {
+    "id": "cb-057",
+    "name": "Knock Sensor",
+    "description": "Knock Sensor module is a vibration sensor that sends a signal when a knock/tap is detected. Operating Voltage: 3.3V ~ 5V.",
+    "categories": [
+      "modules",
+      "sensors"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/knock.jpg"
+  },
+  {
+    "id": "cb-058",
+    "name": "Photo Interrupter",
+    "description": "Photo Interrupter module is a switch that will trigger a signal when light between the sensor’s gap is blocked. Operating Voltage: 3.3V ~ 5V.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/pinter.jpg"
+  },
+  {
+    "id": "cb-059",
+    "name": "Arduino UNO R3 USB Type-C",
+    "description": "This version is in the original version of the optimization, mainly for foreign customers on product quality and functional requirements of the case of high design, both to ensure that the original and fully compatible with the same, but also easy to use.",
+    "categories": [
+      "boards"
+    ],
+    "price": 270.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/unoc.jpg"
+  },
+  {
+    "id": "cb-060",
+    "name": "2 Channel 5V Relay Module",
+    "description": "This is a 5V  2 channels relay interface board, and each channel needs a 15-20mA driver current. It is equiped with high-current relays that work under AC250V 10A or DC30V 10A.",
+    "categories": [
+      "modules"
+    ],
+    "price": 120.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/2rel.jpg"
+  },
+  {
+    "id": "cb-061",
+    "name": "SIM900A V4.0 Kit",
+    "description": "The SIM900A V4.0 kit features onboard dual power supply interfaces: VCC5 for 5V (recommended >1A for high data use) and VCC4 for 3.5–4.5V, suitable for lithium batteries, with optional self-start or controlled start modes. It includes default SMA and optional IPXmini antenna interfaces, a reset-reserved SIM900A interface, and supports 2G/3G/4G SIM cards.",
+    "categories": [
+      "modules"
+    ],
+    "price": 270.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/sim900a.jpg"
+  },
+  {
+    "id": "cb-062",
+    "name": "LUA ESP8266 NodeMcu V3 CH340 WIFI Module IOT Type C",
+    "description": "The ESP8266 NodeMCU development board (V3) with CH340 USB interface is a low-cost, compact, and Wi-Fi-enabled module ideal for Internet of Things (IoT) applications. Featuring Arduino-like I/O and LUA scripting support, it offers an interactive, programmable, and event-driven environment with a Node.js-style network API, simplifying hardware control and speeding up development. It supports AP, STA, and AP+STA modes, runs on 2.4GHz dual-mode Wi-Fi and Bluetooth using TSMC 40nm low power tech, and is equipped with an integrated antenna, RF balun, amplifiers, filters, and power management. The board is easy to embed, supports LWIP and FreeRTOS, and is safe, reliable, and scalable for various applications.",
+    "categories": [
+      "boards"
+    ],
+    "price": 150.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/nodemcu.jpg"
+  },
+  {
+    "id": "cb-063",
+    "name": "ESP32 Dev Board CH340 - USB Type C",
+    "description": "This is the ESP32S-DEV development board based on ESP-WROOM-32, features WiFi + Bluetooth connectivity, onboard USB CH340 and keys. What's more, all the I/O pins of ESP-WROOM-32 module are accessible via the extension headers. The board has 2x15pin extension headers, which breakout all the I/O pins of the module and 2x keys, used as reset or user-defined",
+    "categories": [
+      "boards"
+    ],
+    "price": 270.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/esp32.jpg"
+  },
+  {
+    "id": "cb-064",
+    "name": "ESP32 Expansion Board ESP32 30P DEVKIT-V1 Power Module Breakout Board ESP32S",
+    "description": "This expansion board offers users two power supply options & provides 30 additional pins, expanding the GPIO capabilities of your ESP32 module.",
+    "categories": [
+      "boards"
+    ],
+    "price": 140.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/esp32b.jpg"
+  },
+  {
+    "id": "cb-065",
+    "name": "400 Point Solderless PCB Breadboard",
+    "description": "400 holes/tie points Breadboard Solderless Prototype PCB Board 400 Pin for Arduino Raspberry Pi",
+    "categories": [
+      "boards"
+    ],
+    "price": 70.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/bread.jpg"
+  },
+  {
+    "id": "cb-066",
+    "name": "LCD1602 16x2 w/ I2C LCD Display Module (Blue/Green)",
+    "description": "The 16x2 1602 LCD Display Module is one of the popular LCD displays in the Arduino opensource community because it is cheap and easy to setup. This module has a blue backlight with white character text. The LCD display has I2C backpack module that supports I2C protocol, already soldered to its pins at the back which requires only two wires for data and 2 wires for the supply, VCC and GND. The I2C backpack allows you to change its address by soldering some of the jumpers A0 A1 and A2. It also allows you to tune the contrast by turning the on-board potentiometer.",
+    "categories": [
+      "modules"
+    ],
+    "price": 170.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/1602.jpg"
+  },
+  {
+    "id": "cb-067",
+    "name": "DS3231 AT24C32 IIC RTC Real Time Clock Module",
+    "description": "The DS3231 is a low-cost, extremely accurate I²C real-time clock (RTC) with an integrated temperature-compensated crystal oscillator (TCXO) and crystal. The device incorporates a battery input, and maintains accurate timekeeping when main power to the device is interrupted.",
+    "categories": [
+      "modules"
+    ],
+    "price": 140.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/3231.jpg"
+  },
+  {
+    "id": "cb-068",
+    "name": "RTC DS1302 Real Time Clock Module",
+    "description": "The DS1302 trickle-charge timekeeping chip contains a real-time clock/calendar and 31 bytes of static RAM. It communicates with a microprocessor via a simple serial interface. The real-time clock/calendar provides seconds, minutes, hours, day, date, month, and year information. The end of the month date is automatically adjusted for months with fewer than 31 days, including corrections for leap year. The clock operates in either the 24-hour or 12-hour format with an AM/PM indicator.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/1302.jpg"
+  },
+  {
+    "id": "cb-069",
+    "name": "48V Step-down Module DC~DC 4.5~60V",
+    "description": "48V adjustable step-down regulator module, DC-DC, LM2596HV input, 4.5-60v power module.",
+    "categories": [
+      "modules"
+    ],
+    "price": 90.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/48sd.jpg"
+  },
+  {
+    "id": "cb-070",
+    "name": "MG90S Servo (180°/360°)",
+    "description": "MG90S is a micro servo motor with metal gear. This small and lightweight servo comes with high output power, thus ideal for  RC Airplane, Quadcopter or Robotic Arms. Operating Voltage: 4.8V to 6V (Typically 5V)",
+    "categories": [
+      "motors"
+    ],
+    "price": 170.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mg90.jpg"
+  },
+  {
+    "id": "cb-071",
+    "name": "MG996R 55g Metal Gear Torque (180°/360°)",
+    "description": "The MG996R Servo Motor is an all metal gear servo motor operating on a wide voltage range of 4.8V to 6.6V DC, it offers exceptional torque of 11 kg/cm.",
+    "categories": [
+      "motors"
+    ],
+    "price": 230.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mg996r.jpg"
+  },
+  {
+    "id": "cb-072",
+    "name": "28BYJ-48 Stepper Motor with ULN2003 Driver (5V)",
+    "description": "A 5V stepper motor with a ULN2003 driver board is a small, versatile stepper motor designed to be easily controlled by microcontrollers like Arduino. The ULN2003 IC acts as a driver, translating digital pulses from a microcontroller into the necessary signals to drive the stepper motor's coils, allowing for precise and repeatable movement.",
+    "categories": [
+      "motors"
+    ],
+    "price": 140.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/stepper.jpg"
+  },
+  {
+    "id": "cb-073",
+    "name": "L298 New Dual H Bridge DC Stepper Motor",
+    "description": "The L298N IC supports both DC and stepper motors, making it ideal for driving multiple motors in parallel.",
+    "categories": [
+      "motors"
+    ],
+    "price": 130.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/l298.jpg"
+  },
+  {
+    "id": "cb-074",
+    "name": "HC-SR04 Ultrasonic Sensor",
+    "description": "The HC-SR04 is an affordable and easy to use distance measuring sensor which has a range from 2cm to 400cm (about an inch to 13 feet). Operating Voltage: 5V DC",
+    "categories": [
+      "sensors"
+    ],
+    "price": 110.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/sr04.jpg"
+  },
+  {
+    "id": "cb-075",
+    "name": "LM2596 Dual USB DC-DC 9V 12V 24V 36V to 5V 3A Step Down Buck Converter Board",
+    "description": "The LM2596 Dual USB DC-DC 9V 12V 24V 36V to 5V 3A Step Down Buck Converter Board is a small module that converts a higher DC voltage (6-40V) to a lower DC voltage (5V). It includes two USB ports for output, making it suitable for powering devices that require 5V. The LM2596, a DC-DC buck converter, efficiently reduces the input voltage while providing a stable 5V output with a maximum current of 3A.",
+    "categories": [
+      "tools"
+    ],
+    "price": 90.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/dualusb.jpg"
+  },
+  {
+    "id": "cb-076",
+    "name": "Dupont Jump Wire (M-F|M-M|F-F)",
+    "description": "A jump wire, also known as a jumper wire, is an electrical wire with connectors (usually pins) at each end, used to connect two points in a circuit without soldering. They are commonly used with breadboards and other prototyping tools for easy circuit modification.",
+    "categories": [
+      "tools"
+    ],
+    "price": 2.0,
+    "quantityLabel": "Quantity: 1pc (any type/length)",
+    "image": "images/wires.jpg"
+  },
+  {
+    "id": "cb-077",
+    "name": "Micro SD Card Adapter Module",
+    "description": "SD cards or Micro SD cards are widely used in various applications, such as data logging, data visualization, and many more. Micro SD Card Adapter modules make it easier for us to access these SD cards with ease. The Micro SD Card Adapter module is an easy-to-use module with an SPI interface and an on-board 3.3V voltage regulator to provide proper supply to the SD card.",
+    "categories": [
+      "modules"
+    ],
+    "price": 75.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/micro.jpg"
+  },
+  {
+    "id": "cb-078",
+    "name": "Relay Shield V1.0",
+    "description": "Control more appliances with your Arduino board using this relay shield! This shield has four mechanical relays on it. It can control voltages up to 35VDC 70W on each channel. The Arduino board can control each relay separately using its IO pins with an external 9V DC supply. This version has four selectors that conveniently control the relays manually. Note: The pins on the relay shield should not touch the USB connector of Arduino Uno when they are connected.",
+    "categories": [
+      "modules",
+      "boards"
+    ],
+    "price": 220.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/relaysh.jpg"
+  },
+  {
+    "id": "cb-079",
+    "name": "DHT22 Temperature & Humidity Sensor",
+    "description": "The DHT22 is a basic, low-cost digital temperature and humidity sensor. It uses a capacitive humidity sensor and a thermistor to measure the surrounding air, and spits out a digital signal on the data pin (no analog input pins needed). Its fairly simple to use, but requires careful timing to grab data. The only real downside of this sensor is you can only get new data from it once every 2 seconds, so when using our library, sensor readings can be up to 2 seconds old. Power Input - 3 ~ 5VDC | Humidity Readings - 0-100% with 2-5% accuracy | Temperature Readings - -40~80°C ±0.5°C accuracy",
+    "categories": [
+      "sensors",
+      "modules"
+    ],
+    "price": 110.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/dht22.jpg"
+  },
+  {
+    "id": "cb-080",
+    "name": "L9110S H-Bridge Dual Motor Driver Module",
+    "description": "This L9110S Dual-Channel H-Bridge Motor Driver is a compact motor driver chip that supports a voltage range from 2.5-12V at 800mA of continuous current. These chips have built-in output clamp diodes to protect your sensitive microcontroller electronics.",
+    "categories": [
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/l9110s.jpg"
+  },
+  {
+    "id": "cb-081",
+    "name": "ACS712 Hall Effect Current Sensor Module 30A",
+    "description": "This 30A Current Sensor Module has been designed to be used within Arduino projects. Its a fully Integrated, Hall Effect-Based Linear AC/DC Current Sensor with a 30A rating.",
+    "categories": [
+      "sensors",
+      "modules"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/hallc.jpg"
+  },
+  {
+    "id": "cb-082",
+    "name": "0 To 25V DC Voltage Sensor Module",
+    "description": "The voltage sensor module is a 0-25 DC voltage sensing device that is based on a resistive voltage divider circuit. It reduces the input voltage signal by the factor of 5 and generates a corresponding analog output voltage. This is the reason why you can measure the voltage up to 25V using the 5V analog pin of any microcontroller.",
+    "categories": [
+      "sensors",
+      "modules"
+    ],
+    "price": 65.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/vsm.jpg"
+  },
+  {
+    "id": "cb-083",
+    "name": "NEO-6M GPS Receiver Module (no Antenna)",
+    "description": "The NEO-6M is a popular GPS (Global Positioning System) module manufactured by u-blox. It is commonly used in various applications that require accurate positioning and navigation capabilities. The module combines a GPS receiver with an integrated antenna, making it compact and easy to integrate into different electronic devices.",
+    "categories": [
+      "modules"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/neo.jpg"
+  },
+  {
+    "id": "cb-084",
+    "name": "DC-DC Boost Converter 3.3V-35V In to 5V-40V Out 5A Step Up Power Module",
+    "description": "Wide voltage range input, input voltage up to 35V; the output voltage can be adjusted, and the maximum can be supported by 40V. Using conventional BOOST complete constant voltage output scheme, internal integration of MOSFET, less peripheral devices, low system cost. Specifications: Input voltage: DC 3V-35V; Output voltage: DC5V-40V (adjustable); Input current: 5A (MAX); Transfer efficiency: 94%; Output Ripple<100mV; Operating Temperature: -20°c to +85°c; Voltage regulation: ± 0.5%; Load regulation: ± 0.5%; Switching frequency: 220KHz; Size(LxWxH): 5x2.8x1.2cm",
+    "categories": [
+      "tools"
+    ],
+    "price": 60.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/stepup.jpg"
+  },
+  {
+    "id": "cb-085",
+    "name": "XL6009 4.5-32v Step-Up Boost Power Module With Display",
+    "description": "The XL6009 is a 4A step up boost module. With the XL6009E1 chip, it boasts second generation high frequency switching technology. Specification: • Input voltage: 4.3V-32V DC • Output voltage: 5V-35V DC • Input current: 4A (maximum) • Efficiency: 94%(Max) Normal efficiency ~85% • Switching frequency: 40KHz • Output ripple: 50mVp-p • Load regulation: ±0.5% • Voltage regulation: ±0.5% • Size: 6.98cm*3.80cm",
+    "categories": [
+      "tools"
+    ],
+    "price": 160.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/xl6009.jpg"
+  },
+  {
+    "id": "cb-086",
+    "name": "Ishikawa Quick Melt Soldering Lead (Solder Wire) 1.0mm",
+    "description": "This is your basic roll of 1.0mm Soldering Lead with a 60/40 water-soluble resin core. This is a good roll of solder lead for advanced users that should last 6-12 months depending on how often you solder. Specification: 60/40 rosin core solder; Components: Sn 60%, Pb 40%; Wire diameter: 1.0 mm",
+    "categories": [
+      "tools"
+    ],
+    "price": 15.0,
+    "quantityLabel": "Quantity: 1 meter",
+    "image": "images/lead.jpg"
+  },
+  {
+    "id": "cb-087",
+    "name": "TF Wire AWG# 22 - Stranded",
+    "description": "TF wire, specifically in a 22 AWG stranded configuration, is a type of electrical wire commonly used for low-voltage applications like lighting, electronics, and audio. The \"TF\" designation often refers to \"Thermoplastic Fixture\" and indicates that the wire is suitable for use in fixtures and other applications where it might be protected from bending or exposed to heat. The \"22 AWG\" (American Wire Gauge) specifies its thickness, making it relatively thin and flexible.",
+    "categories": [
+      "tools"
+    ],
+    "price": 10.0,
+    "quantityLabel": "Quantity: 1 meter",
+    "image": "images/tf22.jpg"
+  },
+  {
+    "id": "cb-088",
+    "name": "Solid Wire AWG# 22 - Green",
+    "description": "This high-quality 22 AWG solid copper wire is ideal for a variety of DIY electronics projects, including LED and audio applications. Measuring 1 meter in length, it offers flexibility for custom installations and repairs. Designed for both hobbyists and professionals, this wire ensures reliable conductivity and durability. Its versatility makes it suitable for various electrical tasks, from crafting to circuit building. Please note that the wire is sold by the meter, and multiple purchases will be delivered as a continuous length.",
+    "categories": [
+      "tools"
+    ],
+    "price": 10.0,
+    "quantityLabel": "Quantity: 1 meter",
+    "image": "images/solid.jpg"
+  },
+  {
+    "id": "cb-089",
+    "name": "DC Stranded Wire AWG# 18 - Red/Black",
+    "description": "18 AWG (American Wire Gauge) DC wire is a standard size for many low-voltage applications. It's often used for things like doorbells, security systems, and some car wiring. While it can handle moderate currents, it's not suitable for high-power applications like running a large appliance or a long distance with high current.",
+    "categories": [
+      "tools"
+    ],
+    "price": 15.0,
+    "quantityLabel": "Quantity: 1 meter",
+    "image": "images/dcwire.jpg"
+  },
+  {
+    "id": "cb-090",
+    "name": "Solder Wick Desoldering Braid",
+    "description": "Good quality desoldering braid with unique no-clean flux. Pure oxygen-free copper wire for easy solder removal. Made of high class copper material with good quality, for a long service life. The product using advanced technology with excellent craftsmanship to bring Glossy surface. Used to absorb excess solder with strong to oxidation and , which has good thermal conductivity and soldering performance. The welding on the can be sucked away to guarantee that there is no short circuit between the pins. Using a soldering wire to clean the pads when reballing for BGA components can greatly increase the success rate.",
+    "categories": [
+      "tools"
+    ],
+    "price": 125.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/wick.jpg"
+  },
+  {
+    "id": "cb-091",
+    "name": "Inductive Proximity Sensor Detection Switch (TL-W5MC1)",
+    "description": "The Inductive NPN Proximity Sensor TL-W5MC1 is a high-quality sensor designed for detecting the presence of metallic objects without physical contact. It operates on the principle of electromagnetic induction, where a coil within the sensor generates an electromagnetic field that is disrupted by the presence of a metallic object, causing the sensor to trigger an output signal.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 140.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/proxi.jpg"
+  },
+  {
+    "id": "cb-092",
+    "name": "Hall Effect Sensor Proximity Switch (NJK-5002C)",
+    "description": "Inductive proximity sensor consists of three parts. Oscillator generates an alternating magnetic field. When the magnetic field near the metal target and reach the sensing distance, causing oscillation damping, as well as to stop vibration. Oscillator and stop vibration changes after stage amplifier circuit is processed and converted into a switching signal to trigger the drive control device, so as to achieve the purpose of the non-contact detection of.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 180.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/proxi1.jpg"
+  },
+  {
+    "id": "cb-093",
+    "name": "MQ-2 Combustible Gas, Smoke Sensor Module",
+    "description": "The MQ-2 smoke sensor is the metal oxide semiconductor sensor. Hence, also recognized as a Chemiresistor. The MQ2 sensor can quickly detect Alcohol, propane, LPG, hydrogen, and methane. The operating voltage of the sensor is about 5V. Since it requires a warm-up, therefore, it has a preheat duration of 20 seconds. We can use it both as a digital or analog sensor.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq2.jpg"
+  },
+  {
+    "id": "cb-094",
+    "name": "MQ3 Alcohol, Ethanol, Smoke Detecting Sensor Module",
+    "description": "The MQ3 sensor module is convenient for detecting Alcohol, Methane, Hexane, Carbon monoxide, liquified petroleum gas (LPG). The sensor contains tin dioxide. When the alcohol gas exists around, the conductivity of the sensor is higher. MQ3 gas sensor has an acute sensitivity to Alcohol and has excellent resistance to disturb smoke, vapor, and gasoline.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq3.jpg"
+  },
+  {
+    "id": "cb-095",
+    "name": "MQ4 Methane Natural Gas, CNG Gas Detection Sensor",
+    "description": "The sensor acts by detecting the methane concentration in the air. The sensor includes the analog pin that generates an analog signal proportional to the volume of Methane or CNG in the air. Hence, one can estimate the analog output of a sensor with a microcontroller having an analog-to-digital converter.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq4.jpg"
+  },
+  {
+    "id": "cb-096",
+    "name": "MQ5 Methane Natural Combustible Gas Sensor",
+    "description": "MQ5 is a sensitive gas sensor that can detect or sense liquefied gas, propane, butane, natural, and other combustible gases in the environment. And, hence used in gas leakage detectors, and other industrial gas detectors, or monitoring devices. The output voltage of this MQ5 Gas sensor increases when the concentration of gases or a gas increases. We can adjust the sensitivity by adjusting the potentiometer.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq5.jpg"
+  },
+  {
+    "id": "cb-097",
+    "name": "MQ6 LPG, Butane, Propane Gas Sensor Module",
+    "description": "The MQ6 gas sensor is a device that has a fast response to Liquid petroleum gas, generally used in equipment to detect gas leaks in industrial and other works. This is a simple sensor suitable for detecting LPG in the air that mostly contains butane and propane. The sensor allows us to detect if there are gas concentrations anywhere and we can hence use it in various industrial and commercial projects. The Digital Pin of this sensor allows it to operate even without a microcontroller and that is manageable when you are trying to catch one specific gas. The sensor can also detect different combustible gas.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq6.jpg"
+  },
+  {
+    "id": "cb-098",
+    "name": "MQ7 Carbon Monoxide (CO) Gas Sensor Module",
+    "description": "MQ7 sensor has an acute sensitivity to Carbon Monoxide and can detect the concentration of carbon monoxide in the surroundings. MQ7 sensor has a small heater inside with an electrochemical sensor to measure different kinds of gas combinations. Thus, it can be calibrated. We can use the gas sensor module at room temperature.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq7.jpg"
+  },
+  {
+    "id": "cb-099",
+    "name": "MQ8 Hydrogen Gas Sensor Module",
+    "description": "The MQ8 sensor is a simple hydrogen gas sensor, convenient for detecting hydrogen concentrations in the air. Thus, the MQ8 sensor can detect hydrogen gas concentrations anywhere in the range from 100 to 10000ppm. Because of its low cost, and it is suitable for air quality monitoring applications.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq8.jpg"
+  },
+  {
+    "id": "cb-100",
+    "name": "MQ9 Carbon Monoxide, Coal, Liquefied, Combustible Gas Sensor Module",
+    "description": "The MQ9 is a methane, carbon monoxide gas detection sensor. The sensor includes tin dioxide as its sensing element. The SnO2 (tin dioxide)has lower conductivity in pure air. When the air has carbon Monoxide, Coal, Liquefied, flammable gases, the conductivity of the sensor gets higher. A simple device makes measuring this change in conductivity and turning it into obvious data. However, the sensor requires some calibration.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq9.jpg"
+  },
+  {
+    "id": "cb-101",
+    "name": "MQ135 Air Quality Smoke Gas Sensor Module",
+    "description": "MQ135 is an air quality sensor that can detect a wide range of gases, comprising NH3, alcohol, smoke, carbon dioxide, and benzene. And, hence ideal for offices, industries or factories, or workplaces. MQ135 gas sensor has an acute sensitivity to Ammonia, Sulfide, smoke, and other toxic gases. Because of its low cost and, it is suitable for air quality monitoring applications.",
+    "categories": [
+      "sensors"
+    ],
+    "price": 100.0,
+    "quantityLabel": "Quantity: 1",
+    "image": "images/mq135.jpg"
+  }
+]

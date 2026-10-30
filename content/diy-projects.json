@@ -1968,5 +1968,501 @@
     "serial": "Not required",
     "code": "three-led-scanner.ino",
     "validation": "Source reviewed for Arduino UNO logic and array bounds. Hardware operation and Arduino IDE compilation have not been independently bench-verified."
+  },
+  {
+    "slug": "joystick-direction-lights",
+    "title": "Build a joystick-controlled four-way light",
+    "level": "Basic",
+    "topic": "Analog inputs & control",
+    "time": "45–60 min",
+    "introduction": "A two-axis joystick contains two potentiometers. Your Arduino reads their analog values and lights one of four LEDs depending on which direction you move the stick.",
+    "purpose": "Learn to translate two analog inputs into decisions and physical outputs using common CircuitByte components.",
+    "learn": [
+      "Read X and Y using analogRead()",
+      "Use if/else conditions and an adjustable dead zone",
+      "Connect four current-limited LEDs",
+      "Interpret noisy neutral joystick readings"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Reads joystick and drives indicator LEDs"
+      },
+      {
+        "id": "cb-015",
+        "qty": 1,
+        "variant": "Two-axis analog joystick module with VRx, VRy, VCC, GND pins",
+        "role": "Provides analog direction input"
+      },
+      {
+        "id": "cb-009",
+        "qty": 4,
+        "variant": "Four separate indicator LEDs",
+        "role": "Shows up, down, left and right"
+      },
+      {
+        "id": "cb-002",
+        "qty": 4,
+        "variant": "Four 330 Ω ¼ W resistors, one per LED",
+        "role": "Keeps each LED current within a safe range"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "Solderless breadboard",
+        "role": "Supports the output circuit"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper wires with suitable male/female ends",
+        "role": "Connects joystick and indicator LEDs"
+      }
+    ],
+    "extras": [
+      "Computer, Arduino IDE 2 and USB data cable.",
+      "Paper labels for LEFT, RIGHT, UP and DOWN LEDs (optional)."
+    ],
+    "wiring": [
+      {
+        "from": "Joystick VCC",
+        "via": "Power wire",
+        "to": "UNO 5V",
+        "note": "Only if the joystick board is rated for 5 V operation."
+      },
+      {
+        "from": "Joystick GND",
+        "via": "Ground wire",
+        "to": "UNO GND",
+        "note": "Match printed labels on the physical module."
+      },
+      {
+        "from": "Joystick VRx",
+        "via": "Signal wire",
+        "to": "UNO A0",
+        "note": "Analog horizontal axis; reverse interpretations if needed."
+      },
+      {
+        "from": "Joystick VRy",
+        "via": "Signal wire",
+        "to": "UNO A1",
+        "note": "Analog vertical axis."
+      },
+      {
+        "from": "UNO D5",
+        "via": "330 Ω resistor",
+        "to": "LEFT LED anode (+); cathode to GND",
+        "note": "Use a separate resistor for this LED."
+      },
+      {
+        "from": "UNO D6",
+        "via": "330 Ω resistor",
+        "to": "RIGHT LED anode (+); cathode to GND",
+        "note": "Use a separate resistor for this LED."
+      },
+      {
+        "from": "UNO D9",
+        "via": "330 Ω resistor",
+        "to": "UP LED anode (+); cathode to GND",
+        "note": "Use a separate resistor for this LED."
+      },
+      {
+        "from": "UNO D10",
+        "via": "330 Ω resistor",
+        "to": "DOWN LED anode (+); cathode to GND",
+        "note": "Use a separate resistor for this LED."
+      }
+    ],
+    "steps": [
+      "Unplug UNO USB and identify the joystick module pin labels.",
+      "Connect VCC/GND/VRx/VRy to the corresponding UNO pins in the table; do not swap supply with a signal pin.",
+      "Add four separate LED-resistor branches to D5, D6, D9 and D10 and connect their cathodes to GND.",
+      "Upload the original sketch with the correct board and port selected.",
+      "Open Serial Monitor at 9600 baud to read X and Y values. Verify the resting readings are near midpoint.",
+      "Tilt the joystick one direction at a time; one matching LED should light. To reverse a direction, change which pin or comparison is assigned.",
+      "If the stick causes an LED to flicker at rest, increase the deadZone constant and re-upload."
+    ],
+    "expected": [
+      "All four LEDs are off when the stick remains near its center position.",
+      "Moving left or right lights the corresponding single horizontal LED.",
+      "Moving up or down lights the corresponding single vertical LED.",
+      "Diagonal motion can light one horizontal and one vertical LED concurrently."
+    ],
+    "troubleshooting": [
+      [
+        "All LEDs stay off",
+        "Check joystick VCC/GND, VRx/VRy, serial ADC readings, resistors and LED polarity."
+      ],
+      [
+        "Direction reversed",
+        "Joystick orientation varies. Swap axis comparison or swap the labels of LEDs."
+      ],
+      [
+        "Light flickers at center",
+        "Increase the deadZone, inspect the idle analog readings and improve ground connections."
+      ],
+      [
+        "UNO gets hot or disconnects",
+        "Unplug immediately and inspect shorts between 5V and GND."
+      ]
+    ],
+    "extension": "Use the joystick SW button (if fitted) on D2 with INPUT_PULLUP to toggle whether direction indicators are enabled.",
+    "sources": [
+      "uno",
+      "analog",
+      "digital"
+    ],
+    "flow": [
+      "Read analog X and Y",
+      "Compare each axis with center and dead zone",
+      "Drive LEFT/RIGHT and UP/DOWN LEDs",
+      "Show current values on Serial Monitor",
+      "Repeat"
+    ],
+    "notes": [
+      "The joystick module may face a different direction or have reversed axis polarity; calibrate using Serial Monitor.",
+      "Check exact module voltage and pin labels before wiring. Joystick SW is intentionally unused in the basic build.",
+      "Every bare LED needs its own resistor; no external motor or mains load is controlled by this sketch."
+    ],
+    "board": "Arduino UNO R3-compatible",
+    "libraries": [
+      "No external libraries. Standard Arduino core functions only."
+    ],
+    "serial": "9600 baud",
+    "code": "joystick-direction-lights.ino",
+    "validation": "Original educational design: software and wiring have undergone a source-level review; hardware has not been bench-tested."
+  },
+  {
+    "slug": "lcd-room-comfort-monitor",
+    "title": "Build a temperature and humidity LCD monitor",
+    "level": "Intermediate",
+    "topic": "Sensors & displays",
+    "time": "75–100 min",
+    "introduction": "An Arduino reads a DHT22 sensor and displays room temperature and relative humidity on a two-line I²C LCD. The project combines sensor timing, external libraries, display communication and invalid-reading handling.",
+    "purpose": "Create a stand-alone environmental display using listed CircuitByte components, without Wi-Fi, cloud accounts or internet connectivity.",
+    "learn": [
+      "Wire a digital temperature/humidity sensor",
+      "Use the I²C bus at A4/A5 on an UNO",
+      "Install and call documented sensor and LCD libraries",
+      "Detect failed sensor reads instead of displaying misleading values"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Controller for the sensor and display"
+      },
+      {
+        "id": "cb-079",
+        "qty": 1,
+        "variant": "DHT22/AM2302 temperature and humidity sensor, pinout verified",
+        "role": "Measures temperature and humidity"
+      },
+      {
+        "id": "cb-066",
+        "qty": 1,
+        "variant": "16 × 2 character LCD with PCF8574/MCP23008-compatible I²C backpack",
+        "role": "Displays room measurements"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "variant": "10 kΩ ¼ W resistor for a bare DHT22 (omit if the breakout has a verified pull-up)",
+        "role": "Pulls DHT data line up to sensor VCC"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "Solderless breadboard",
+        "role": "Supports the optional pull-up and wire junctions"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper wires suited to module connectors",
+        "role": "Connects the display and sensor"
+      }
+    ],
+    "extras": [
+      "Computer, USB data cable and Arduino IDE 2.",
+      "Install 'DHT sensor library' by Adafruit and 'Adafruit Unified Sensor' in Library Manager.",
+      "Install 'hd44780' by Bill Perry in Library Manager; use its I2Cexp interface.",
+      "Optionally run the separate I²C scanner lesson first to troubleshoot module communication."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Power wire",
+        "to": "LCD VCC",
+        "note": "For a verified 5 V I²C LCD backpack only."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Ground wire",
+        "to": "LCD GND and DHT22 GND",
+        "note": "Share ground between peripherals."
+      },
+      {
+        "from": "UNO A4",
+        "via": "SDA wire",
+        "to": "LCD SDA",
+        "note": "UNO I²C data."
+      },
+      {
+        "from": "UNO A5",
+        "via": "SCL wire",
+        "to": "LCD SCL",
+        "note": "UNO I²C clock."
+      },
+      {
+        "from": "UNO 5V",
+        "via": "Verified DHT sensor supply",
+        "to": "DHT22 VCC",
+        "note": "Bare DHT22 pin 1 at the specified orientation; module pin order may differ."
+      },
+      {
+        "from": "UNO D2",
+        "via": "Signal wire",
+        "to": "DHT22 DATA",
+        "note": "On bare DHT22, signal is pin 2; pin 3 is not connected."
+      },
+      {
+        "from": "DHT22 DATA",
+        "via": "10 kΩ resistor (for bare sensor)",
+        "to": "DHT22 VCC",
+        "note": "Do not add redundant pull-ups when the module already provides one."
+      }
+    ],
+    "steps": [
+      "Disconnect USB and inspect the exact DHT22 sensor packaging and the LCD backpack pin labels.",
+      "Wire SDA to A4, SCL to A5, and connect verified-compatible power/ground to the I²C LCD.",
+      "Connect the DHT22 sensor to pin D2 and add the 10 kΩ data pull-up only if the board does not include one.",
+      "Install the Adafruit DHT sensor library, Unified Sensor dependency and Bill Perry hd44780 library using Arduino Library Manager.",
+      "Upload the example and observe the LCD. It should show temperature on row 1 and humidity on row 2.",
+      "Breathe near (but not onto or into) the sensor and observe the humidity change after a few refreshes.",
+      "Disconnect the sensor DATA wire with power off to test that the display reports unavailable readings."
+    ],
+    "expected": [
+      "The LCD shows a temperature reading in Celsius and relative humidity in percent.",
+      "Readings refresh every 2.5 seconds.",
+      "If the sensor cannot be read, the LCD shows a Sensor error indication instead of a stale number."
+    ],
+    "troubleshooting": [
+      [
+        "LCD lights but shows blocks",
+        "Check contrast adjustment and I²C wiring; run the library's I2CexpDiag diagnostic."
+      ],
+      [
+        "LCD not detected",
+        "Check A4/A5 wiring, common ground and the backpack's correct operating voltage."
+      ],
+      [
+        "Sensor error",
+        "Confirm DHT22 vs DHT11, D2 DATA, pull-up, power and the sensor's pin order."
+      ],
+      [
+        "Library missing at compile time",
+        "Install the named libraries and check which header file the compiler says is missing."
+      ]
+    ],
+    "extension": "Create a comfort indicator with an LED that turns on if the measured temperature exceeds a user-selected threshold. This is educational monitoring, not an alarm system.",
+    "sources": [
+      "uno",
+      "dht",
+      "digital"
+    ],
+    "flow": [
+      "Initialize LCD and sensor",
+      "Wait at least 2.5 seconds",
+      "Read temperature and humidity",
+      "If valid: update display",
+      "If invalid: show Sensor error",
+      "Repeat"
+    ],
+    "notes": [
+      "This project is an environmental demonstration, not a calibrated measurement or safety device.",
+      "The LCD requires a compatible I²C backpack; hd44780_I2Cexp detects many PCF8574/MCP23008 backpacks automatically but not every possible module.",
+      "Do not connect 5 V I²C lines to a 3.3 V-only controller. The specified board here is UNO 5 V.",
+      "A bare four-pin DHT22 and a preassembled three-pin module have different pinouts; verify the physical component."
+    ],
+    "board": "Arduino UNO R3-compatible",
+    "libraries": [
+      "DHT sensor library by Adafruit (install the Unified Sensor dependency)",
+      "Adafruit Unified Sensor",
+      "hd44780 by Bill Perry (hd44780_I2Cexp interface)"
+    ],
+    "serial": "9600 baud (debug only)",
+    "code": "lcd-room-comfort-monitor.ino",
+    "validation": "Code written against documented Adafruit DHT and hd44780 interfaces; no physical bench test performed. Confirm actual LCD backpack and DHT22 module variants before wiring."
+  },
+  {
+    "slug": "micro-sd-light-logger",
+    "title": "Build a microSD light-level data logger",
+    "level": "Intermediate",
+    "topic": "Data logging & sensors",
+    "time": "75–100 min",
+    "introduction": "Instead of simply displaying sensor values, log them to a CSV file on a microSD card. The UNO samples an analog light sensor at a fixed interval and saves readings for later graphing.",
+    "purpose": "Practice analog acquisition, SPI storage, CSV files, non-blocking interval checks and recoverable storage errors.",
+    "learn": [
+      "Read the analog voltage of a light-sensor module",
+      "Recognize SPI CS/MOSI/MISO/SCK signals",
+      "Save a timestamped CSV on a microSD card",
+      "Understand why the adapter's 3.3 V signal levels must be checked"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Controls sensor sampling and storage"
+      },
+      {
+        "id": "cb-049",
+        "qty": 1,
+        "variant": "Light-dependent resistor sensor module with an analog AO output",
+        "role": "Measures relative light intensity"
+      },
+      {
+        "id": "cb-077",
+        "qty": 1,
+        "variant": "SPI microSD module; MUST confirm onboard regulation and 5 V input logic compatibility or add a suitable level shifter",
+        "role": "Stores CSV measurements"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "Solderless breadboard",
+        "role": "Supports low-voltage wiring"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Jumper wires suited to actual module headers",
+        "role": "Carries sensor and SPI signals"
+      }
+    ],
+    "extras": [
+      "A compatible microSD card formatted FAT16/FAT32 as supported by the Arduino SD library; prepare it on a computer.",
+      "A separate bidirectional/unidirectional 5 V-to-3.3 V SPI logic-level adapter when required by the exact microSD breakout. Do not bypass this check.",
+      "Computer, Arduino IDE 2, appropriate USB data cable and a microSD card reader.",
+      "Use the Arduino SD and SPI libraries supplied with the board environment; no network connection is needed."
+    ],
+    "wiring": [
+      {
+        "from": "UNO 5V",
+        "via": "Verified-compatible supply",
+        "to": "Light sensor VCC",
+        "note": "Confirm the exact AO module supply rating."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Common ground",
+        "to": "Light sensor GND and SD module GND",
+        "note": "Both devices share the UNO reference."
+      },
+      {
+        "from": "Light sensor AO",
+        "via": "Analog wire",
+        "to": "UNO A0",
+        "note": "Use AO, not DO, so the logger records a continuously varying ADC value."
+      },
+      {
+        "from": "UNO D10",
+        "via": "Level shifting if required",
+        "to": "SD module CS",
+        "note": "5 V UNO output requires level translation unless breakout explicitly supports 5 V logic."
+      },
+      {
+        "from": "UNO D11 (MOSI)",
+        "via": "Level shifting if required",
+        "to": "SD module MOSI",
+        "note": "Keep UNO 5 V signal off 3.3 V-only SD pins."
+      },
+      {
+        "from": "UNO D12 (MISO)",
+        "via": "Compatible return signal",
+        "to": "SD module MISO",
+        "note": "3.3 V output from the SD usually meets UNO digital-high threshold; verify circuit."
+      },
+      {
+        "from": "UNO D13 (SCK)",
+        "via": "Level shifting if required",
+        "to": "SD module SCK",
+        "note": "SPI clock must respect the actual module logic rating."
+      },
+      {
+        "from": "Approved module supply",
+        "via": "Regulated supply",
+        "to": "SD module VCC",
+        "note": "Use 5 V only if the breakout has a suitable regulator. Otherwise follow its 3.3 V supply specification."
+      }
+    ],
+    "steps": [
+      "Confirm whether the SD breakout includes both a voltage regulator and logic-level translation. If not, use a suitable level shifter; do not connect 5 V UNO outputs directly to SD card pins.",
+      "With USB disconnected, wire the analog light-sensor output to A0 and confirm a common GND.",
+      "Wire the SPI pins CS D10, MOSI D11, MISO D12 and SCK D13 through the proper logic-compatible interface.",
+      "Format a compatible card FAT16/FAT32, insert it with power off, then upload the original logger sketch.",
+      "Open Serial Monitor at 9600 baud and verify that it reports successful SD initialization and appends a row every five seconds.",
+      "Cover and uncover the sensor; verify that ADC values change in Serial Monitor and in LIGHT.CSV.",
+      "Disconnect power normally, remove the card, and inspect the CSV in a spreadsheet. Compare light changes against the recorded millis timestamps."
+    ],
+    "expected": [
+      "The file LIGHT.CSV is created with a header if it does not already exist.",
+      "Every five seconds, a new CSV row records milliseconds since boot and an ADC reading from 0 to 1023.",
+      "Covering/uncovering the LDR changes the reading; the direction depends on sensor circuit design.",
+      "If SD cannot initialize, the logger reports an error on Serial Monitor rather than silently claiming data was saved."
+    ],
+    "troubleshooting": [
+      [
+        "SD.begin failed",
+        "Check filesystem, card, CS pin D10, MISO/MOSI/SCK wiring, stable power and logic-level compatibility."
+      ],
+      [
+        "No CSV appears",
+        "Confirm SD initialization succeeded, a compatible FAT filesystem is used and the sketch has permission to create files."
+      ],
+      [
+        "Always 0 or 1023",
+        "Check AO vs DO on the sensor and confirm the sensor operates within 0–5 V at the UNO analog input."
+      ],
+      [
+        "Unchanging readings",
+        "Check the sensor's analog output and cover/uncover its LDR; confirm supply and ground."
+      ],
+      [
+        "Unexpected resets",
+        "Stop and inspect power instability, shorts and the breakout's regulator/current demand."
+      ]
+    ],
+    "extension": "Replace millis-based time with a DS3231 clock. Record a real calendar timestamp after verifying RTC module battery/charging safety and creating a suitable RTC initialization routine.",
+    "sources": [
+      "uno",
+      "analog"
+    ],
+    "flow": [
+      "Check SD at startup",
+      "Take analog sample every 5 seconds",
+      "Open LIGHT.CSV",
+      "Append millis and ADC",
+      "Close file and confirm write",
+      "Repeat"
+    ],
+    "notes": [
+      "WARNING: An SD module's 3.3 V regulator is not evidence its SPI inputs tolerate 5 V. Use a 5 V-compatible breakout with true level shifting or add a compatible translator.",
+      "Never hot-plug a microSD card while the sketch is writing; unmount by powering down before removal.",
+      "This project measures relative light level, not calibrated lux. Date/time is uptime since power-on, not a real clock.",
+      "SD cards and adapters are subject to write failure; verify exported CSV before relying on collected measurements."
+    ],
+    "board": "Arduino UNO R3-compatible",
+    "libraries": [
+      "SPI library (Arduino core)",
+      "SD library (Arduino Library Manager / standard Arduino library)"
+    ],
+    "serial": "9600 baud",
+    "code": "micro-sd-light-logger.ino",
+    "validation": "Source-level review only. The exact microSD module and optional level shifter have not been inspected or bench-tested; hardware-compatibility verification is mandatory."
   }
 ]

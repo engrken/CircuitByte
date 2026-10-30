@@ -5,7 +5,7 @@ import {LessonCode} from './lesson-code';
 const tracks = [
   {name:'Electronics fundamentals',id:'electronics',number:'01',subtitle:'Understand the language of circuits',description:'Start with voltage, current, resistance, components, symbols and how a breadboard is connected.'},
   {name:'Basic circuits',id:'circuits',number:'02',subtitle:'Turn theory into a working circuit',description:'Wire LEDs, switches, a voltage divider and a transistor-controlled buzzer with clear low-voltage connection maps.'},
-  {name:'Arduino coding',id:'arduino',number:'03',subtitle:'Write, upload and understand your own sketches',description:'Start with the IDE, then learn outputs, conditions, analog readings, PWM and non-blocking timing.'}
+  {name:'Arduino coding',id:'arduino',number:'03',subtitle:'Write, upload and understand your own sketches',description:'Plan algorithms, then learn outputs, decisions, loops, functions, arrays, Serial debugging and non-blocking timing.'}
 ];
 
 export {lessons};
@@ -14,7 +14,7 @@ export function LearningTracks(){
     <div className="edu-foundations-intro">
       <p className="edu-kicker">NEW / START FROM ZERO</p>
       <h2 id="learning-paths-title">Your electronics learning path</h2>
-      <p>Fourteen bite-sized lessons. Learn the principles, follow a connection map, then write Arduino code and test a real circuit. No previous experience is required.</p>
+      <p>{lessons.length} bite-sized lessons. Learn the principles, follow a connection map, then write Arduino code and test a real circuit. No previous experience is required.</p>
     </div>
     <nav className="edu-track-jump" aria-label="Choose a learning topic">
       {tracks.map(track=><a href={'#'+track.id} key={track.id}>{track.name}<span aria-hidden="true"> ↓</span></a>)}

@@ -14,6 +14,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Confirm CircleCI GitHub trigger and checked-out commit
+          command: |
+            echo "CircleCI project: ${CIRCLE_PROJECT_REPONAME:-unknown}"
+            echo "Git commit: ${CIRCLE_SHA1:-unknown}"
+            echo "Branch: ${CIRCLE_BRANCH:-pull-request}"
+      - run:
           name: Install locked Node.js dependencies
           command: npm ci --no-audit --no-fund
       - run:

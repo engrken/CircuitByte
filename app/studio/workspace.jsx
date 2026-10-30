@@ -71,7 +71,7 @@ export function StudioWorkspace({parts}) {
   }
   const missing=project?.missing||[];
   return <section className="studio-workspace" id="workspace">
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five verified curriculum examples provide a safe starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
+    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
     <div className="studio-grid">
       <div className="studio-controls">
         <section className="studio-panel">

@@ -1824,5 +1824,149 @@
     "serial": "115200 baud",
     "code": "esp32-room-dashboard.ino",
     "validation": "Compile-checked with Espressif ESP32 core 3.3.0. Physical hardware and network operation have not been bench-tested; verify your exact modules."
+  },
+  {
+    "slug": "three-led-scanner",
+    "title": "Build a three-LED scanning light",
+    "level": "Basic",
+    "topic": "Programming & visual effects",
+    "time": "45–60 min",
+    "introduction": "Three small LEDs light one after another and reverse direction like a miniature scanning light. This project joins low-voltage wiring, arrays, for loops and reusable functions in one visible result.",
+    "purpose": "Practice basic Arduino programming by building a repeatable three-light scanning pattern with common catalog components.",
+    "learn": [
+      "Wire three LEDs with separate current-limiting resistors",
+      "Use an array to store three output pins",
+      "Read a for loop that moves the light forward and backward",
+      "Change a function parameter to control animation speed"
+    ],
+    "parts": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "variant": "ATmega328P UNO R3-compatible",
+        "role": "Controls the sequence"
+      },
+      {
+        "id": "cb-009",
+        "qty": 3,
+        "variant": "Three 5 mm indicator LEDs (same color recommended)",
+        "role": "Displays the sequence"
+      },
+      {
+        "id": "cb-002",
+        "qty": 3,
+        "variant": "Three separate 330 Ω, ¼ W resistors",
+        "role": "Limits current through each LED"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "variant": "400-point solderless breadboard",
+        "role": "Holds low-current connections"
+      },
+      {
+        "id": "cb-076",
+        "qty": 1,
+        "variant": "Enough male-to-male jumpers for three outputs and common GND",
+        "role": "Connects the breadboard to UNO"
+      }
+    ],
+    "extras": [
+      "A computer with Arduino IDE 2 installed and an appropriate USB data cable.",
+      "A phone camera (optional) to record and compare animation speeds."
+    ],
+    "wiring": [
+      {
+        "from": "UNO D8",
+        "via": "330 Ω resistor",
+        "to": "LED 1 anode (+)",
+        "note": "LED 1 cathode (−) to common GND."
+      },
+      {
+        "from": "UNO D9",
+        "via": "A separate 330 Ω resistor",
+        "to": "LED 2 anode (+)",
+        "note": "LED 2 cathode (−) to common GND."
+      },
+      {
+        "from": "UNO D10",
+        "via": "A separate 330 Ω resistor",
+        "to": "LED 3 anode (+)",
+        "note": "LED 3 cathode (−) to common GND."
+      },
+      {
+        "from": "UNO GND",
+        "via": "Breadboard ground rail and jumpers",
+        "to": "All three LED cathodes (−)",
+        "note": "Verify rail continuity; some breadboard rails are split."
+      },
+      {
+        "from": "Computer USB",
+        "via": "USB data cable",
+        "to": "UNO USB connector",
+        "note": "Unplug before moving jumper wires."
+      }
+    ],
+    "steps": [
+      "Disconnect the UNO from USB. Insert three LEDs on separate breadboard rows; do not place both legs of one LED in the same connected row.",
+      "Connect D8, D9 and D10 individually to an LED anode through one 330 Ω resistor per LED.",
+      "Connect each LED cathode to a verified common GND rail, then connect the rail to UNO GND.",
+      "Follow the schematic and the pin-by-pin wiring map, then compare every connection before applying power.",
+      "Connect the board, select Arduino Uno and the right port in Arduino IDE, and upload three-led-scanner.ino.",
+      "Observe the order 1 → 2 → 3 → 2, repeating. Change stepDelayMs from 170 to 350 and re-upload to slow the effect."
+    ],
+    "expected": [
+      "Exactly one LED is illuminated at a time.",
+      "The pattern travels from LED 1 to LED 3 and back through LED 2, repeating.",
+      "Increasing stepDelayMs makes the pattern visibly slower."
+    ],
+    "troubleshooting": [
+      [
+        "No LEDs illuminate",
+        "Check the selected board/port, uploaded sketch, D8–D10 connections, common ground and LED polarity."
+      ],
+      [
+        "One LED stays dark",
+        "Disconnect power and check that LED's resistor, polarity, output pin and breadboard row."
+      ],
+      [
+        "All three stay on",
+        "Confirm each output drives only one resistor/LED branch; check for breadboard row shorts and try the upload again."
+      ],
+      [
+        "Pattern seems irregular",
+        "Verify the array order {8, 9, 10} and that each LED matches its intended digital pin."
+      ],
+      [
+        "UNO resets or USB disconnects",
+        "Unplug immediately and inspect for a short between supply and GND."
+      ]
+    ],
+    "extension": "Add a fourth LED and resistor on D11 and extend ledPins. Predict the new forward/reverse behavior before uploading.",
+    "sources": [
+      "uno",
+      "blink"
+    ],
+    "flow": [
+      "Start UNO outputs",
+      "Turn on LED at current array index",
+      "Wait stepDelayMs",
+      "Turn LED off",
+      "Move forward 1→2→3; reverse through 2",
+      "Repeat"
+    ],
+    "notes": [
+      "Keep USB unplugged during assembly and troubleshooting. This is a 5 V logic project, not a mains lighting controller.",
+      "Use a separate resistor for every LED; do not put several LEDs in parallel behind one resistor.",
+      "UNO output pins must not directly power motors, relays or other high-current loads.",
+      "Confirm the actual breadboard's rail and strip continuity; two holes in the same strip are electrically joined."
+    ],
+    "board": "Arduino UNO R3-compatible",
+    "libraries": [
+      "Arduino AVR Boards core; no external libraries required"
+    ],
+    "serial": "Not required",
+    "code": "three-led-scanner.ino",
+    "validation": "Source reviewed for Arduino UNO logic and array bounds. Hardware operation and Arduino IDE compilation have not been independently bench-verified."
   }
 ]

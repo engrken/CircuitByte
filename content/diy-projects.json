@@ -2272,7 +2272,8 @@
     "sources": [
       "uno",
       "dht",
-      "digital"
+      "hd44780",
+      "dhtSensor"
     ],
     "flow": [
       "Initialize LCD and sensor",
@@ -2440,7 +2441,8 @@
     "extension": "Replace millis-based time with a DS3231 clock. Record a real calendar timestamp after verifying RTC module battery/charging safety and creating a suitable RTC initialization routine.",
     "sources": [
       "uno",
-      "analog"
+      "analog",
+      "sd"
     ],
     "flow": [
       "Check SD at startup",

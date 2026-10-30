@@ -1,0 +1,1083 @@
+[
+  {
+    "slug": "voltage-current-resistance",
+    "track": "Electronics fundamentals",
+    "title": "Voltage, current, resistance & Ohm's law",
+    "minutes": 12,
+    "intro": "Electricity becomes easier to understand when you separate electrical pressure (voltage), flow (current) and opposition (resistance). Calculate first, then connect a circuit.",
+    "learn": [
+      "Distinguish volts (V), amperes (A) and ohms (Ω).",
+      "Use I = V/R and P = V×I on a DC circuit.",
+      "Explain why an LED needs a current-limiting resistor."
+    ],
+    "concepts": [
+      [
+        "Voltage (V)",
+        "The difference in electrical potential between two nodes; it provides the push for current."
+      ],
+      [
+        "Current (I)",
+        "How quickly electrical charge moves through a closed circuit; measured in amperes."
+      ],
+      [
+        "Resistance (R)",
+        "Opposition to current, measured in ohms. For an ideal resistor, V = I×R."
+      ],
+      [
+        "Power (P)",
+        "Rate of electrical energy transfer: P = V×I, measured in watts."
+      ]
+    ],
+    "diagram": "5 V DC + ──[ 330 Ω resistor ]──|>|── GND\n                              LED\n\nApproximate red LED drop = 2 V\nI = (5 V − 2 V) / 330 Ω ≈ 0.009 A (9 mA)",
+    "parts": [
+      [
+        "cb-002",
+        "330 Ω resistor"
+      ],
+      [
+        "cb-009",
+        "Red LED"
+      ]
+    ],
+    "wiring": [
+      [
+        "5 V low-voltage source (+)",
+        "330 Ω resistor"
+      ],
+      [
+        "Resistor other end",
+        "LED anode (+ / longer lead)"
+      ],
+      [
+        "LED cathode (− / flat side)",
+        "Supply GND (−)"
+      ]
+    ],
+    "steps": [
+      "Before wiring, calculate the LED current: (5 − 2)/330 ≈ 9 mA.",
+      "Use a suitable regulated low-voltage 5 V supply; disconnect power before adding parts.",
+      "Connect resistor and LED in series, observing LED polarity.",
+      "Power on and compare the LED brightness with your expected result."
+    ],
+    "outcome": "A closed current-limited path lights the LED. If the LED is reversed, it normally stays off.",
+    "challenge": "Recalculate the current using 220 Ω instead of 330 Ω. Which choice causes more current?",
+    "question": "Why is the resistor connected in series with the LED?",
+    "answer": "It limits current. An LED does not self-limit current safely when connected directly to 5 V.",
+    "safety": "Use only a low-voltage, current-limited DC source. Do not connect electronic parts to mains power.",
+    "references": [
+      [
+        "SparkFun: Voltage, current, resistance and Ohm's law",
+        "https://learn.sparkfun.com/tutorials/voltage-current-resistance-and-ohms-law"
+      ]
+    ]
+  },
+  {
+    "slug": "parts-and-symbols",
+    "track": "Electronics fundamentals",
+    "title": "Recognize components & schematic symbols",
+    "minutes": 14,
+    "intro": "A schematic is a map of electrical connections—not a photograph. Learn to identify what common parts do before trying to build from a diagram.",
+    "learn": [
+      "Identify resistors, capacitors, diodes, LEDs, transistors and switches.",
+      "Recognize polarity-sensitive components.",
+      "Read how a symbol corresponds to a physical part."
+    ],
+    "concepts": [
+      [
+        "Resistor",
+        "Limits current and creates voltage drops. A schematic often uses a rectangle or zigzag."
+      ],
+      [
+        "Capacitor",
+        "Stores charge; nonpolar ceramics and polarized electrolytics require different handling."
+      ],
+      [
+        "Diode / LED",
+        "Conducts preferentially in one direction; an LED also emits light."
+      ],
+      [
+        "Transistor",
+        "Controls a larger load current using an input signal; confirm model and pinout."
+      ]
+    ],
+    "diagram": "Resistor      ──[ R ]──\nCapacitor     ──| |──\nDiode         ──|>|──\nLED           ──|>|──  ↗↗\nOpen switch   ──o/ o──\nGround           ⏚\n\nSymbols show connections, not physical dimensions.",
+    "parts": [
+      [
+        "cb-002",
+        "Resistor"
+      ],
+      [
+        "cb-003",
+        "Ceramic capacitor"
+      ],
+      [
+        "cb-004",
+        "Electrolytic capacitor"
+      ],
+      [
+        "cb-001",
+        "Diode"
+      ],
+      [
+        "cb-005",
+        "Transistor"
+      ],
+      [
+        "cb-016",
+        "Tactile switch"
+      ]
+    ],
+    "wiring": [],
+    "steps": [
+      "Lay out the six parts in front of you without power.",
+      "Identify the printed value, part number, or polarity mark on each.",
+      "Sketch the symbols and write the physical pin names beside them.",
+      "For a diode, find the cathode stripe; for an electrolytic capacitor, find the negative stripe.",
+      "Check a specific transistor datasheet before assigning emitter, base and collector pins."
+    ],
+    "outcome": "You should be able to match a component and its symbol and explain whether orientation matters.",
+    "challenge": "Sketch a circuit consisting of a battery, resistor, switch and LED connected in a single loop.",
+    "question": "Which listed capacitor is generally polarized: ceramic or aluminum electrolytic?",
+    "answer": "Aluminum electrolytic capacitors are normally polarized; common ceramic capacitors are usually nonpolarized.",
+    "safety": "Never reverse a polarized electrolytic capacitor or exceed its marked voltage.",
+    "references": [
+      [
+        "SparkFun: Where do I start?",
+        "https://learn.sparkfun.com/tutorials/where-do-i-start/starter-tutorials"
+      ]
+    ]
+  },
+  {
+    "slug": "breadboard-basics",
+    "track": "Electronics fundamentals",
+    "title": "Breadboard rows, rails & common ground",
+    "minutes": 12,
+    "intro": "A solderless breadboard hides metal spring connections underneath its holes. Understanding the internal connections prevents many first-time wiring mistakes.",
+    "learn": [
+      "Distinguish terminal strips from power rails.",
+      "Use a shared ground reference.",
+      "Avoid accidentally bridging power and ground."
+    ],
+    "concepts": [
+      [
+        "Terminal strips",
+        "On a typical breadboard, groups of five holes on each side of the central channel are internally linked."
+      ],
+      [
+        "Power rails",
+        "Long side rails often distribute supply and ground, but some boards have split rails."
+      ],
+      [
+        "Common ground",
+        "Two modules need a shared reference when exchanging non-isolated electrical signals."
+      ]
+    ],
+    "diagram": "Typical center gap layout (viewed from top)\n\n    a b c d e   |   f g h i j\nrow1 ●─●─●─●─●  |  ●─●─●─●─● row1\nrow2 ●─●─●─●─●  |  ●─●─●─●─● row2\n                 gap\nEach horizontal group of 5 connects together.\nSide rails may be continuous OR split—test them.",
+    "parts": [
+      [
+        "cb-065",
+        "400-point breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ],
+      [
+        "cb-002",
+        "Resistors"
+      ]
+    ],
+    "wiring": [],
+    "steps": [
+      "Disconnect any power source.",
+      "Pick one row and insert a resistor across two DIFFERENT connected groups.",
+      "Use a continuity meter, if available, to test linked holes.",
+      "Identify any break in the side power rails.",
+      "Label the intended positive and ground rails; check again before powering."
+    ],
+    "outcome": "You can trace every connection on the breadboard without guessing from wire colors.",
+    "challenge": "Explain why both resistor legs inserted into the same five-hole group cannot add series resistance to a circuit.",
+    "question": "Are all holes in one horizontal row on opposite sides of the center gap connected?",
+    "answer": "No. The center channel isolates the two five-hole groups in the common breadboard layout.",
+    "safety": "Never assume the side rails are continuous across the entire board; confirm with a multimeter.",
+    "references": [
+      [
+        "SparkFun: Starter electronics tutorials",
+        "https://learn.sparkfun.com/tutorials/where-do-i-start/starter-tutorials"
+      ]
+    ]
+  },
+  {
+    "slug": "series-vs-parallel",
+    "track": "Electronics fundamentals",
+    "title": "Series vs. parallel circuits",
+    "minutes": 15,
+    "intro": "Connections determine whether components share the same current or the same voltage. This concept explains everything from LEDs to battery wiring.",
+    "learn": [
+      "Calculate equivalent resistance for simple series circuits.",
+      "Identify parallel branches.",
+      "Explain why LEDs in parallel generally need separate resistors."
+    ],
+    "concepts": [
+      [
+        "Series",
+        "One path: same current passes through all series elements. R_total = R1 + R2."
+      ],
+      [
+        "Parallel",
+        "Multiple branches: each branch has the same voltage. 1/R_total = 1/R1 + 1/R2."
+      ],
+      [
+        "Safe LED branches",
+        "Each parallel LED branch should normally have its own current-limiting resistor."
+      ]
+    ],
+    "diagram": "SERIES:   +5 V ──[330Ω]──[330Ω]── GND\n          Total = 660 Ω\n\nPARALLEL:           ┌──[330Ω]──┐\n          +5 V ─────┤          ├── GND\n                    └──[330Ω]──┘\n          Total = 165 Ω",
+    "parts": [
+      [
+        "cb-002",
+        "Two 330 Ω resistors"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [],
+    "steps": [
+      "On paper, draw two resistors end-to-end (series).",
+      "Calculate R_total = 330 + 330 = 660 Ω.",
+      "Draw the same two resistors between the same pair of nodes (parallel).",
+      "Calculate R_total = (330×330)/(330+330) = 165 Ω.",
+      "If using a meter, disconnect power and compare both measured resistances."
+    ],
+    "outcome": "You can tell from the connection diagram which quantities add and which remain equal.",
+    "challenge": "What is the equivalent resistance of 220 Ω and 330 Ω in series?",
+    "question": "In a parallel network, what electrical quantity is the same across each branch?",
+    "answer": "Voltage is the same between the common pair of parallel nodes.",
+    "safety": "Measure resistance only with power disconnected; never put a meter in ohms mode across an energized circuit.",
+    "references": [
+      [
+        "SparkFun: Voltage, current, resistance",
+        "https://learn.sparkfun.com/tutorials/voltage-current-resistance-and-ohms-law"
+      ]
+    ]
+  },
+  {
+    "slug": "first-led-circuit",
+    "track": "Basic circuits",
+    "title": "Build your first resistor–LED circuit",
+    "minutes": 15,
+    "intro": "This no-code circuit demonstrates polarity, a closed loop and current limiting. It is a good first build before using a microcontroller.",
+    "learn": [
+      "Select a series resistor.",
+      "Read LED polarity.",
+      "Troubleshoot an open circuit."
+    ],
+    "concepts": [
+      [
+        "Resistor sizing",
+        "For a red LED at roughly 2 V on a 5 V supply, a 330 Ω resistor gives approximately 9 mA."
+      ],
+      [
+        "LED polarity",
+        "Long lead typically anode (+); short lead / flat edge typically cathode (−)."
+      ]
+    ],
+    "diagram": "+5 V ───[ 330 Ω ]─── LED anode (+)\n                       |>| \nGND  ───────────────── LED cathode (−)",
+    "parts": [
+      [
+        "cb-009",
+        "Red LED"
+      ],
+      [
+        "cb-002",
+        "330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "5 V regulated +",
+        "330 Ω resistor"
+      ],
+      [
+        "Other resistor lead",
+        "LED anode (+)"
+      ],
+      [
+        "LED cathode (−)",
+        "GND"
+      ]
+    ],
+    "steps": [
+      "Unplug the supply and insert the LED across separate breadboard rows.",
+      "Connect 330 Ω between 5 V positive and the LED anode.",
+      "Connect the cathode to GND; keep the positive and negative rails apart.",
+      "Apply regulated 5 V, then inspect the light.",
+      "Unplug power before trying a different resistor."
+    ],
+    "outcome": "The red LED lights steadily. If not, check the polarity, resistor placement and shared row connections.",
+    "challenge": "Swap 330 Ω for 470 Ω and predict the change in brightness.",
+    "question": "What happens if you omit the current-limiting resistor?",
+    "answer": "The LED may draw excessive current and fail; keep a suitable series resistor.",
+    "safety": "Never connect an LED directly across a 5 V power source without a correctly sized resistor.",
+    "references": [
+      [
+        "Adafruit: Arduino Lesson 2—LEDs",
+        "https://learn.adafruit.com/adafruit-arduino-lesson-2-leds/leds"
+      ]
+    ]
+  },
+  {
+    "slug": "switch-and-pullup",
+    "track": "Basic circuits",
+    "title": "Make a reliable pushbutton input",
+    "minutes": 15,
+    "intro": "A switch opens and closes a connection. Without a pull-up or pull-down, the input can float and behave unpredictably.",
+    "learn": [
+      "Explain floating inputs.",
+      "Use the Arduino's internal pull-up resistor.",
+      "Understand why a pressed button reads LOW."
+    ],
+    "concepts": [
+      [
+        "Floating input",
+        "An unconnected input is neither guaranteed HIGH nor LOW."
+      ],
+      [
+        "INPUT_PULLUP",
+        "Enables a built-in resistor that keeps the input HIGH until a switch connects it to GND."
+      ]
+    ],
+    "diagram": "Arduino UNO D2 ────o  o──── GND\n                    pushbutton\n\npinMode(2, INPUT_PULLUP)\nNot pressed = HIGH\nPressed     = LOW",
+    "parts": [
+      [
+        "cb-059",
+        "Arduino Uno R3 compatible"
+      ],
+      [
+        "cb-016",
+        "Tactile switch"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D2",
+        "One contact of pushbutton"
+      ],
+      [
+        "Other switch contact",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "With USB disconnected, place the button across the center breadboard gap.",
+      "Check the button's internal paired terminals; use opposite contacts that close when pressed.",
+      "Connect one switch contact to Uno D2 and the other to GND.",
+      "Open the corresponding Arduino coding lesson below and upload the button sketch.",
+      "Watch the Serial Monitor or connected LED as you press and release."
+    ],
+    "outcome": "The digital input rests HIGH and changes to LOW while the button is held.",
+    "challenge": "Why does a button wired to GND read LOW when pressed rather than HIGH?",
+    "question": "What does INPUT_PULLUP prevent?",
+    "answer": "It prevents the input from floating when the switch is open.",
+    "safety": "Do not connect a pin configured INPUT_PULLUP to an external voltage above the board's logic level.",
+    "references": [
+      [
+        "Arduino: Built-in input and button examples",
+        "https://docs.arduino.cc/built-in-examples"
+      ]
+    ]
+  },
+  {
+    "slug": "potentiometer-divider",
+    "track": "Basic circuits",
+    "title": "Potentiometer as a voltage divider",
+    "minutes": 15,
+    "intro": "A three-terminal potentiometer can vary a voltage between the ends of its supply. This is the starting point for analog controls.",
+    "learn": [
+      "Identify the wiper (middle terminal).",
+      "Wire a potentiometer between 5 V and GND.",
+      "Understand how voltage maps to Arduino analog readings."
+    ],
+    "concepts": [
+      [
+        "Voltage divider",
+        "The wiper picks a fraction of the supply voltage when the end terminals are connected between supply and ground."
+      ],
+      [
+        "Analog input",
+        "On the Uno R3 the default 10-bit ADC reads approximately 0–1023 over the reference-voltage range."
+      ]
+    ],
+    "diagram": "Uno 5 V ──── pot outer terminal\n                 │\n                 ├── wiper (middle) ── Uno A0\n                 │\nUno GND ──── pot other outer terminal",
+    "parts": [
+      [
+        "cb-012",
+        "10 kΩ three-pin potentiometer"
+      ],
+      [
+        "cb-059",
+        "Uno R3 compatible"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "Potentiometer outer pin A",
+        "Uno 5 V"
+      ],
+      [
+        "Potentiometer middle pin (wiper)",
+        "Uno A0"
+      ],
+      [
+        "Potentiometer outer pin B",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Disconnect USB power before wiring.",
+      "Connect one outer terminal to 5 V and the other to GND.",
+      "Connect the middle/wiper terminal to A0.",
+      "Upload the analog-input lesson sketch and open Serial Monitor at 9600 baud.",
+      "Turn the shaft gradually and observe numbers changing from near 0 to near 1023."
+    ],
+    "outcome": "The wiper voltage changes smoothly, and the serial readings follow its position.",
+    "challenge": "If the ADC shows 512, estimate the wiper voltage on a 5 V Uno using 512/1023 × 5.",
+    "question": "What happens if the wiper wire is left disconnected?",
+    "answer": "A0 floats; readings can become erratic and no longer reliably represent the knob position.",
+    "safety": "Use the board's 5 V reference only on a 5 V Uno. Never put 5 V directly into a 3.3 V-only ESP32 analog pin.",
+    "references": [
+      [
+        "Arduino: Analog Input example",
+        "https://docs.arduino.cc/built-in-examples/analog/AnalogInput/"
+      ]
+    ]
+  },
+  {
+    "slug": "transistor-switch",
+    "track": "Basic circuits",
+    "title": "Switch a 5 V buzzer with a transistor",
+    "minutes": 22,
+    "intro": "A transistor lets a tiny digital control signal turn a larger low-voltage load on or off. Build a practical NPN low-side switch.",
+    "learn": [
+      "Identify base, collector and emitter from a datasheet.",
+      "Use a base resistor and a shared ground.",
+      "Explain why the Arduino pin does not directly power a high-current load."
+    ],
+    "concepts": [
+      [
+        "NPN low-side switch",
+        "The emitter connects to GND; the collector sinks current from a load connected to +5 V."
+      ],
+      [
+        "Base resistor",
+        "Limits the current driven into the transistor base."
+      ],
+      [
+        "Load rating",
+        "The transistor must safely handle the actual buzzer current; choose an external driver for larger loads."
+      ]
+    ],
+    "diagram": "5 V ──[active buzzer + ]\n        [active buzzer − ]──── C   NPN (2N2222*)\n                              │\nUno D8 ──[1 kΩ]────────────── B\n                              E ─── GND\nUno GND ─────────────────────────── GND\n*Verify exact E-B-C pin order using the transistor datasheet.",
+    "parts": [
+      [
+        "cb-005",
+        "NPN 2N2222 transistor variant"
+      ],
+      [
+        "cb-002",
+        "1 kΩ resistor"
+      ],
+      [
+        "cb-028",
+        "5 V active buzzer module"
+      ],
+      [
+        "cb-059",
+        "Arduino Uno compatible"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D8",
+        "1 kΩ resistor, then NPN base"
+      ],
+      [
+        "NPN emitter",
+        "Uno GND"
+      ],
+      [
+        "NPN collector",
+        "5 V active buzzer negative terminal"
+      ],
+      [
+        "Buzzer positive terminal",
+        "Regulated +5 V"
+      ],
+      [
+        "External supply GND if used",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Verify the specific transistor's E/B/C pinout before inserting it.",
+      "Ensure the active buzzer's current is within the transistor and power source limits.",
+      "Wire emitter to ground and collector to the buzzer's negative lead.",
+      "Connect the buzzer positive lead to regulated +5 V.",
+      "Connect Uno D8 to base through 1 kΩ, then upload the sketch.",
+      "Confirm a one-second beep followed by a one-second pause."
+    ],
+    "code": "const byte buzzerDriver = 8;\n\nvoid setup() {\n  pinMode(buzzerDriver, OUTPUT);\n  digitalWrite(buzzerDriver, LOW);\n}\n\nvoid loop() {\n  digitalWrite(buzzerDriver, HIGH); // NPN on\n  delay(1000);\n  digitalWrite(buzzerDriver, LOW);  // NPN off\n  delay(1000);\n}",
+    "codeNotes": [
+      "HIGH on D8 supplies a small base current, saturating the NPN switch if properly sized.",
+      "The buzzer current flows through the load and transistor, not directly through D8."
+    ],
+    "outcome": "The active buzzer sounds once per second when the transistor is driven on.",
+    "challenge": "Why does this circuit need the Uno GND connected to the transistor emitter ground?",
+    "question": "Can an Arduino digital output safely drive any motor or relay coil directly?",
+    "answer": "No. Loads must stay within pin-current limits; use a correctly rated driver, supply and flyback diode for inductive loads.",
+    "safety": "Use only a low-voltage active buzzer with a known current rating. Verify transistor pinout and driver dissipation; do not switch mains.",
+    "references": [
+      [
+        "Arduino: UNO R3 reference",
+        "https://docs.arduino.cc/hardware/uno-rev3"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-ide-and-first-sketch",
+    "track": "Arduino coding",
+    "title": "Install Arduino IDE & upload your first sketch",
+    "minutes": 18,
+    "intro": "An Arduino sketch is a C++ program compiled for your board. Start with the built-in LED so you can prove your software and USB connection work before wiring any components.",
+    "learn": [
+      "Install the official Arduino IDE.",
+      "Select the correct board and serial port.",
+      "Recognize setup(), loop(), pinMode() and digitalWrite()."
+    ],
+    "concepts": [
+      [
+        "setup()",
+        "Runs once after reset or power-on; initialize pins and serial communication here."
+      ],
+      [
+        "loop()",
+        "Runs repeatedly until power is removed or the board resets."
+      ],
+      [
+        "digitalWrite()",
+        "Writes HIGH or LOW to an output pin."
+      ]
+    ],
+    "diagram": "Computer ──USB data cable──> Uno R3\n                              │\n                        LED_BUILTIN (D13)\n                        No external LED required",
+    "parts": [
+      [
+        "cb-059",
+        "Arduino Uno R3 USB Type-C compatible"
+      ]
+    ],
+    "wiring": [],
+    "steps": [
+      "Install Arduino IDE from arduino.cc/en/software.",
+      "Connect the Uno using a data-capable USB cable; install the appropriate clone USB driver only if needed.",
+      "Under Tools → Board, select Arduino Uno; select the detected Port.",
+      "Paste the sketch below, then click Verify (✓).",
+      "Click Upload (→) and watch the built-in LED blink once each second."
+    ],
+    "code": "void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH);\n  delay(1000);\n  digitalWrite(LED_BUILTIN, LOW);\n  delay(1000);\n}",
+    "codeNotes": [
+      "LED_BUILTIN refers to the built-in LED pin for the selected board.",
+      "delay(1000) pauses the sketch for 1000 milliseconds (one second)."
+    ],
+    "outcome": "The onboard LED blinks: one second on, one second off.",
+    "challenge": "Change both 1000 delays to 250; verify that the blinking becomes faster.",
+    "question": "Which function runs repeatedly while the Arduino is operating?",
+    "answer": "loop() runs repeatedly. setup() runs once after reset or startup.",
+    "safety": "Start with only the USB-connected Uno; no external wiring is needed.",
+    "references": [
+      [
+        "Arduino IDE 2 uploading tutorial",
+        "https://docs.arduino.cc/software/ide-v2/tutorials/getting-started/ide-v2-uploading-a-sketch/"
+      ],
+      [
+        "Arduino: Blink built-in example",
+        "https://docs.arduino.cc/tutorials/uno-rev3/Blink"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-variables-and-output",
+    "track": "Arduino coding",
+    "title": "Variables, constants & digital outputs",
+    "minutes": 18,
+    "intro": "Learn how the compiler stores a pin number and how a small reusable function can control an external LED.",
+    "learn": [
+      "Use const byte for a pin number.",
+      "Create a simple helper function.",
+      "Control an external LED through a resistor."
+    ],
+    "concepts": [
+      [
+        "const byte",
+        "Stores a small constant pin number without allowing accidental reassignment."
+      ],
+      [
+        "Function",
+        "A named section of reusable code."
+      ],
+      [
+        "HIGH / LOW",
+        "Two digital logic states. On a 5 V Uno, HIGH is a logic-level output near 5 V."
+      ]
+    ],
+    "diagram": "Uno D9 ──[330 Ω]── LED anode (+)\n                     |>| LED\nUno GND ────────── LED cathode (−)",
+    "parts": [
+      [
+        "cb-059",
+        "Uno compatible"
+      ],
+      [
+        "cb-009",
+        "Red LED"
+      ],
+      [
+        "cb-002",
+        "330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D9",
+        "330 Ω resistor"
+      ],
+      [
+        "Resistor other end",
+        "LED anode"
+      ],
+      [
+        "LED cathode",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "With USB disconnected, build the resistor-LED circuit.",
+      "Select Arduino Uno and the correct USB serial port.",
+      "Paste and upload the sketch.",
+      "Observe a short blink followed by a longer pause.",
+      "Modify shortFlash(200) to shortFlash(500) and upload again."
+    ],
+    "code": "const byte ledPin = 9;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid shortFlash(unsigned long onTimeMs) {\n  digitalWrite(ledPin, HIGH);\n  delay(onTimeMs);\n  digitalWrite(ledPin, LOW);\n}\n\nvoid loop() {\n  shortFlash(200);\n  delay(800);\n}",
+    "codeNotes": [
+      "ledPin is a readable name for hardware pin D9.",
+      "shortFlash() accepts the on-duration as a parameter, making code easier to reuse."
+    ],
+    "outcome": "The external LED lights for 200 ms then stays off for 800 ms.",
+    "challenge": "Create three flashes by calling shortFlash(100) three times with 100 ms pauses.",
+    "question": "Why is const byte ledPin = 9 better than writing 9 everywhere?",
+    "answer": "It makes the meaning clear and lets you change the pin in just one place.",
+    "safety": "Use a resistor with the LED and avoid drawing excessive current from the microcontroller pin.",
+    "references": [
+      [
+        "Arduino: Programming reference",
+        "https://docs.arduino.cc/programming/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-buttons-and-if",
+    "track": "Arduino coding",
+    "title": "Read a button with if/else",
+    "minutes": 18,
+    "intro": "A digital input allows code to respond to the world. Use INPUT_PULLUP and a button between D2 and GND, then drive an LED.",
+    "learn": [
+      "Configure a digital input with INPUT_PULLUP.",
+      "Read a pin with digitalRead().",
+      "Make a decision with if/else."
+    ],
+    "concepts": [
+      [
+        "digitalRead()",
+        "Returns HIGH or LOW from a digital pin."
+      ],
+      [
+        "if/else",
+        "Executes different code based on a true/false condition."
+      ],
+      [
+        "Active low",
+        "With INPUT_PULLUP a pressed button reads LOW."
+      ]
+    ],
+    "diagram": "BUTTON: Uno D2 ──o  o── GND\n\nLED:    Uno D9 ──[330 Ω]──|>|── GND",
+    "parts": [
+      [
+        "cb-059",
+        "Uno compatible"
+      ],
+      [
+        "cb-016",
+        "Tactile switch"
+      ],
+      [
+        "cb-009",
+        "LED"
+      ],
+      [
+        "cb-002",
+        "330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D2",
+        "Pushbutton contact 1"
+      ],
+      [
+        "Pushbutton contact 2",
+        "Uno GND"
+      ],
+      [
+        "Uno D9",
+        "330 Ω resistor"
+      ],
+      [
+        "Resistor other end",
+        "LED anode"
+      ],
+      [
+        "LED cathode",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Disconnect USB before wiring the pushbutton and resistor/LED.",
+      "Place the switch across the breadboard center gap; verify its contact pairs.",
+      "Build the two connections shown in the diagram.",
+      "Upload the sketch below.",
+      "Press and release the button to see the LED follow the input."
+    ],
+    "code": "const byte buttonPin = 2;\nconst byte ledPin = 9;\n\nvoid setup() {\n  pinMode(buttonPin, INPUT_PULLUP);\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  bool pressed = (digitalRead(buttonPin) == LOW);\n  if (pressed) {\n    digitalWrite(ledPin, HIGH);\n  } else {\n    digitalWrite(ledPin, LOW);\n  }\n}",
+    "codeNotes": [
+      "digitalRead(buttonPin) == LOW becomes true when pressing the button.",
+      "With no time-based delays, the LED changes quickly when the button state changes."
+    ],
+    "outcome": "The LED stays off until the button is pressed; it lights while held.",
+    "challenge": "Reverse the behavior: LED on when released, off when pressed.",
+    "question": "Why is the condition == LOW rather than == HIGH?",
+    "answer": "The button pulls D2 to ground when pressed; the internal pull-up keeps D2 HIGH otherwise.",
+    "safety": "Confirm pushbutton pin pairs; incorrectly wiring 5 V straight to GND could short the supply.",
+    "references": [
+      [
+        "Arduino: Built-in button examples",
+        "https://docs.arduino.cc/built-in-examples"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-analog-and-serial",
+    "track": "Arduino coding",
+    "title": "Read analog values & use Serial Monitor",
+    "minutes": 20,
+    "intro": "The Uno converts analog voltage into a digital number. A potentiometer on A0 gives you a simple way to see analog-to-digital conversion in practice.",
+    "learn": [
+      "Connect a 10 kΩ potentiometer as a divider.",
+      "Use analogRead(A0) and Serial.println().",
+      "Convert a 10-bit ADC reading into an approximate voltage."
+    ],
+    "concepts": [
+      [
+        "ADC",
+        "Analog-to-digital converter: reads a voltage and produces a number."
+      ],
+      [
+        "Serial Monitor",
+        "Displays text data over USB to help debug a running program."
+      ],
+      [
+        "Conversion",
+        "For a default 5 V Uno reference: volts ≈ reading × (5.0/1023.0)."
+      ]
+    ],
+    "diagram": "5 V ── pot outer A\n        |\nA0 ─── wiper (middle)\n        |\nGND ── pot outer B\n\nUSB Serial Monitor baud = 9600",
+    "parts": [
+      [
+        "cb-059",
+        "Arduino Uno compatible"
+      ],
+      [
+        "cb-012",
+        "10 kΩ potentiometer"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Pot outer A",
+        "Uno 5 V"
+      ],
+      [
+        "Pot middle/wiper",
+        "Uno A0"
+      ],
+      [
+        "Pot outer B",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Disconnect USB and connect the three potentiometer terminals.",
+      "Upload the sketch.",
+      "Open Tools → Serial Monitor and set the baud to 9600.",
+      "Rotate the knob and inspect the reading and estimated voltage.",
+      "Remove A0 from the wiper briefly to notice why floating analog inputs are unreliable, then reconnect with power off."
+    ],
+    "code": "const byte potPin = A0;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int raw = analogRead(potPin); // Uno: 0–1023\n  float volts = raw * (5.0 / 1023.0);\n  Serial.print(\"ADC: \");\n  Serial.print(raw);\n  Serial.print(\"   Volts: \");\n  Serial.println(volts, 2);\n  delay(200);\n}",
+    "codeNotes": [
+      "Serial.begin(9600) initializes the USB serial text connection.",
+      "analogRead(A0) returns about 0 at 0 V and 1023 near the Uno's reference voltage."
+    ],
+    "outcome": "As you turn the knob, the serial values move smoothly across the ADC range.",
+    "challenge": "Create a warning message when raw is greater than 800.",
+    "question": "Why must Serial Monitor use the same baud as Serial.begin()?",
+    "answer": "Matching baud rates are required for the serial data to be decoded correctly.",
+    "safety": "The voltage conversion assumes the default 5 V reference; actual USB supply can vary. Never apply more than the reference/supply limit to an input.",
+    "references": [
+      [
+        "Arduino: Analog Input",
+        "https://docs.arduino.cc/built-in-examples/analog/AnalogInput/"
+      ],
+      [
+        "Arduino: UNO R3 pinout",
+        "https://docs.arduino.cc/hardware/uno-rev3"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-pwm-dimming",
+    "track": "Arduino coding",
+    "title": "PWM fading: control LED brightness",
+    "minutes": 20,
+    "intro": "Pulse-width modulation (PWM) switches an output rapidly on and off. The duty cycle changes average power, letting an LED appear dimmer or brighter.",
+    "learn": [
+      "Identify PWM-capable pins on an Uno.",
+      "Use analogWrite() to set an 8-bit duty cycle.",
+      "Write a for loop for a gradual fade."
+    ],
+    "concepts": [
+      [
+        "PWM duty cycle",
+        "The fraction of time a signal is HIGH during each cycle."
+      ],
+      [
+        "analogWrite()",
+        "On an Uno PWM pin, values 0–255 set an 8-bit PWM duty cycle; this is not a true analog DC voltage."
+      ],
+      [
+        "for loop",
+        "Repeats a block while changing a counter."
+      ]
+    ],
+    "diagram": "Uno PWM D9 ──[330 Ω]──|>|── GND\n                         LED\n\nanalogWrite(9, 0)   ≈ 0% on\nanalogWrite(9, 128) ≈ 50% on\nanalogWrite(9, 255) ≈ 100% on",
+    "parts": [
+      [
+        "cb-059",
+        "Uno compatible"
+      ],
+      [
+        "cb-009",
+        "LED"
+      ],
+      [
+        "cb-002",
+        "330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D9 (PWM)",
+        "330 Ω resistor"
+      ],
+      [
+        "Resistor other end",
+        "LED anode"
+      ],
+      [
+        "LED cathode",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Build the resistor/LED connection with power off.",
+      "Upload the fading sketch.",
+      "Observe the light grow brighter then dimmer.",
+      "Change the step size from 5 to 10 to see how the fade changes.",
+      "Try another PWM-capable Uno pin, updating the constant in the code."
+    ],
+    "code": "const byte ledPin = 9;  // Uno PWM pin\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  for (int value = 0; value <= 255; value += 5) {\n    analogWrite(ledPin, value);\n    delay(25);\n  }\n  for (int value = 255; value >= 0; value -= 5) {\n    analogWrite(ledPin, value);\n    delay(25);\n  }\n}",
+    "codeNotes": [
+      "PWM output changes the ratio of ON time to OFF time, not the pin's voltage ceiling.",
+      "A resistor is still required to protect the LED."
+    ],
+    "outcome": "The LED fades up and down repeatedly.",
+    "challenge": "Make the fade slower by doubling delay(25) to delay(50).",
+    "question": "Does analogWrite(9, 128) create a steady 2.5 V DC output on an Uno?",
+    "answer": "No. It normally produces a digital PWM waveform with about a 50% duty cycle.",
+    "safety": "Do not connect high-power LEDs or motors directly to an Uno digital pin.",
+    "references": [
+      [
+        "Arduino: Built-in fading examples",
+        "https://docs.arduino.cc/built-in-examples"
+      ],
+      [
+        "Arduino: UNO R3 pinout",
+        "https://docs.arduino.cc/hardware/uno-rev3"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-millis-timers",
+    "track": "Arduino coding",
+    "title": "Non-blocking timers with millis()",
+    "minutes": 22,
+    "intro": "delay() stops your sketch from doing other work. millis() helps schedule multiple events without waiting inside each event.",
+    "learn": [
+      "Read the number of milliseconds since boot.",
+      "Compare elapsed time using unsigned long subtraction.",
+      "Run two different blink intervals simultaneously."
+    ],
+    "concepts": [
+      [
+        "millis()",
+        "Returns elapsed milliseconds as an unsigned long; rolls over after approximately 49.7 days on common 32-bit Arduino platforms."
+      ],
+      [
+        "Elapsed-time check",
+        "Use now - previous >= interval to handle timer rollover correctly."
+      ],
+      [
+        "Non-blocking",
+        "Other code can continue running while waiting for the next event."
+      ]
+    ],
+    "diagram": "Uno D8 ──[330 Ω]──|>|── GND (LED A)\nUno D9 ──[330 Ω]──|>|── GND (LED B)\n\nLED A: toggle every 500 ms\nLED B: toggle every 750 ms\nNo delay() calls.",
+    "parts": [
+      [
+        "cb-059",
+        "Uno compatible"
+      ],
+      [
+        "cb-009",
+        "2 LEDs"
+      ],
+      [
+        "cb-002",
+        "2 × 330 Ω resistors"
+      ],
+      [
+        "cb-065",
+        "Breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumpers"
+      ]
+    ],
+    "wiring": [
+      [
+        "Uno D8",
+        "330 Ω resistor → LED A anode"
+      ],
+      [
+        "LED A cathode",
+        "Uno GND"
+      ],
+      [
+        "Uno D9",
+        "330 Ω resistor → LED B anode"
+      ],
+      [
+        "LED B cathode",
+        "Uno GND"
+      ]
+    ],
+    "steps": [
+      "Disconnect power and wire two individually resisted LEDs.",
+      "Upload the sketch.",
+      "Observe two different blink rates without long pauses.",
+      "Add Serial.println(now) inside loop() temporarily to observe that the loop keeps running.",
+      "Change the second interval to 250 ms and upload again."
+    ],
+    "code": "const byte ledA = 8;\nconst byte ledB = 9;\nconst unsigned long intervalA = 500;\nconst unsigned long intervalB = 750;\nunsigned long lastA = 0;\nunsigned long lastB = 0;\nbool stateA = LOW;\nbool stateB = LOW;\n\nvoid setup() {\n  pinMode(ledA, OUTPUT);\n  pinMode(ledB, OUTPUT);\n}\n\nvoid loop() {\n  unsigned long now = millis();\n  if (now - lastA >= intervalA) {\n    lastA = now;\n    stateA = !stateA;\n    digitalWrite(ledA, stateA);\n  }\n  if (now - lastB >= intervalB) {\n    lastB = now;\n    stateB = !stateB;\n    digitalWrite(ledB, stateB);\n  }\n}",
+    "codeNotes": [
+      "Each LED has its own timestamp and interval, so its schedule is independent.",
+      "Unsigned subtraction allows these interval comparisons to work across millis() rollover."
+    ],
+    "outcome": "The two LEDs flash at different intervals while the main loop stays responsive.",
+    "challenge": "Add a pushbutton input that can be read immediately without being blocked by delays.",
+    "question": "Why do we use now - lastA rather than now >= lastA + intervalA?",
+    "answer": "Unsigned subtraction handles timer wraparound more reliably and avoids overflow in addition-based comparisons.",
+    "safety": "Use one resistor per LED and test button additions with power disconnected.",
+    "references": [
+      [
+        "Arduino: Blink Without Delay",
+        "https://docs.arduino.cc/built-in-examples"
+      ]
+    ]
+  }
+]

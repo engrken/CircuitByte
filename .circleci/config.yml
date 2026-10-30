@@ -59,6 +59,7 @@ jobs:
             arduino-cli lib install "DHT sensor library"
             arduino-cli lib install "Adafruit Unified Sensor"
             arduino-cli lib install "hd44780"
+            arduino-cli lib install "SD"
       - run:
           name: Compile four added Arduino UNO DIY sketches
           command: |

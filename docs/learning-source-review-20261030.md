@@ -38,3 +38,25 @@ Important rights distinctions:
 7. Do not publish copies of the reference PDFs or copied illustrations on the storefront.
 
 The code and diagrams are original educational examples, and published project pages disclose their unverified physical-test status.
+
+## Local Arduino CLI verification (recommended before classroom delivery)
+
+The current four new projects received a limited C++ syntax check with test stubs; this is **not** an Arduino AVR core build, dependency test or hardware test. To compile with the real toolchain on a Windows workstation, install the official Arduino CLI and use:
+
+```powershell
+arduino-cli core update-index
+arduino-cli core install arduino:avr
+arduino-cli lib install "DHT sensor library"
+arduino-cli lib install "Adafruit Unified Sensor"
+arduino-cli lib install "hd44780"
+$projects = @('three-led-scanner','joystick-direction-lights','lcd-room-comfort-monitor','micro-sd-light-logger')
+foreach ($project in $projects) {
+  $temp = Join-Path $env:TEMP ("CircuitByteQA-" + $project)
+  New-Item -ItemType Directory -Force -Path $temp | Out-Null
+  Copy-Item "public/education/code/$project.ino" "$temp/$project.ino"
+  arduino-cli compile --fqbn arduino:avr:uno "$temp"
+  if ($LASTEXITCODE -ne 0) { throw "Compilation failed: $project" }
+}
+```
+
+Run this from the CircuitByte repository root. Check hardware before treating any build as a proven electrical design. GitHub Actions workflow creation was not authorized by the available connector, so no automated hardware compilation workflow has been installed.

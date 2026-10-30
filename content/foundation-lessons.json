@@ -1495,5 +1495,254 @@
         "https://support.arduino.cc/"
       ]
     ]
+  },
+  {
+    "slug": "arduino-i2c-scanner",
+    "track": "Arduino coding",
+    "title": "Discover I²C devices with an address scanner",
+    "minutes": 25,
+    "intro": "I²C lets a controller communicate with several devices over two signal lines. Scan the bus before using an I²C LCD or real-time clock.",
+    "learn": [
+      "Identify SDA, SCL, VCC and GND.",
+      "Explain why I²C uses device addresses.",
+      "Upload an original scanner sketch and inspect the results on Serial Monitor."
+    ],
+    "concepts": [
+      [
+        "I²C bus",
+        "A shared serial communication bus that normally uses SDA for data and SCL for a clock."
+      ],
+      [
+        "Device address",
+        "A numeric identifier used to select a responding device. Backpack addresses can vary."
+      ],
+      [
+        "Wire library",
+        "Built-in Arduino support for I²C communication."
+      ],
+      [
+        "Common ground",
+        "The controller and an I²C peripheral need compatible logic levels and a shared reference."
+      ]
+    ],
+    "diagram": "UNO 5 V ---- LCD VCC (5 V compatible backpack)\nUNO GND ---- LCD GND\nUNO A4  ---- LCD SDA\nUNO A5  ---- LCD SCL\n\nSERIAL MONITOR at 9600 baud:\nFound device at 0x27   (example only)\nScan complete: 1 device(s)\n\nThe address is measured, not assumed.",
+    "parts": [
+      [
+        "cb-059",
+        "ATmega328P UNO-compatible board"
+      ],
+      [
+        "cb-066",
+        "16 × 2 LCD with I²C backpack"
+      ],
+      [
+        "cb-076",
+        "Female-to-male jumper leads suited to the module headers"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO 5V",
+        "I²C LCD VCC (only for 5 V-compatible backpack)"
+      ],
+      [
+        "UNO GND",
+        "LCD GND"
+      ],
+      [
+        "UNO A4 (SDA)",
+        "LCD SDA"
+      ],
+      [
+        "UNO A5 (SCL)",
+        "LCD SCL"
+      ]
+    ],
+    "steps": [
+      "Unplug USB. Identify the module's printed SDA, SCL, VCC and GND labels; the position of these pins is not universal.",
+      "Wire the LCD to UNO A4/A5 and verified-compatible power and ground.",
+      "Upload the scanner sketch using the Arduino IDE's installed Wire library.",
+      "Open Serial Monitor at 9600 baud and read the hexadecimal address actually reported.",
+      "Unplug and reverse the process to disconnect the device, then scan again and compare."
+    ],
+    "code": "#include <Wire.h>\n\nvoid setup() {\n  Serial.begin(9600);\n  Wire.begin();\n  Serial.println(\"I2C scanner ready\");\n}\n\nvoid loop() {\n  byte found = 0;\n  for (byte address = 1; address < 127; address++) {\n    Wire.beginTransmission(address);\n    byte error = Wire.endTransmission();\n    if (error == 0) {\n      Serial.print(\"Found device at 0x\");\n      if (address < 16) Serial.print('0');\n      Serial.println(address, HEX);\n      found++;\n    }\n  }\n  Serial.print(\"Scan complete: \");\n  Serial.print(found);\n  Serial.println(\" device(s)\");\n  delay(4000);\n}",
+    "codeNotes": [
+      "The code probes possible 7-bit addresses without guessing whether a backpack uses 0x27 or 0x3F.",
+      "Wire.endTransmission() returns zero when an addressed device acknowledges the transaction.",
+      "Scan only simple trusted local modules; do not use the scanner as a substitute for reviewing device power and pull-up requirements."
+    ],
+    "outcome": "The connected I²C LCD responds with its address on Serial Monitor, or the scanner reports zero devices if communication fails.",
+    "challenge": "Connect a DS3231 RTC that has a safe battery setup and observe whether the scanner finds a second address. Predict why addresses cannot collide.",
+    "question": "Can you assume every I²C LCD is at address 0x27?",
+    "answer": "No. Scan the bus and read the detected address; hardware backpack configurations vary.",
+    "safety": "Use UNO-to-5 V I²C connections only for a compatible 5 V LCD backpack. Do not connect 5 V pull-ups directly to an ESP32 or other 3.3 V-only GPIO.",
+    "references": [
+      [
+        "Arduino: Wire library",
+        "https://docs.arduino.cc/language-reference/en/functions/communication/wire/"
+      ],
+      [
+        "Arduino: board documentation",
+        "https://docs.arduino.cc/hardware/uno-rev3/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-eeprom-persistent-settings",
+    "track": "Arduino coding",
+    "title": "Save a setting in EEPROM between power cycles",
+    "minutes": 25,
+    "intro": "Learn the difference between temporary variables and nonvolatile memory by saving a small setting that survives Arduino reset.",
+    "learn": [
+      "Explain RAM versus EEPROM.",
+      "Read and update one byte using EEPROM.read and EEPROM.update.",
+      "Understand write endurance and why EEPROM is unsuitable for rapid sensor logging."
+    ],
+    "concepts": [
+      [
+        "RAM",
+        "Temporary working data lost when the microcontroller powers down."
+      ],
+      [
+        "EEPROM",
+        "Nonvolatile memory for small values that should survive power removal."
+      ],
+      [
+        "EEPROM.update",
+        "Writes a byte only when its new value differs from the saved value, reducing unnecessary wear."
+      ],
+      [
+        "Write endurance",
+        "Each EEPROM cell tolerates only a finite number of write cycles; avoid writing on every pass through loop()."
+      ]
+    ],
+    "diagram": "UNO USB ------ Computer / Serial Monitor\n(No external electronic parts required)\n\nEEPROM address 0: saved value 0..9\n                  |\n                  v\nPower off / reset -- saved value remains\n\nSerial Monitor at 9600:\nSetting stored: 5\nRestart -> Setting restored: 5",
+    "parts": [
+      [
+        "cb-059",
+        "ATmega328P UNO-compatible board"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO USB",
+        "Computer USB data port"
+      ]
+    ],
+    "steps": [
+      "Connect the UNO by USB and select the correct Arduino board and port.",
+      "Upload the sketch and open Serial Monitor at 9600 baud.",
+      "Type any digit from 0 to 9 in the Serial Monitor input and send it.",
+      "Observe the confirmation. Press UNO reset and see that the stored digit is read again.",
+      "Explain why this technique is inappropriate for a high-frequency data logger."
+    ],
+    "code": "#include <EEPROM.h>\n\nconst int settingAddress = 0;\n\nvoid setup() {\n  Serial.begin(9600);\n  byte saved = EEPROM.read(settingAddress);\n  if (saved > 9) {\n    saved = 0;\n    EEPROM.update(settingAddress, saved);\n  }\n  Serial.print(\"Setting restored: \");\n  Serial.println(saved);\n  Serial.println(\"Send a digit 0..9 and press Send\");\n}\n\nvoid loop() {\n  if (Serial.available() > 0) {\n    char incoming = char(Serial.read());\n    if (incoming >= '0' && incoming <= '9') {\n      byte value = byte(incoming - '0');\n      EEPROM.update(settingAddress, value);\n      Serial.print(\"Setting stored: \");\n      Serial.println(value);\n    }\n  }\n}",
+    "codeNotes": [
+      "EEPROM address zero stores only one byte in this example.",
+      "EEPROM.update avoids rewriting identical values; this is still not unlimited-endurance storage.",
+      "The example uses a one-character command rather than parsing an entire message."
+    ],
+    "outcome": "The saved digit appears again after reset or power cycling, even though ordinary local variables would have been cleared.",
+    "challenge": "Save two independently adjustable values at EEPROM addresses 0 and 1. Explain how you would validate both before using them.",
+    "question": "Why must you not save a changing sensor value to EEPROM on every loop iteration?",
+    "answer": "EEPROM is relatively slow and has a finite write endurance; frequent writes can wear it out.",
+    "safety": "This exercise needs only USB; do not attach external loads. Avoid storing passwords or secrets in unprotected EEPROM.",
+    "references": [
+      [
+        "Arduino: EEPROM library",
+        "https://docs.arduino.cc/learn/built-in-libraries/eeprom"
+      ],
+      [
+        "Arduino: UNO board documentation",
+        "https://docs.arduino.cc/hardware/uno-rev3/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-button-debouncing",
+    "track": "Arduino coding",
+    "title": "Make pushbuttons reliable with software debouncing",
+    "minutes": 24,
+    "intro": "A mechanical button may make several rapid electrical transitions during one press. Detect one clean press without blocking the main program.",
+    "learn": [
+      "Explain the difference between raw changes and confirmed presses.",
+      "Use INPUT_PULLUP to establish a defined idle state.",
+      "Use elapsed milliseconds to reject short contact bounce and count presses."
+    ],
+    "concepts": [
+      [
+        "Contact bounce",
+        "A physical switch may rapidly open and close for a few milliseconds when its contacts move."
+      ],
+      [
+        "INPUT_PULLUP",
+        "Uses a microcontroller's internal pull-up; a press connected to GND reads LOW."
+      ],
+      [
+        "Debounce interval",
+        "A time window during which the input must remain stable before accepting the new value."
+      ],
+      [
+        "Non-blocking timing",
+        "Use millis() rather than delay() so other tasks can keep running."
+      ]
+    ],
+    "diagram": "UNO D2 ---- Pushbutton ---- UNO GND\nUNO USB --- Computer / Serial Monitor\n\nIdle: D2 = HIGH\nPressed: D2 = LOW\n\nRaw transition -> wait for stable 30 ms\n                -> count one confirmed press",
+    "parts": [
+      [
+        "cb-059",
+        "ATmega328P UNO-compatible board"
+      ],
+      [
+        "cb-016",
+        "Momentary pushbutton"
+      ],
+      [
+        "cb-065",
+        "Solderless breadboard"
+      ],
+      [
+        "cb-076",
+        "Male-to-male jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO D2",
+        "One side of pushbutton"
+      ],
+      [
+        "Other contact of pushbutton",
+        "UNO GND"
+      ]
+    ],
+    "steps": [
+      "Unplug USB and use a continuity test or button datasheet to determine the correct switched terminal pair.",
+      "Wire the button between D2 and GND without adding a 5 V wire.",
+      "Upload the sketch and open Serial Monitor at 9600 baud.",
+      "Press and release the button ten times, and compare the reported count.",
+      "Change debounceMs from 30 to 60 and observe how quickly a press is accepted."
+    ],
+    "code": "const byte buttonPin = 2;\nconst unsigned long debounceMs = 30;\n\nint lastRaw = HIGH;\nint stableState = HIGH;\nunsigned long lastChangeAt = 0;\nunsigned long presses = 0;\n\nvoid setup() {\n  pinMode(buttonPin, INPUT_PULLUP);\n  Serial.begin(9600);\n  Serial.println(\"Press the button\");\n}\n\nvoid loop() {\n  int raw = digitalRead(buttonPin);\n  if (raw != lastRaw) lastChangeAt = millis();\n  if (millis() - lastChangeAt >= debounceMs && raw != stableState) {\n    stableState = raw;\n    if (stableState == LOW) {\n      presses++;\n      Serial.print(\"Confirmed presses: \");\n      Serial.println(presses);\n    }\n  }\n  lastRaw = raw;\n}",
+    "codeNotes": [
+      "The timer restarts whenever the raw contact signal changes.",
+      "The stable state is updated only after the signal stops bouncing for the debounce interval.",
+      "This is a software counter; it resets to zero when the board restarts."
+    ],
+    "outcome": "A confirmed button press increments the printed counter once; minor contact bounce should not produce duplicate counts.",
+    "challenge": "Use an LED that changes state on each confirmed press without adding delay().",
+    "question": "Why does a normally idle button read HIGH in this example?",
+    "answer": "INPUT_PULLUP holds the input HIGH when the button is open; pressing connects D2 to GND and produces LOW.",
+    "safety": "Use a simple low-voltage momentary switch. Do not connect external voltages to the button circuit in this experiment.",
+    "references": [
+      [
+        "Arduino: Debounce example",
+        "https://docs.arduino.cc/built-in-examples/digital/Debounce/"
+      ],
+      [
+        "Arduino: INPUT_PULLUP example",
+        "https://docs.arduino.cc/built-in-examples/digital/InputPullupSerial/"
+      ]
+    ]
   }
 ]

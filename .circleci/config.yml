@@ -1,6 +1,7 @@
 version: 2.1
 
 # CircleCI checks only. Vercel remains the deployment system.
+# Pipeline trigger verification: GitHub push event on this configuration branch.
 # Do not pass production DATABASE_URL, Vercel, Blob, or auth secrets to these jobs.
 jobs:
   web-quality:

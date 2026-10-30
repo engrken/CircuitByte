@@ -574,6 +574,65 @@
     ]
   },
   {
+    "slug": "programming-algorithms-flowcharts",
+    "track": "Arduino coding",
+    "title": "Algorithms, pseudocode & flowcharts",
+    "minutes": 18,
+    "intro": "Before writing Arduino code, plan the exact sequence of instructions and decisions the board must follow.",
+    "learn": [
+      "Describe an algorithm using clear steps.",
+      "Distinguish sequence, decision and repetition.",
+      "Translate a simple electronic task into pseudocode and a flowchart."
+    ],
+    "concepts": [
+      [
+        "Algorithm",
+        "A finite, ordered set of unambiguous steps that solves a problem."
+      ],
+      [
+        "Sequence",
+        "Instructions executed in order."
+      ],
+      [
+        "Decision",
+        "A question such as 'is it dark?' that selects a path based on true or false."
+      ],
+      [
+        "Repetition",
+        "A set of instructions repeated under a defined rule; Arduino loop() repeats while powered."
+      ],
+      [
+        "Pseudocode",
+        "A plain-language plan that captures the logic without requiring exact programming syntax."
+      ]
+    ],
+    "diagram": "START\n  |\n  v\nRead light level\n  |\n  v\nIs it dark? -- NO --> Keep LED OFF\n  | YES                  |\n  v                      |\nTurn LED ON <-------------+\n  |\n  v\nRepeat measurement\n\nPSEUDOCODE:\nREPEAT:\n  read light sensor\n  IF dark: turn light on\n  ELSE: turn light off",
+    "parts": [],
+    "wiring": [],
+    "steps": [
+      "Draw the flowchart on paper before handling any electronics.",
+      "Trace it with two imagined sensor values: bright and dark.",
+      "Say aloud which branch should run in each case.",
+      "Write equivalent pseudocode using REPEAT, IF, ELSE and END IF.",
+      "Compare your plan with the automatic-night-light DIY guide when ready to build."
+    ],
+    "outcome": "A traceable flowchart and pseudocode that agree for both bright and dark conditions.",
+    "challenge": "Add a rule: the light must remain on for five seconds after the room becomes bright. Which extra variable and timer would you need?",
+    "question": "Why should you trace both YES and NO paths before programming?",
+    "answer": "It finds missing outcomes and contradictory steps while the design is still easy to change.",
+    "safety": "This planning activity needs no electrical connections. If you later build it, use a low-voltage circuit and check the actual sensor's supply requirements.",
+    "references": [
+      [
+        "Arduino language reference",
+        "https://docs.arduino.cc/language-reference/"
+      ],
+      [
+        "Arduino built-in examples",
+        "https://docs.arduino.cc/built-in-examples/"
+      ]
+    ]
+  },
+  {
     "slug": "arduino-ide-and-first-sketch",
     "track": "Arduino coding",
     "title": "Install Arduino IDE & upload your first sketch",
@@ -1077,6 +1136,363 @@
       [
         "Arduino: Blink Without Delay",
         "https://docs.arduino.cc/built-in-examples"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-for-loops",
+    "track": "Arduino coding",
+    "title": "Repeat actions with for loops",
+    "minutes": 20,
+    "intro": "Make one LED blink exactly three times and learn why loop counters are more reliable than copying the same code.",
+    "learn": [
+      "Identify initialization, condition and increment in a for statement.",
+      "Count exact repetitions from a starting value.",
+      "Describe the difference between for and Arduino's repeating loop()."
+    ],
+    "concepts": [
+      [
+        "for loop",
+        "for (start; condition; update) repeats a block while the condition is true."
+      ],
+      [
+        "Counter",
+        "An integer variable that records the current repetition."
+      ],
+      [
+        "Loop boundary",
+        "Use i < 3 for i = 0, 1, 2; an off-by-one error can cause an extra repetition."
+      ],
+      [
+        "Arduino loop()",
+        "The framework repeatedly invokes loop(), even after a nested for loop finishes."
+      ]
+    ],
+    "diagram": "UNO D9 ──[330 Ω]──|>|── UNO GND\n                   LED\n\nfor (int i = 0; i < 3; i++)\n  LED ON, wait 200 ms\n  LED OFF, wait 200 ms\n\nThen pause 1 s; Arduino loop() repeats.",
+    "parts": [
+      [
+        "cb-059",
+        "UNO R3-compatible board"
+      ],
+      [
+        "cb-009",
+        "One red LED"
+      ],
+      [
+        "cb-002",
+        "One 330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Solderless breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO D9",
+        "330 Ω resistor → LED anode (+)"
+      ],
+      [
+        "LED cathode (−)",
+        "UNO GND"
+      ]
+    ],
+    "steps": [
+      "Unplug USB and wire the LED and resistor in series from D9 to GND.",
+      "Select Arduino Uno and the correct port in Arduino IDE.",
+      "Upload the complete sketch and count the three short flashes.",
+      "Change i < 3 to i < 5 and predict the result before re-uploading.",
+      "Explain why i starts at zero and why delay() blocks other tasks while waiting."
+    ],
+    "code": "const byte ledPin = 9;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  for (int i = 0; i < 3; i++) {\n    digitalWrite(ledPin, HIGH);\n    delay(200);\n    digitalWrite(ledPin, LOW);\n    delay(200);\n  }\n  delay(1000);\n}",
+    "codeNotes": [
+      "The counter takes the values 0, 1 and 2, so exactly three flashes occur per outer cycle.",
+      "After the for loop, loop() pauses and starts the entire sequence again.",
+      "For repeated concurrent activities, revisit the separate millis() lesson instead of long delays."
+    ],
+    "outcome": "Three 200 ms flashes, then a one-second pause, repeated.",
+    "challenge": "Create a 'countdown' pattern with 5, 4, 3, 2 and 1 flashes per group.",
+    "question": "How many times does for (int i = 0; i < 4; i++) run?",
+    "answer": "Four times: i equals 0, 1, 2 and 3.",
+    "safety": "Power off before changing wiring. Each external LED needs a series resistor. Use the UNO only as a low-current logic source.",
+    "references": [
+      [
+        "Arduino: for statement",
+        "https://docs.arduino.cc/language-reference/en/structure/control-structure/for/"
+      ],
+      [
+        "Arduino built-in examples",
+        "https://docs.arduino.cc/built-in-examples/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-reusable-functions",
+    "track": "Arduino coding",
+    "title": "Organize sketches with reusable functions",
+    "minutes": 22,
+    "intro": "Give a small piece of Arduino code a meaningful name, then call it with different inputs instead of copying the same instructions.",
+    "learn": [
+      "Identify a function name, parameter and return type.",
+      "Write and call a void function.",
+      "Explain what a function changes and what it leaves unchanged."
+    ],
+    "concepts": [
+      [
+        "Function",
+        "A named block of statements that runs when called."
+      ],
+      [
+        "Parameter",
+        "A value supplied to the function, such as how many times to blink."
+      ],
+      [
+        "void",
+        "A return type indicating that the function does not return a value."
+      ],
+      [
+        "Scope",
+        "A variable declared inside a function belongs to that function's local scope."
+      ]
+    ],
+    "diagram": "UNO D9 ──[330 Ω]──|>|── GND\n                     LED\n\nloop() --> blinkTimes(2, 200)\n       --> pause\n       --> blinkTimes(4, 100)\n       --> pause\n       --> repeat",
+    "parts": [
+      [
+        "cb-059",
+        "UNO R3-compatible board"
+      ],
+      [
+        "cb-009",
+        "One red LED"
+      ],
+      [
+        "cb-002",
+        "One 330 Ω resistor"
+      ],
+      [
+        "cb-065",
+        "Solderless breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO D9",
+        "330 Ω resistor → LED anode"
+      ],
+      [
+        "LED cathode",
+        "UNO GND"
+      ]
+    ],
+    "steps": [
+      "Reuse the one-LED circuit from the previous lesson with power disconnected.",
+      "Read the function declaration before uploading; point to its two parameters.",
+      "Upload and count the first two long flashes, followed by four short flashes.",
+      "Change only the function call to blinkTimes(3, 150) and verify three flashes.",
+      "Explain why one shared function is easier to maintain than two copied code blocks."
+    ],
+    "code": "const byte ledPin = 9;\n\nvoid blinkTimes(int count, unsigned int durationMs) {\n  for (int i = 0; i < count; i++) {\n    digitalWrite(ledPin, HIGH);\n    delay(durationMs);\n    digitalWrite(ledPin, LOW);\n    delay(durationMs);\n  }\n}\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  blinkTimes(2, 200);\n  delay(700);\n  blinkTimes(4, 100);\n  delay(1200);\n}",
+    "codeNotes": [
+      "blinkTimes is defined once and called with different arguments.",
+      "count controls repetitions while durationMs controls on/off delay.",
+      "A void function can still change a physical output without returning a value."
+    ],
+    "outcome": "Two slower flashes followed by four faster flashes, then the pattern repeats.",
+    "challenge": "Write a second function called allOff() that turns the LED off. Where should it be called?",
+    "question": "What changes when you call blinkTimes(4, 100) instead of blinkTimes(2, 200)?",
+    "answer": "The number of flashes changes from two to four, and each ON and OFF duration changes from 200 ms to 100 ms.",
+    "safety": "Keep the LED current-limited. Never connect an external load such as a motor directly to an UNO output pin.",
+    "references": [
+      [
+        "Arduino: using functions in a sketch",
+        "https://docs.arduino.cc/learn/programming/functions/"
+      ],
+      [
+        "Arduino language reference",
+        "https://docs.arduino.cc/language-reference/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-arrays-and-indexes",
+    "track": "Arduino coding",
+    "title": "Store pin lists with arrays",
+    "minutes": 24,
+    "intro": "Use one array and one loop to control three different LEDs in sequence. This pattern scales to larger projects without repetitive code.",
+    "learn": [
+      "Declare an array of pin numbers.",
+      "Access elements using indexes 0 through length minus one.",
+      "Use sizeof to count elements safely in a fixed local array."
+    ],
+    "concepts": [
+      [
+        "Array",
+        "A fixed collection of values of the same type, such as byte ledPins[] = {8, 9, 10}."
+      ],
+      [
+        "Zero-based index",
+        "The first element is at [0], not [1]."
+      ],
+      [
+        "Array length",
+        "For a fixed array in this sketch, sizeof(ledPins) / sizeof(ledPins[0]) gives the number of entries."
+      ],
+      [
+        "Bounds",
+        "Never read ledPins[3] when an array contains only three entries (indexes 0–2)."
+      ]
+    ],
+    "diagram": "UNO D8  ──[330 Ω]──|>|── GND  LED 1\nUNO D9  ──[330 Ω]──|>|── GND  LED 2\nUNO D10 ──[330 Ω]──|>|── GND  LED 3\n\nledPins[0] = 8\nledPins[1] = 9\nledPins[2] = 10",
+    "parts": [
+      [
+        "cb-059",
+        "UNO R3-compatible board"
+      ],
+      [
+        "cb-009",
+        "Three LEDs"
+      ],
+      [
+        "cb-002",
+        "Three 330 Ω resistors, one per LED"
+      ],
+      [
+        "cb-065",
+        "Solderless breadboard"
+      ],
+      [
+        "cb-076",
+        "Jumper wires"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO D8",
+        "330 Ω → LED 1 anode; cathode → GND"
+      ],
+      [
+        "UNO D9",
+        "330 Ω → LED 2 anode; cathode → GND"
+      ],
+      [
+        "UNO D10",
+        "330 Ω → LED 3 anode; cathode → GND"
+      ]
+    ],
+    "steps": [
+      "Unplug USB and wire three separate resistor–LED branches on a breadboard.",
+      "Verify each anode and cathode; share GND, but never omit a series resistor.",
+      "Upload the sketch and watch each LED light in array order.",
+      "Change the array to {10, 8, 9}; predict and observe the new sequence.",
+      "Try adding a fourth LED and resistor on D11, then add 11 to the array."
+    ],
+    "code": "const byte ledPins[] = {8, 9, 10};\nconst byte ledCount = sizeof(ledPins) / sizeof(ledPins[0]);\n\nvoid setup() {\n  for (byte i = 0; i < ledCount; i++) {\n    pinMode(ledPins[i], OUTPUT);\n    digitalWrite(ledPins[i], LOW);\n  }\n}\n\nvoid loop() {\n  for (byte i = 0; i < ledCount; i++) {\n    digitalWrite(ledPins[i], HIGH);\n    delay(200);\n    digitalWrite(ledPins[i], LOW);\n  }\n  delay(500);\n}",
+    "codeNotes": [
+      "The same for loop initializes and controls all pins listed in the array.",
+      "Reordering numbers inside ledPins changes the visible LED order without rewriting the control loop.",
+      "Three resistors are required: LEDs do not safely share a single resistor in parallel."
+    ],
+    "outcome": "Three LEDs turn on one after another in the array order, then pause and repeat.",
+    "challenge": "Modify the sketch so the lights run from the last array index back to zero.",
+    "question": "For {8, 9, 10}, what is ledPins[2]?",
+    "answer": "10, because indexing begins at zero.",
+    "safety": "Disconnect USB before rewiring; use separate 330 Ω resistors and verify correct polarity. This example is for small indicator LEDs only.",
+    "references": [
+      [
+        "Arduino: how to use arrays",
+        "https://docs.arduino.cc/built-in-examples/control-structures/Arrays/"
+      ],
+      [
+        "Arduino language reference",
+        "https://docs.arduino.cc/language-reference/"
+      ]
+    ]
+  },
+  {
+    "slug": "arduino-serial-debugging",
+    "track": "Arduino coding",
+    "title": "Debug sketches with Serial Monitor",
+    "minutes": 20,
+    "intro": "When a circuit misbehaves, use readable messages to see what the Arduino thinks is happening before changing hardware.",
+    "learn": [
+      "Open Serial Monitor at the configured baud rate.",
+      "Use Serial.print and Serial.println to inspect changing values.",
+      "Separate coding errors, wiring problems and mismatched board or port settings."
+    ],
+    "concepts": [
+      [
+        "Serial.begin(9600)",
+        "Initializes the serial connection on a classic UNO at 9600 baud."
+      ],
+      [
+        "Serial.print()",
+        "Writes text or a value without automatically ending the line."
+      ],
+      [
+        "Serial.println()",
+        "Writes text or a value and advances to the next line."
+      ],
+      [
+        "Diagnostic message",
+        "A visible observation that tests one assumption, such as an elapsed timestamp."
+      ],
+      [
+        "Compile vs. upload vs. runtime",
+        "Three different stages that can fail for different reasons."
+      ]
+    ],
+    "diagram": "Computer with Arduino IDE\n        |\n       USB data cable\n        |\n    UNO R3 board\n        |\n  Serial Monitor at 9600\n        |\n  uptime_ms: 1000\n  uptime_ms: 2000\n  uptime_ms: 3000",
+    "parts": [
+      [
+        "cb-059",
+        "UNO R3-compatible board"
+      ]
+    ],
+    "wiring": [
+      [
+        "UNO USB port",
+        "Computer USB data port (use a data cable)"
+      ]
+    ],
+    "steps": [
+      "Connect the UNO using a known working USB data cable; no external circuit is needed.",
+      "Select Arduino Uno and the correct port, then upload the sketch.",
+      "Open Serial Monitor and set 9600 baud.",
+      "Confirm that uptime values increase about once each second.",
+      "Change Serial.begin(9600) to 115200, re-upload, and set the monitor to 115200 to match.",
+      "Unplug and reconnect the board, then distinguish successful compilation from an actual successful upload."
+    ],
+    "code": "void setup() {\n  Serial.begin(9600);\n  Serial.println(\"CircuitByte debug ready\");\n}\n\nvoid loop() {\n  Serial.print(\"uptime_ms: \");\n  Serial.println(millis());\n  delay(1000);\n}",
+    "codeNotes": [
+      "Serial.begin sets the communication speed; the monitor must use the same baud setting on a classic UNO.",
+      "millis measures elapsed time since startup; the displayed values will be approximate.",
+      "Messages after a restart may be missed if Serial Monitor opens after setup() has already run."
+    ],
+    "outcome": "Readable text appears in Serial Monitor, followed by increasing uptime values at approximately one-second intervals.",
+    "challenge": "Add a counter that increases on every pass. Print both the counter and elapsed time, then explain the difference.",
+    "question": "If a sketch verifies but does not upload, is the problem necessarily in its algorithm?",
+    "answer": "No. Verify checks compilation. Upload can fail because of the selected board/port, USB cable, connection or bootloader.",
+    "safety": "No other wiring is necessary. Do not connect arbitrary voltage sources to the USB-powered UNO during this diagnostic activity.",
+    "references": [
+      [
+        "Arduino: Serial.begin()",
+        "https://docs.arduino.cc/language-reference/en/functions/communication/serial/begin/"
+      ],
+      [
+        "Arduino: Serial.println()",
+        "https://docs.arduino.cc/language-reference/en/functions/communication/serial/println/"
+      ],
+      [
+        "Arduino: troubleshooting",
+        "https://support.arduino.cc/"
       ]
     ]
   }

@@ -4,11 +4,11 @@ import {readFileSync} from 'node:fs';
 
 const lessons=JSON.parse(readFileSync(new URL('../content/foundation-lessons.json',import.meta.url),'utf8'));
 const profiles=JSON.parse(readFileSync(new URL('../content/product-learning.json',import.meta.url),'utf8'));
-const tracks={'Electronics fundamentals':4,'Basic circuits':4,'Arduino coding':6};
+const tracks={'Electronics fundamentals':4,'Basic circuits':4,'Arduino coding':14};
 
-test('Learning Lab has fourteen ordered, unique and searchable lessons',()=>{
-  assert.equal(lessons.length,14);
-  assert.equal(new Set(lessons.map(lesson=>lesson.slug)).size,14);
+test('Learning Lab has twenty-two ordered, unique and searchable lessons',()=>{
+  assert.equal(lessons.length,22);
+  assert.equal(new Set(lessons.map(lesson=>lesson.slug)).size,lessons.length);
   assert.deepEqual(Object.fromEntries(Object.keys(tracks).map(track=>[track,lessons.filter(lesson=>lesson.track===track).length])),tracks);
   for(const lesson of lessons){
     assert.match(lesson.slug,/^[a-z0-9-]+$/);
@@ -37,10 +37,12 @@ test('All referenced catalog parts and technical reading links exist',()=>{
   }
 });
 
-test('All Arduino examples expose setup and loop and have pin safety notes',()=>{
+test('Arduino coding track distinguishes algorithm lessons from compilable sketches',()=>{
   const coding=lessons.filter(l=>l.track==='Arduino coding');
-  assert.equal(coding.length,6);
-  for(const lesson of coding){
+  assert.equal(coding.length,14);
+  const examples=coding.filter(l=>typeof l.code==='string'&&l.code.trim());
+  assert.equal(examples.length,13);
+  for(const lesson of examples){
     assert.match(lesson.code,/void setup\s*\(\s*\)/);
     assert.match(lesson.code,/void loop\s*\(\s*\)/);
     assert.ok(lesson.codeNotes.length>0);

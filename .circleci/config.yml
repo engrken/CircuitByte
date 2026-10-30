@@ -1,0 +1,78 @@
+version: 2.1
+
+# CircleCI checks only. Vercel remains the deployment system.
+# CircleCI first-run trigger on the dedicated CircuitByte project (2026-10-31).
+# Pipeline trigger verification: GitHub push event on this configuration branch.
+# Do not pass production DATABASE_URL, Vercel, Blob, or auth secrets to these jobs.
+jobs:
+  web-quality:
+    docker:
+      - image: cimg/node:24.16.0
+    resource_class: medium
+    environment:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      VERCEL_ENV: "preview"
+    steps:
+      - checkout
+      - run:
+          name: Confirm CircleCI GitHub trigger and checked-out commit
+          command: |
+            echo "CircleCI project: ${CIRCLE_PROJECT_REPONAME:-unknown}"
+            echo "Git commit: ${CIRCLE_SHA1:-unknown}"
+            echo "Branch: ${CIRCLE_BRANCH:-pull-request}"
+      - run:
+          name: Install locked Node.js dependencies
+          command: npm ci --no-audit --no-fund
+      - run:
+          name: Run existing automated tests
+          command: npm test
+      - run:
+          name: Validate educational JSON, references, sketches and diagrams
+          command: node scripts/validate-learning.mjs
+      - run:
+          name: Build Next.js without running production migrations
+          command: npm run build
+
+  arduino-uno-compile:
+    docker:
+      - image: cimg/base:stable
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Download and verify Arduino CLI v1.5.1
+          command: |
+            set -euo pipefail
+            mkdir -p "$HOME/bin"
+            curl -fsSL --retry 3               https://github.com/arduino/arduino-cli/releases/download/v1.5.1/arduino-cli_1.5.1_Linux_64bit.tar.gz               -o /tmp/arduino-cli.tar.gz
+            echo "28a8e119c498a25607821c36cb2dc49e8463941b261a0d99091baa7bc692dd2b  /tmp/arduino-cli.tar.gz" | sha256sum --check
+            tar -xzf /tmp/arduino-cli.tar.gz -C "$HOME/bin" arduino-cli
+            echo 'export PATH="$HOME/bin:$PATH"' >> "$BASH_ENV"
+            "$HOME/bin/arduino-cli" version
+      - run:
+          name: Install UNO core and supported sketch libraries
+          command: |
+            set -euo pipefail
+            arduino-cli core update-index
+            arduino-cli core install arduino:avr
+            arduino-cli lib install "DHT sensor library"
+            arduino-cli lib install "Adafruit Unified Sensor"
+            arduino-cli lib install "hd44780"
+            arduino-cli lib install "SD"
+      - run:
+          name: Compile four added Arduino UNO DIY sketches
+          command: |
+            set -euo pipefail
+            for project in three-led-scanner joystick-direction-lights lcd-room-comfort-monitor micro-sd-light-logger; do
+              echo "Compiling: $project"
+              mkdir -p "/tmp/circuitbyte-arduino/$project"
+              cp "public/education/code/$project.ino" "/tmp/circuitbyte-arduino/$project/$project.ino"
+              arduino-cli compile --fqbn arduino:avr:uno --warnings all "/tmp/circuitbyte-arduino/$project"
+            done
+
+workflows:
+  circuitbyte-quality-gates:
+    jobs:
+      - web-quality
+      - arduino-uno-compile

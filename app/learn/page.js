@@ -1,6 +1,8 @@
 import {EducationShell} from '../education/shell';
 import {LearningLibrary} from '../education/library';
-import {LearningTracks} from '../education/foundations';
+import {LearningTracks,lessons} from '../education/foundations';
+import profiles from '../../content/product-learning.json';
+import projects from '../../content/diy-projects.json';
 
 export const metadata={
   title:'Learn Arduino coding, circuits & electronics | CircuitByte',
@@ -18,7 +20,7 @@ export default function Learn(){
       <aside className="edu-hero-note"><span>START WITH THE FUNDAMENTALS</span>
         <h2>Read → Connect<br/>→ Code → Test</h2>
         <p>Learn safely with guided low-voltage activities, connection maps, Arduino sketches, and simple check-your-understanding questions.</p>
-        <div>14 beginner lessons · 101 part profiles · 13 complete builds</div>
+        <div>{lessons.length} beginner lessons · {Object.keys(profiles).length} part profiles · {projects.length} complete builds</div>
       </aside>
     </section>
     <section className="edu-principles" aria-label="Three rules for safer learning">

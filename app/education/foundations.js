@@ -5,7 +5,7 @@ import {LessonCode} from './lesson-code';
 const tracks = [
   {name:'Electronics fundamentals',id:'electronics',number:'01',subtitle:'Understand the language of circuits',description:'Start with voltage, current, resistance, components, symbols and how a breadboard is connected.'},
   {name:'Basic circuits',id:'circuits',number:'02',subtitle:'Turn theory into a working circuit',description:'Wire LEDs, switches, a voltage divider and a transistor-controlled buzzer with clear low-voltage connection maps.'},
-  {name:'Arduino coding',id:'arduino',number:'03',subtitle:'Write, upload and understand your own sketches',description:'Start with the IDE, then learn outputs, conditions, analog readings, PWM and non-blocking timing.'}
+  {name:'Arduino coding',id:'arduino',number:'03',subtitle:'Write, upload and understand your own sketches',description:'Plan algorithms, then learn outputs, decisions, loops, functions, arrays, Serial debugging and non-blocking timing.'}
 ];
 
 export {lessons};
@@ -14,7 +14,7 @@ export function LearningTracks(){
     <div className="edu-foundations-intro">
       <p className="edu-kicker">NEW / START FROM ZERO</p>
       <h2 id="learning-paths-title">Your electronics learning path</h2>
-      <p>Fourteen bite-sized lessons. Learn the principles, follow a connection map, then write Arduino code and test a real circuit. No previous experience is required.</p>
+      <p>{lessons.length} bite-sized lessons. Learn the principles, follow a connection map, then write Arduino code and test a real circuit. No previous experience is required.</p>
     </div>
     <nav className="edu-track-jump" aria-label="Choose a learning topic">
       {tracks.map(track=><a href={'#'+track.id} key={track.id}>{track.name}<span aria-hidden="true"> ↓</span></a>)}
@@ -50,14 +50,14 @@ export function LessonView({lesson}){
     </header>
     <div className="edu-foundation-layout">
       <aside className="edu-foundation-toc"><strong>ON THIS PAGE</strong><nav aria-label="Lesson sections">
-        {[['lesson-main','Key concepts'],['connection-map','Circuit connections'],['activity','Try it yourself'],...(lesson.code?[['sketch','Arduino code']]:[]),['check','Check your understanding'],['sources','Reference reading']].map(([id,name])=><a key={id} href={'#'+id}>{name}</a>)}
+        {[['lesson-main','Key concepts'],['connection-map','Circuit / logic map'],['activity','Try it yourself'],...(lesson.code?[['sketch','Arduino code']]:[]),['check','Check your understanding'],['sources','Reference reading']].map(([id,name])=><a key={id} href={'#'+id}>{name}</a>)}
       </nav><a href="/learn#learning-paths">← All lessons</a></aside>
       <article className="edu-foundation-article">
         <section id="lesson-main"><p className="edu-kicker">01 / UNDERSTAND</p><h2>Key concepts</h2><div className="edu-concept-list">{lesson.concepts.map(([term,explanation])=><div key={term}><h3>{term}</h3><p>{explanation}</p></div>)}</div></section>
-        <section id="connection-map"><p className="edu-kicker">02 / CONNECT</p><h2>Circuit & connection map</h2><p className="edu-muted">Illustrative low-voltage connection map (not a manufacturer schematic). Confirm pin labels and components before powering.</p>
+        <section id="connection-map"><p className="edu-kicker">02 / CONNECT</p><h2>{lesson.parts.length?'Circuit & connection map':'Algorithm & flowchart map'}</h2><p className="edu-muted">{lesson.parts.length?'Illustrative low-voltage connection map (not a manufacturer schematic). Confirm pin labels and components before powering.':'This is a software-planning activity; no electronic circuit needs to be connected.'}</p>
           <div className="edu-ascii-wrap"><pre tabIndex="0" aria-label="Text-based circuit connection diagram">{lesson.diagram}</pre></div>
           {!!lesson.wiring.length&&<div className="edu-table-wrap"><table><caption>Connections to check, one by one</caption><thead><tr><th>From</th><th>To</th></tr></thead><tbody>{lesson.wiring.map(([from,to],i)=><tr key={i}><th scope="row">{from}</th><td>{to}</td></tr>)}</tbody></table></div>}
-          <h3>Parts used</h3><div className="edu-parts-grid">{lesson.parts.map(([id,description])=><a href={'/learn/'+id} key={id}><span>{description}</span><small>See {id} in CircuitByte →</small></a>)}</div>
+          {!!lesson.parts.length&&<><h3>Parts used</h3><div className="edu-parts-grid">{lesson.parts.map(([id,description])=><a href={'/learn/'+id} key={id}><span>{description}</span><small>See {id} in CircuitByte →</small></a>)}</div></>}
           <div className="edu-foundation-safety"><strong>Safety & variant check</strong><p>{lesson.safety}</p></div>
         </section>
         <section id="activity"><p className="edu-kicker">03 / TRY IT</p><h2>Follow the activity</h2><ol className="edu-steps">{lesson.steps.map(s=><li key={s}>{s}</li>)}</ol><div className="edu-outcome"><strong>Expected result</strong><p>{lesson.outcome}</p></div></section>

@@ -78,5 +78,17 @@
   "tone": {
     "label": "Arduino tone() reference",
     "url": "https://docs.arduino.cc/language-reference/en/functions/advanced-io/tone/"
+  },
+  "sd": {
+    "label": "Arduino SD library API documentation",
+    "url": "https://github.com/arduino-libraries/SD/blob/master/docs/api.md"
+  },
+  "hd44780": {
+    "label": "hd44780_I2Cexp library documentation and example",
+    "url": "https://github.com/duinoWitchery/hd44780/tree/master/examples/ioClass/hd44780_I2Cexp"
+  },
+  "dhtSensor": {
+    "label": "Adafruit DHT sensor library and installation",
+    "url": "https://github.com/adafruit/DHT-sensor-library"
   }
 }

@@ -1,4 +1,4 @@
-import {requireAdmin,sameOrigin} from '../../../lib/auth';
+import {requireAdmin,sameOrigin} from '../../../../lib/auth';
 import {Sandbox} from '@vercel/sandbox';
 
 export const runtime='nodejs';

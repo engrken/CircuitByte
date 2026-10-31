@@ -1,6 +1,6 @@
 import {requireAdmin,sameOrigin} from '../../../../lib/auth';
 import {Sandbox} from '@vercel/sandbox';
-import {resolveStudioLibraries} from '../../../../lib/studio-libraries.mjs';
+import {resolveStudioLibraries,STUDIO_LIBRARY_REGISTRY} from '../../../../lib/studio-libraries.mjs';
 import {STUDIO_ZIP_UNPACK_PYTHON} from '../../../../lib/studio-custom-zip.mjs';
 
 export const runtime='nodejs';
@@ -31,7 +31,10 @@ export async function POST(request) {
     return Response.json({error:'Choose Arduino UNO and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
   }
   const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\d{3}$/.test(x)):[];
-  const dependencies=resolveStudioLibraries({parts,code});
+  const manualLibraries=Array.isArray(payload?.manualLibraries)?payload.manualLibraries:[];
+  if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)))
+    return Response.json({error:'Choose only supported Arduino libraries from Studio Library Manager.'},{status:400});
+  const dependencies=resolveStudioLibraries({parts,code,manualLibraries});
   const customLibrary=payload?.customLibrary;
   if(customLibrary!==undefined && (typeof customLibrary!=='string'||customLibrary.length>340000||!/^[-A-Za-z0-9+/=]+$/.test(customLibrary))){
     return Response.json({error:'Custom Arduino ZIP must be base64-encoded and no larger than 250 KB.'},{status:400});

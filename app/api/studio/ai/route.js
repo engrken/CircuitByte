@@ -10,9 +10,9 @@ const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,d
 export async function POST(request){
   let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student AI.'},{status:403});}
   if(process.env.STUDIO_AI_ENABLED!=='true')return Response.json({error:'AI generation is not activated for this beta. Guided starter templates remain free.'},{status:503});
-  const model=process.env.STUDIO_AI_MODEL;
+  const models=[process.env.STUDIO_AI_MODEL||'google/gemini-2.5-flash-lite',process.env.STUDIO_AI_FALLBACK_MODEL||'openai/gpt-4.1-mini'].filter((model,index,array)=>model&&array.indexOf(model)===index);
   const credential=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
-  if(!model||!credential)return Response.json({error:'Studio AI Gateway model or credentials are not configured.'},{status:503});
+  if(!credential)return Response.json({error:'Studio AI Gateway model or credentials are not configured.'},{status:503});
   let input;
   try{input=await request.json();}catch{return Response.json({error:'Malformed request.'},{status:400});}
   const prompt=String(input?.prompt||'').trim();
@@ -22,11 +22,13 @@ export async function POST(request){
   }
   if(!parts.some(part=>part.id==='cb-059'))return Response.json({error:'This beta requires the catalog Arduino UNO R3.'},{status:400});
   let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
-  if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (15 drafts).',quota},{status:429});
+  if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (30 drafts).',quota},{status:429});
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),30000);
   try{
-    const response=await fetch('https://ai-gateway.vercel.sh/v1/chat/completions',{
+    let response;let gatewayError;
+    for(const model of models){
+      try{response=await fetch('https://ai-gateway.vercel.sh/v1/chat/completions',{
       method:'POST',signal:controller.signal,
       headers:{'Authorization':'Bearer '+credential,'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -36,8 +38,13 @@ export async function POST(request){
           {role:'user',content:JSON.stringify({request:prompt,selectedParts:parts,board:'Arduino UNO R3'})}
         ]
       })
-    });
-    if(!response.ok)return Response.json({error:'AI Gateway rejected the request ('+response.status+'). Check model, budget and credentials.'},{status:503});
+      });
+      if(response.ok)break;
+      gatewayError=response.status;
+      if(![408,429,500,502,503,504].includes(response.status))break;
+      }catch{gatewayError='network';}
+    }
+    if(!response?.ok)return Response.json({error:'AI providers unavailable ('+(gatewayError||response?.status||'unknown')+'). Please try again later.'},{status:503});
     const data=await response.json();let text=String(data?.choices?.[0]?.message?.content||'').trim();
     const ticks=String.fromCharCode(96).repeat(3);
     if(text.startsWith(ticks)){text=text.slice(3).replace(/^json\s*/i,'');if(text.endsWith(ticks))text=text.slice(0,-3).trim();}

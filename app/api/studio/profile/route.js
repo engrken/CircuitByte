@@ -8,7 +8,7 @@ export async function GET(){
  try{
   const user=await requireUser();
   const result=await db().query('SELECT school_name,program,role_name,public_consent,school_verified,school_public_approved FROM studio_profiles WHERE user_id=$1',[user.id]);
-  return Response.json({user:{id:user.id,name:user.name,email:user.email},profile:result.rows[0]||null},{headers:{'Cache-Control':'no-store'}});
+  return Response.json({user:{id:user.id,name:user.name,email:user.email},profile:result.rows[0]||null,isAdmin: Boolean(process.env.ADMIN_EMAIL&&user.email?.toLowerCase()===process.env.ADMIN_EMAIL.toLowerCase())},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'Sign in to view your Studio profile.'},{status:401});}
 }
 export async function POST(request){

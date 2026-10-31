@@ -32,7 +32,7 @@ test('Curated board modules map to matching Arduino Library Manager entries',()=
  }
 });
 test('Headers trigger correct libraries even when catalog items were not selected',()=>{
- assert.deepEqual(resolveStudioLibraries({code:'#include <DHT.h>\nvoid setup(){}'}).packages,['DHT sensor library']);
+ assert.deepEqual(new Set(resolveStudioLibraries({code:'#include <DHT.h>\nvoid setup(){}'}).packages),new Set(['DHT sensor library','Adafruit Unified Sensor']));
  assert.deepEqual(resolveStudioLibraries({code:'#include <Wire.h>\n'}).packages,[]);
  assert.ok(resolveStudioLibraries({code:'#include <CustomSensor.h>'}).unknownIncludes.includes('CustomSensor.h'));
 });

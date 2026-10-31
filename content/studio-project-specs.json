@@ -1,0 +1,461 @@
+{
+  "ultrasonic-distance-alarm": {
+    "diagramStatus": "curated",
+    "reviewStatus": "illustrative-reviewed-reference",
+    "assets": {
+      "schematic": "/education/diagrams/ultrasonic-distance-alarm-schematic.svg",
+      "wiring": "/education/diagrams/ultrasonic-distance-alarm-wiring.svg"
+    },
+    "bom": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "detail": "UNO R3 (USB-powered, 5 V GPIO)"
+      },
+      {
+        "id": "cb-074",
+        "qty": 1,
+        "detail": "HC-SR04, standard 5 V version"
+      },
+      {
+        "id": "cb-029",
+        "qty": 1,
+        "detail": "Passive buzzer module with signal input"
+      },
+      {
+        "id": "cb-009",
+        "qty": 1,
+        "detail": "One indicator LED"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "detail": "330 Ω, ¼ W series resistor"
+      },
+      {
+        "id": "cb-076",
+        "qty": 9,
+        "detail": "Appropriate jumper types/lengths; estimate"
+      }
+    ],
+    "extras": [],
+    "connections": [
+      {
+        "pin": "5V",
+        "to": "HC-SR04 VCC",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "HC-SR04 GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "D9",
+        "to": "HC-SR04 TRIG",
+        "net": "TRIGGER",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D10",
+        "to": "HC-SR04 ECHO",
+        "net": "ECHO",
+        "kind": "digital-input"
+      },
+      {
+        "pin": "D3",
+        "to": "Passive buzzer module SIG",
+        "net": "BUZZER",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "5V",
+        "to": "Passive buzzer module VCC (when labeled)",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "Buzzer module GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "D6",
+        "to": "330 Ω → LED anode (+)",
+        "net": "LED_SIGNAL",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "GND",
+        "to": "LED cathode (−)",
+        "net": "GND",
+        "kind": "ground"
+      }
+    ],
+    "cautions": [
+      "Use a passive buzzer MODULE with the appropriate SIG/VCC/GND labeling; check exact variant.",
+      "One 330 Ω resistor must be in series with the LED.",
+      "Not a collision-warning or vehicle-safety device."
+    ]
+  },
+  "three-led-scanner": {
+    "diagramStatus": "curated",
+    "reviewStatus": "illustrative-reviewed-reference",
+    "assets": {
+      "schematic": "/education/diagrams/three-led-scanner-schematic.svg",
+      "wiring": "/education/diagrams/three-led-scanner-wiring.svg"
+    },
+    "bom": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "detail": "UNO R3"
+      },
+      {
+        "id": "cb-009",
+        "qty": 3,
+        "detail": "3 individual LEDs"
+      },
+      {
+        "id": "cb-002",
+        "qty": 3,
+        "detail": "3 × 330 Ω, ¼ W; one per LED"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "detail": "400-point breadboard"
+      },
+      {
+        "id": "cb-076",
+        "qty": 7,
+        "detail": "Jumpers; estimate"
+      }
+    ],
+    "extras": [],
+    "connections": [
+      {
+        "pin": "D8",
+        "to": "330 Ω resistor → LED 1 anode (+)",
+        "net": "LED1",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D9",
+        "to": "330 Ω resistor → LED 2 anode (+)",
+        "net": "LED2",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D10",
+        "to": "330 Ω resistor → LED 3 anode (+)",
+        "net": "LED3",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "GND",
+        "to": "All three LED cathodes (−) via common rail",
+        "net": "GND",
+        "kind": "ground"
+      }
+    ],
+    "cautions": [
+      "Do not connect LEDs directly to the digital pins without individual current-limiting resistors.",
+      "All LED cathodes share ground; the three anodes remain separate."
+    ]
+  },
+  "joystick-direction-lights": {
+    "diagramStatus": "curated",
+    "reviewStatus": "illustrative-reviewed-reference",
+    "assets": {
+      "schematic": "/education/diagrams/joystick-direction-lights-schematic.svg",
+      "wiring": "/education/diagrams/joystick-direction-lights-wiring.svg"
+    },
+    "bom": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "detail": "UNO R3"
+      },
+      {
+        "id": "cb-015",
+        "qty": 1,
+        "detail": "Two-axis analog joystick breakout"
+      },
+      {
+        "id": "cb-009",
+        "qty": 4,
+        "detail": "4 directional LEDs"
+      },
+      {
+        "id": "cb-002",
+        "qty": 4,
+        "detail": "4 × 330 Ω, ¼ W series resistors"
+      },
+      {
+        "id": "cb-065",
+        "qty": 1,
+        "detail": "Breadboard"
+      },
+      {
+        "id": "cb-076",
+        "qty": 12,
+        "detail": "Jumpers; estimate"
+      }
+    ],
+    "extras": [],
+    "connections": [
+      {
+        "pin": "5V",
+        "to": "Joystick VCC (only if 5 V compatible)",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "Joystick GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "A0",
+        "to": "Joystick VRx",
+        "net": "JOYSTICK_X",
+        "kind": "analog-input"
+      },
+      {
+        "pin": "A1",
+        "to": "Joystick VRy",
+        "net": "JOYSTICK_Y",
+        "kind": "analog-input"
+      },
+      {
+        "pin": "D5",
+        "to": "330 Ω → left LED anode",
+        "net": "LEFT",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D6",
+        "to": "330 Ω → right LED anode",
+        "net": "RIGHT",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D9",
+        "to": "330 Ω → up LED anode",
+        "net": "UP",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "D10",
+        "to": "330 Ω → down LED anode",
+        "net": "DOWN",
+        "kind": "digital-output"
+      },
+      {
+        "pin": "GND",
+        "to": "All four LED cathodes (−)",
+        "net": "GND",
+        "kind": "ground"
+      }
+    ],
+    "cautions": [
+      "Check joystick module supply and pin labeling before applying UNO 5 V.",
+      "One resistor per bare LED; confirm directions using the serial monitor."
+    ]
+  },
+  "lcd-room-comfort-monitor": {
+    "diagramStatus": "curated",
+    "reviewStatus": "illustrative-reviewed-reference",
+    "assets": {
+      "schematic": "/education/diagrams/lcd-room-comfort-monitor-schematic.svg",
+      "wiring": "/education/diagrams/lcd-room-comfort-monitor-wiring.svg"
+    },
+    "bom": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "detail": "UNO R3"
+      },
+      {
+        "id": "cb-079",
+        "qty": 1,
+        "detail": "DHT22 (verify bare sensor vs module)"
+      },
+      {
+        "id": "cb-066",
+        "qty": 1,
+        "detail": "16 × 2 LCD with I²C backpack, 5 V compatible"
+      },
+      {
+        "id": "cb-076",
+        "qty": 8,
+        "detail": "Jumpers; estimate"
+      },
+      {
+        "id": "cb-002",
+        "qty": 1,
+        "optional": true,
+        "detail": "10 kΩ data pull-up, if using a bare DHT22"
+      }
+    ],
+    "extras": [],
+    "connections": [
+      {
+        "pin": "5V",
+        "to": "DHT22 module VCC (check module label)",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "DHT22 module GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "D2",
+        "to": "DHT22 DATA (add 10 kΩ pull-up for bare sensor)",
+        "net": "DHT_DATA",
+        "kind": "digital-input"
+      },
+      {
+        "pin": "A4",
+        "to": "I²C LCD SDA",
+        "net": "SDA",
+        "kind": "i2c"
+      },
+      {
+        "pin": "A5",
+        "to": "I²C LCD SCL",
+        "net": "SCL",
+        "kind": "i2c"
+      },
+      {
+        "pin": "5V",
+        "to": "I²C LCD VCC, if 5 V backpack",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "I²C LCD GND",
+        "net": "GND",
+        "kind": "ground"
+      }
+    ],
+    "cautions": [
+      "Bare DHT22 four-pin layout differs from three-pin breakout; check orientation and add the appropriate pull-up.",
+      "I²C backpacks differ in address and voltage; do not assume every one supports 5 V.",
+      "Libraries: DHT sensor, Adafruit Unified Sensor, hd44780."
+    ]
+  },
+  "micro-sd-light-logger": {
+    "diagramStatus": "curated",
+    "reviewStatus": "conditional-wiring",
+    "assets": {
+      "schematic": "/education/diagrams/micro-sd-light-logger-schematic.svg",
+      "wiring": "/education/diagrams/micro-sd-light-logger-wiring.svg"
+    },
+    "bom": [
+      {
+        "id": "cb-059",
+        "qty": 1,
+        "detail": "UNO R3"
+      },
+      {
+        "id": "cb-077",
+        "qty": 1,
+        "detail": "MicroSD SPI module; 5 V-level compatibility NOT established"
+      },
+      {
+        "id": "cb-076",
+        "qty": 8,
+        "detail": "Jumpers; estimate"
+      }
+    ],
+    "extras": [
+      {
+        "name": "Analog-output LDR sensor module",
+        "qty": 1,
+        "reason": "Needed by sketch; not currently in Studio's catalog mapping."
+      },
+      {
+        "name": "microSD card",
+        "qty": 1,
+        "reason": "Required storage medium; not included with the adapter."
+      },
+      {
+        "name": "3.3 V-compatible SPI level-shifting interface",
+        "qty": 1,
+        "reason": "Required unless the exact SD breakout demonstrably includes 5 V-safe SPI logic-level conversion."
+      }
+    ],
+    "connections": [
+      {
+        "pin": "A0",
+        "to": "LDR module AO (analog output)",
+        "net": "LIGHT_ANALOG",
+        "kind": "analog-input"
+      },
+      {
+        "pin": "5V",
+        "to": "LDR module VCC (only if compatible)",
+        "net": "5V",
+        "kind": "power"
+      },
+      {
+        "pin": "GND",
+        "to": "LDR module GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "D10",
+        "to": "MicroSD module CS",
+        "net": "SPI_CS",
+        "kind": "spi"
+      },
+      {
+        "pin": "D11",
+        "to": "MicroSD module MOSI (via suitable level shifter if needed)",
+        "net": "SPI_MOSI",
+        "kind": "spi"
+      },
+      {
+        "pin": "D12",
+        "to": "MicroSD module MISO",
+        "net": "SPI_MISO",
+        "kind": "spi"
+      },
+      {
+        "pin": "D13",
+        "to": "MicroSD module SCK (via suitable level shifter if needed)",
+        "net": "SPI_SCK",
+        "kind": "spi"
+      },
+      {
+        "pin": "GND",
+        "to": "MicroSD module GND",
+        "net": "GND",
+        "kind": "ground"
+      },
+      {
+        "pin": "3.3V / regulated 5V*",
+        "to": "MicroSD module VCC, depending on its actual board specification",
+        "net": "SD_SUPPLY",
+        "kind": "conditional"
+      }
+    ],
+    "cautions": [
+      "STOP: The listed adapter description confirms a 3.3 V regulator but does not establish 5 V-safe SPI level shifting.",
+      "Do not connect 5 V UNO MOSI/SCK/CS directly to a 3.3 V-only SD input.",
+      "The light sensor module, memory card and possibly level shifter must be sourced separately. Verify their ratings.",
+      "The logger records millisecond uptime, not RTC date/time."
+    ]
+  }
+}

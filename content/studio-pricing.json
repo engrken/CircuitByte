@@ -15,6 +15,7 @@
         "Five curated guided projects",
         "Published schematic and labelled wiring SVGs",
         "Itemized parts and indicative catalog BOM",
+        "Interactive blink-LED output preview (supported simple sketches)",
         "Editable .ino source and browser Save as PDF",
         "Local browser draft saving"
       ],

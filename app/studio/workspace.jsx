@@ -6,6 +6,8 @@ import {StudioUsbTools} from './usb-tools';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
+import {StudioCircuitPreview} from './circuit-preview';
+import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
 import {useEffect} from 'react';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
@@ -34,6 +36,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const [notice,setNotice]=useState('');
   const [codeDirty,setCodeDirty]=useState(false);
   const [customLibrary,setCustomLibrary]=useState(null);
+  const [manualLibraries,setManualLibraries]=useState([]);
   const [savingCloud,setSavingCloud]=useState(false);
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())).slice(0,40),[parts,query]);
@@ -46,14 +49,14 @@ export function StudioWorkspace({parts,specs={}}) {
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
-        setCode(insertSuggestedIncludes(sketch,selected));setProject(result);setCodeDirty(false);setTab('code');
+        setCode(insertSuggestedIncludes(sketch,selected,manualLibraries));setProject(result);setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
         const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected})});
         const result=await response.json();
         if(!response.ok)throw Error(result.error||'AI generation unavailable.');
         setProject({...result,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
-        setCode(insertSuggestedIncludes(result.code,selected));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
+        setCode(insertSuggestedIncludes(result.code,selected,manualLibraries));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
     finally{setLoading(false);}
@@ -61,7 +64,7 @@ export function StudioWorkspace({parts,specs={}}) {
   async function runCompile(){
     if(!code.trim())return;setError('');setCompile(null);setBusy(true);
     try{
-      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board:'arduino:avr:uno',parts:selected,customLibrary:customLibrary?.base64})});
+      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board:'arduino:avr:uno',parts:selected,customLibrary:customLibrary?.base64,manualLibraries})});
       const result=await response.json();
       if(!response.ok)throw Error(result.error||'Compiler unavailable.');
       setCompile(result);
@@ -89,7 +92,12 @@ export function StudioWorkspace({parts,specs={}}) {
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
   }
   useEffect(()=>{
-    const id=new URLSearchParams(window.location.search).get('project');
+    const params=new URLSearchParams(window.location.search);
+    const id=params.get('project');
+    if(!id&&params.has('parts')){
+      const ids=[...new Set(String(params.get('parts')||'').split(',').filter(part=>parts.some(product=>product.id===part)))].slice(0,16);
+      if(ids.length){setSelected(ids);setNotice('Your ordered components were loaded into the Studio picker. Add the UNO or any missing components before using a guide.');}
+    }
     if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
     let active=true;
     fetch('/api/studio/projects',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sign in to access your saved projects.');return r.json();}).then(j=>{
@@ -102,6 +110,13 @@ export function StudioWorkspace({parts,specs={}}) {
     }).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
   },[]);
+  function startBlinkDemo(){
+    setSelected(['cb-059','cb-009','cb-002']);
+    setPrompt('Blink the Arduino UNO onboard LED on D13 every 600 milliseconds.');
+    setCode(BLINK_DEMO_CODE);
+    setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
+    setTab('preview');setCompile(null);setError('');setNotice('Illustrative Blink LED demonstration loaded. Change the delay values and preview the output.');
+  }
   const missing=project?.missing||[];
   const spec=project?.method==='guided-template' ? specs[project.slug] : null;
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
@@ -111,7 +126,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
-    <StudioLibraryTools parts={selected} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
+    <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     <StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>
     <div className="studio-grid">
       <div className="studio-controls">
@@ -133,7 +148,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Tell us what to build</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
           <textarea id="studio-idea" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
-          <div className="studio-examples">
+          <div className="studio-examples"><button type="button" onClick={startBlinkDemo}>Try live Blink LED preview</button>
             {[
               ['Distance alarm','Make an ultrasonic distance alarm that beeps near obstacles.'],
               ['LED scanner','Make three LEDs light up in a running sequence.'],
@@ -156,7 +171,8 @@ export function StudioWorkspace({parts,specs={}}) {
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">UNO / 5 V</span></div>
           {project.note&&<p className="studio-note">{project.note}</p>}
           {missing.length>0&&<div className="studio-warning"><strong>Missing from your selection</strong><p>This example requires additional catalog components:</p><ul>{missing.map(id=><li key={id}>{index[id]?.name||id} ({id})</li>)}</ul></div>}
-          <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" aria-selected={tab===item} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
+          <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','preview','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" aria-selected={tab===item} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
+          {tab==='preview'&&<StudioCircuitPreview code={code}/>}
           {tab==='code'&&<div><label className="studio-label" htmlFor="studio-code">Arduino sketch (.ino) — editable</label><textarea id="studio-code" className="studio-code" spellCheck="false" value={code} onChange={e=>{setCode(e.target.value);setCodeDirty(true);setCompile(null);}} rows={24}/></div>}
           {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>UNO pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{!diagramReady&&<p className="studio-warning">No validated circuit netlist is available for this AI draft. Treat these connections as unreviewed suggestions.</p>}</div>}
           {tab==='schematic'&&<div className="studio-diagrams">{diagramReady?<><p className="studio-note">{sheetWarning}</p><figure><img src={spec.assets.schematic} alt={'Functional circuit schematic for '+project.title} loading="lazy"/><figcaption>Functional/module schematic — named electrical nets, not physical placement.</figcaption><a href={spec.assets.schematic} download={project.slug+'-schematic.svg'}>Download schematic SVG</a></figure><figure><img src={spec.assets.wiring} alt={'Labelled pin-to-pin wiring map for '+project.title} loading="lazy"/><figcaption>Connection / wiring reference — verify breakout board pins in person.</figcaption><a href={spec.assets.wiring} download={project.slug+'-wiring.svg'}>Download wiring SVG</a></figure></>:<p className="studio-warning">No reviewed schematic or breadboard layout exists for this AI draft. The project must be checked for voltage, IO direction, shared grounds, level shifting and component ratings before any diagram is approved.</p>}</div>}

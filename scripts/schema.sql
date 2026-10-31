@@ -34,3 +34,18 @@ CREATE TABLE IF NOT EXISTS order_events (
  status text NOT NULL, actor text NOT NULL, note text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS order_rate_limits (key text PRIMARY KEY, window_start timestamptz NOT NULL, count integer NOT NULL);
+
+
+-- A customer can request a Studio invitation after a guest checkout.
+-- Do not use customer phone numbers to infer email consent or create passwords.
+CREATE TABLE IF NOT EXISTS studio_order_invites (
+ order_id uuid PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+ email text NOT NULL CHECK (length(email) BETWEEN 5 AND 200),
+ state text NOT NULL DEFAULT 'pending' CHECK(state IN ('pending','sending','sent')),
+ attempts integer NOT NULL DEFAULT 0,
+ locked_at timestamptz,
+ sent_at timestamptz,
+ created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS studio_order_invites_pending_idx ON studio_order_invites(created_at)
+ WHERE state='pending';

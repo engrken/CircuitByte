@@ -24,8 +24,8 @@ Supported profiles include: UNO core, LCD1602 I²C (`hd44780` + `Wire`), DHT11/D
 
 - `/dashboard` allows existing authenticated users to view/edit their private profile and school/program information and save up to 10 Arduino project sources.
 - Project APIs read and delete by `user_id` and use DB advisory locking around the 10-project quota.
-- Sign-up is OFF by default; it can open **only** when all settings are present: `STUDIO_PUBLIC_SIGNUPS_ENABLED=true`, a valid `RESEND_API_KEY`, and `STUDIO_EMAIL_FROM`. Emails are sent using Resend and verification is required for newly created accounts.
-- Before turning sign-ups on, confirm **the existing administrator account is email-verified** in Better Auth so administrator sign-in is not blocked by `requireEmailVerification`. The admin email is reserved by a Better Auth user creation hook. Never ask visitors to submit unverified credentials.
+- Sign-up opens only when `STUDIO_PUBLIC_SIGNUPS_ENABLED=true` and Gmail OAuth2 sender variables are configured (`GMAIL_SENDER_EMAIL`, client ID, client secret and refresh token). The Gmail API sends verification links. See `docs/studio-guest-checkout-gmail-invites.md`.
+- The pre-existing administrator account is unverified and remains allowed to sign in with its existing credentials. Non-administrator accounts must verify email before accessing saved projects and school profiles. The admin email is reserved by a Better Auth user creation hook.
 - Avoid mass registration until a verified domain/from-address, signup abuse limits, password resets, retention and privacy policy are in place.
 
 ### School affiliation and homepage
@@ -44,8 +44,11 @@ Environment configuration (optional, never expose secrets in client code):
 
 ```env
 STUDIO_PUBLIC_SIGNUPS_ENABLED=false
-STUDIO_EMAIL_FROM=                # e.g. CircuitByte <verify@your-domain.example>, verified sender
-RESEND_API_KEY=                   # server-only
+GMAIL_SENDER_EMAIL=                # dedicated Gmail account
+GMAIL_OAUTH_CLIENT_ID=             # server-only Google OAuth2 client ID
+GMAIL_OAUTH_CLIENT_SECRET=         # server-only OAuth2 client secret
+GMAIL_OAUTH_REFRESH_TOKEN=         # server-only gmail.send refresh token
+STUDIO_ORDER_INVITES_ENABLED=false # enable only after Gmail has been tested
 STUDIO_COMPILER_ENABLED=false     # remain off until compiled-archive sandbox runtime and costs validated
 STUDIO_AI_ENABLED=false
 ```
@@ -54,4 +57,4 @@ STUDIO_AI_ENABLED=false
 
 CircleCI runs tests in `tests/studio-libraries-schools.test.mjs`, the existing web suite and UNO sketch compile checks. Production Next.js build should validate all new routes.
 
-**Pending independent runtime QA:** Resend verification emails, registration + login, Neon user profile/persistence after migration, actual Arduino custom ZIP compilation, sandbox resource quotas, school approval and public list in a real browser, as well as admin account verification. The features should not be marketed as fully public SaaS until tested and activated. Subscription billing remains disabled.
+**Pending independent runtime QA:** Gmail API verification emails, registration + login, Neon user profile/persistence after migration, actual Arduino custom ZIP compilation, sandbox resource quotas, school approval and public list in a real browser, as well as admin account verification. The features should not be marketed as fully public SaaS until tested and activated. Subscription billing remains disabled.

@@ -92,7 +92,12 @@ export function StudioWorkspace({parts,specs={}}) {
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
   }
   useEffect(()=>{
-    const id=new URLSearchParams(window.location.search).get('project');
+    const params=new URLSearchParams(window.location.search);
+    const id=params.get('project');
+    if(!id&&params.has('parts')){
+      const ids=[...new Set(String(params.get('parts')||'').split(',').filter(part=>parts.some(product=>product.id===part)))].slice(0,16);
+      if(ids.length){setSelected(ids);setNotice('Your ordered components were loaded into the Studio picker. Add the UNO or any missing components before using a guide.');}
+    }
     if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
     let active=true;
     fetch('/api/studio/projects',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sign in to access your saved projects.');return r.json();}).then(j=>{

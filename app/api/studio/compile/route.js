@@ -54,7 +54,7 @@ export async function POST(request) {
     return Response.json({error:'Unknown library header(s): '+dependencies.unknownIncludes.join(', ')+'. Import your own ZIP library or use a supported module.'},{status:422});
   }
   let quota;try{quota=await consumeStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
-  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (25 runs).',quota},{status:429});
+  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (50 runs).',quota},{status:429});
   let sandbox;
   try{
     sandbox=await Sandbox.create({

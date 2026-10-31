@@ -22,7 +22,7 @@ export async function POST(request){
   }
   if(!parts.some(part=>part.id==='cb-059'))return Response.json({error:'This beta requires the catalog Arduino UNO R3.'},{status:400});
   let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
-  if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (15 drafts).',quota},{status:429});
+  if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (30 drafts).',quota},{status:429});
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),30000);
   try{

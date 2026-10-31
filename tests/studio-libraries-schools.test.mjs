@@ -63,4 +63,6 @@ test('Project ownership is enforced by user_id for reads and writes',async()=>{
  assert.match(route,/WHERE user_id=\$1/);
  assert.match(route,/DELETE FROM studio_projects WHERE id=\$1 AND user_id=\$2/);
  assert.match(route,/pg_advisory_xact_lock/);
+ const ddl=await read('scripts/studio-schema.sql');
+ assert.equal((ddl.match(/REFERENCES "user"\(id\) ON DELETE CASCADE/g)||[]).length,2,'Both studio tables must cascade member deletion');
 });

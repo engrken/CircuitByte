@@ -21,7 +21,7 @@
 | Proposed plan | Indicative monthly price (PHP) | Scope |
 | --- | ---: | --- |
 | Free | 0 | Guided templates, diagrams, connection charts, print-to-PDF |
-| Student / Hobby | 199 | Intended 15 AI drafts, 25 cloud compiles, 10 cloud projects per month |
+| Student / Hobby | 99 | Intended 15 AI drafts, 25 cloud compiles, 10 cloud projects per month |
 | Pro Maker | 499 | Intended 60 AI drafts, 100 cloud compiles, 50 cloud projects per month |
 | School / Classroom | from 2,999 | Custom negotiated institutional seats and shared quotas |
 

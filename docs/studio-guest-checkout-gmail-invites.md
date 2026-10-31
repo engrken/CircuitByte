@@ -11,28 +11,29 @@
 
 The default behavior is **no outgoing email** until configured and explicitly enabled.
 
-## Configure Gmail OAuth2 (later)
+## Gmail App Password setup (small initial rollout)
 
-The implementation uses Google's Gmail API with the narrow `https://www.googleapis.com/auth/gmail.send` OAuth2 scope, not a Gmail primary password or ChatGPT credentials. No extra npm packages are required.
+The sender supports **Gmail SMTP using an App Password** over `smtp.gmail.com:465` with TLS. The older Gmail API OAuth2 option remains supported but is not needed for App Password SMTP.
 
-1. Choose a **dedicated CircuitByte Gmail or Google Workspace sender account**. Activate 2-Step Verification, secure the account and ensure its sender identity can send mail. Configure a Google Cloud project, enable the Gmail API and create an OAuth 2.0 client. Complete consent/authorization for the `gmail.send` scope and obtain a refresh token using a secure local process.
-2. In Vercel **CircuitByte project → Settings → Environment Variables → Production**, add these as **server-side encrypted environment variables**, never as `NEXT_PUBLIC_*` or committed GitHub files:
+1. Use a dedicated Gmail address. Enable Google **2-Step Verification** at <https://myaccount.google.com/security>.
+2. Generate a **16-character App Password** at <https://myaccount.google.com/apppasswords> and label it `CircuitByte Studio`. Do not use your ordinary Gmail account password.
+3. In **Vercel → CircuitByte → Settings → Environment Variables**, set these for **Production** (secrets should be sensitive/encrypted):
 
 ```env
 STUDIO_PUBLIC_SIGNUPS_ENABLED=true
-GMAIL_SENDER_EMAIL=
-GMAIL_OAUTH_CLIENT_ID=
-GMAIL_OAUTH_CLIENT_SECRET=
-GMAIL_OAUTH_REFRESH_TOKEN=
+GMAIL_SENDER_EMAIL=your-dedicated-address@gmail.com
+GMAIL_APP_PASSWORD=<16-character App Password>
 STUDIO_ORDER_INVITES_ENABLED=false
 ```
 
-3. After adding the Gmail settings, redeploy. Validate in a disposable test account: register → verification email → click link → sign in → save Studio project. The existing administrator email remains exempt from the new verified-member gate because its pre-existing Better Auth record is unverified; do not bypass verification for ordinary new members.
-4. Confirm new email invitations work on a small test order, then set `STUDIO_ORDER_INVITES_ENABLED=true` and redeploy. Only opted-in new orders will send automatically. The administrator may send previously queued invitations, individually.
+4. Redeploy once so Vercel loads the variables. Test a new member signup at `/dashboard?register=1`, actual Gmail delivery, verification link, login and private project saving.
+5. Only after successful delivery tests, set `STUDIO_ORDER_INVITES_ENABLED=true` and redeploy to enable checkout opt-in invitation delivery. Until then, guests can order, and invitation requests stay queued.
 
-**Note:** Google may restrict OAuth development/test refresh tokens or unverified apps; plan for proper Google OAuth consent-screen setup. Gmail is not a bulk-marketing delivery service, and Google may restrict rate, sender and outgoing volume. A transactional email provider is generally preferable after growth. Google's official Gmail sending limits and authentication requirements apply.
+**Security:** Do not paste App Passwords into chat, public GitHub files, checkout pages or client-side variables. Store them directly in Vercel. Google may restrict App Passwords for Workspace or Advanced Protection accounts. Changing your main Google password will revoke existing App Passwords. App Passwords are less secure than OAuth2, and Gmail is not suited to bulk marketing.
 
-Do **not** send a Gmail primary account password, App Password, OAuth client secret, or refresh token through customer checkout or a ChatGPT message. Configure them directly in Vercel's secure settings.
+### Alternative Gmail API OAuth2
+
+The existing `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, and `GMAIL_OAUTH_REFRESH_TOKEN` options remain supported when combined with `GMAIL_SENDER_EMAIL`. The App Password option takes priority when valid. See <https://support.google.com/accounts/answer/185833>.
 
 ## Consent and privacy rules
 

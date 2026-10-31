@@ -38,3 +38,6 @@
 @media screen and (max-height:500px) and (max-width:950px){
   .shell{height:auto;min-height:100dvh}#scroll-area{overflow:visible}
 }
+
+/* Schools are listed only after administrator verification and member consent. */
+.school-community{padding:32px 5%;background:#edf4e8;border-top:1px solid #d4e4d0;border-bottom:1px solid #d4e4d0}.school-community>div{max-width:1250px;margin:auto}.school-community h2{font-size:clamp(24px,3vw,32px);margin:8px 0}.school-community p{font-size:13px;color:#5e7364;line-height:1.7;max-width:850px}.school-pill-list{display:flex;gap:11px;flex-wrap:wrap;margin:17px 0}.school-pill{border:1px solid #b7d0b6;border-radius:28px;padding:10px 15px;background:#fff;font-size:13px;font-weight:700;color:#22553b}.school-empty{display:block;color:#627c68;font-size:13px;margin:10px 0}

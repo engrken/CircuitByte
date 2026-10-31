@@ -3,6 +3,10 @@ import {useState, useMemo} from 'react';
 import {prepareStudioProject} from '../../lib/studio.mjs';
 import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-documentation.mjs';
 import {StudioUsbTools} from './usb-tools';
+import {STUDIO_BUILDS} from '../../lib/studio.mjs';
+import {StudioLibraryTools} from './library-tools';
+import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
+import {useEffect} from 'react';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
 const INITIAL_PARTS = ['cb-059','cb-074','cb-029','cb-009','cb-002','cb-076'];
@@ -29,6 +33,8 @@ export function StudioWorkspace({parts,specs={}}) {
   const [tab,setTab]=useState('code');
   const [notice,setNotice]=useState('');
   const [codeDirty,setCodeDirty]=useState(false);
+  const [customLibrary,setCustomLibrary]=useState(null);
+  const [savingCloud,setSavingCloud]=useState(false);
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())).slice(0,40),[parts,query]);
   function toggle(id){setSelected(current=>current.includes(id)?current.filter(x=>x!==id):current.length<16?[...current,id]:current);}
@@ -40,14 +46,14 @@ export function StudioWorkspace({parts,specs={}}) {
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
-        setCode(sketch);setProject(result);setCodeDirty(false);setTab('code');
+        setCode(insertSuggestedIncludes(sketch,selected));setProject(result);setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
         const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected})});
         const result=await response.json();
         if(!response.ok)throw Error(result.error||'AI generation unavailable.');
         setProject({...result,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
-        setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
+        setCode(insertSuggestedIncludes(result.code,selected));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
     finally{setLoading(false);}
@@ -55,7 +61,7 @@ export function StudioWorkspace({parts,specs={}}) {
   async function runCompile(){
     if(!code.trim())return;setError('');setCompile(null);setBusy(true);
     try{
-      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board:'arduino:avr:uno'})});
+      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board:'arduino:avr:uno',parts:selected,customLibrary:customLibrary?.base64})});
       const result=await response.json();
       if(!response.ok)throw Error(result.error||'Compiler unavailable.');
       setCompile(result);
@@ -73,6 +79,29 @@ export function StudioWorkspace({parts,specs={}}) {
       const saved=JSON.parse(raw);setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setMode(saved.mode);setCodeDirty(Boolean(saved.codeDirty));setNotice('Loaded a local browser draft.');setCompile(null);setError('');
     }catch(e){setError(e.message);}
   }
+  async function saveCloudProject(){
+    if(!project||!code.trim())return;
+    setError('');setSavingCloud(true);
+    try{
+      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board:'arduino:avr:uno',parts:selected})});
+      const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
+      setNotice('Project saved to your private dashboard.');
+    }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
+  }
+  useEffect(()=>{
+    const id=new URLSearchParams(window.location.search).get('project');
+    if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
+    let active=true;
+    fetch('/api/studio/projects',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sign in to access your saved projects.');return r.json();}).then(j=>{
+      if(!active)return;
+      const saved=(j.projects||[]).find(p=>p.id===id);if(!saved)throw Error('Project not found in your account.');
+      const guide=STUDIO_BUILDS.find(x=>x.slug===saved.template_slug);
+      setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
+      setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
+      setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded. Verify the sketch, library requirements and pinout before compiling.');
+    }).catch(e=>{if(active)setError(e.message);});
+    return()=>{active=false;};
+  },[]);
   const missing=project?.missing||[];
   const spec=project?.method==='guided-template' ? specs[project.slug] : null;
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
@@ -82,6 +111,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
+    <StudioLibraryTools parts={selected} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     <StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>
     <div className="studio-grid">
       <div className="studio-controls">
@@ -135,7 +165,8 @@ export function StudioWorkspace({parts,specs={}}) {
           <div className="studio-buttons">
             <button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code,'text/plain')}>Download .ino</button>
             <button type="button" onClick={()=>window.print()}>Print / Save PDF sheet</button>
-            <button type="button" onClick={saveDraft}>Save draft</button>
+            <button type="button" disabled={savingCloud} onClick={saveCloudProject}>{savingCloud?'Saving…':'Save to dashboard'}</button>
+            <button type="button" onClick={saveDraft}>Save browser draft</button>
             <button type="button" onClick={openDraft}>Load draft</button>
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div>

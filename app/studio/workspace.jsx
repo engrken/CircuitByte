@@ -12,6 +12,12 @@ import {useEffect} from 'react';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
 const INITIAL_PARTS = ['cb-059','cb-074','cb-029','cb-009','cb-002','cb-076'];
+const BOARD_OPTIONS=[
+  {id:'arduino:avr:uno',name:'Arduino UNO R3',catalogId:'cb-059'},
+  {id:'esp8266:esp8266:nodemcuv2',name:'ESP8266 NodeMCU',catalogId:'cb-062'},
+  {id:'esp32:esp32:esp32',name:'ESP32 Dev Module',catalogId:'cb-063'},
+  {id:'esp32:esp32:m5stack-core-esp32',name:'M5Stack Core (ESP32)',catalogId:null}
+];
 const peso = value => value===null ? 'Not priced' : '₱'+Number(value).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 function downloadText(name,text,type='text/plain') {
@@ -23,6 +29,7 @@ function downloadText(name,text,type='text/plain') {
 }
 export function StudioWorkspace({parts,specs={}}) {
   const [selected,setSelected]=useState(INITIAL_PARTS);
+  const [board,setBoard]=useState('arduino:avr:uno');
   const [query,setQuery]=useState('');
   const [prompt,setPrompt]=useState(DEFAULT_PROMPT);
   const [project,setProject]=useState(null);
@@ -52,10 +59,10 @@ export function StudioWorkspace({parts,specs={}}) {
         setCode(insertSuggestedIncludes(sketch,selected,manualLibraries));setProject(result);setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
-        const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected})});
+        const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected,board})});
         const result=await response.json();
         if(!response.ok)throw Error(result.error||'AI generation unavailable.');
-        setProject({...result,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
+        setProject({...result,board,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
         setCode(insertSuggestedIncludes(result.code,selected,manualLibraries));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
@@ -64,7 +71,7 @@ export function StudioWorkspace({parts,specs={}}) {
   async function runCompile(){
     if(!code.trim())return;setError('');setCompile(null);setBusy(true);
     try{
-      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board:'arduino:avr:uno',parts:selected,customLibrary:customLibrary?.base64,manualLibraries})});
+      const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries})});
       const result=await response.json();
       if(!response.ok)throw Error(result.error||'Compiler unavailable.');
       setCompile(result);
@@ -73,13 +80,13 @@ export function StudioWorkspace({parts,specs={}}) {
   }
   function saveDraft(){
     if(!project)return;
-    try{localStorage.setItem('circuitbyte-studio-draft-v1',JSON.stringify({project,code,prompt,selected,mode,codeDirty,savedAt:new Date().toISOString()}));setNotice('Saved to this browser only. Not synced to a user account.');}
+    try{localStorage.setItem('circuitbyte-studio-draft-v1',JSON.stringify({project,code,prompt,selected,board,mode,codeDirty,savedAt:new Date().toISOString()}));setNotice('Saved to this browser only. Not synced to a user account.');}
     catch{setError('Browser storage is unavailable. Download the sketch instead.');}
   }
   function openDraft(){
     try{
       const raw=localStorage.getItem('circuitbyte-studio-draft-v1');if(!raw)throw Error('No local draft on this browser.');
-      const saved=JSON.parse(raw);setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setMode(saved.mode);setCodeDirty(Boolean(saved.codeDirty));setNotice('Loaded a local browser draft.');setCompile(null);setError('');
+      const saved=JSON.parse(raw);setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setBoard(saved.board||'arduino:avr:uno');setMode(saved.mode);setCodeDirty(Boolean(saved.codeDirty));setNotice('Loaded a local browser draft.');setCompile(null);setError('');
     }catch(e){setError(e.message);}
   }
   async function saveCloudProject(){
@@ -125,11 +132,18 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
+    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     <StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>
     <div className="studio-grid">
       <div className="studio-controls">
+        <section className="studio-panel">
+          <label className="studio-label" htmlFor="studio-board-choice">Target development board</label>
+          <select id="studio-board-choice" value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);const item=BOARD_OPTIONS.find(x=>x.id===next);if(item?.catalogId)setSelected(current=>[item.catalogId,...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode('ai');}}>
+            {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
+          </select>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples, cloud compilation and USB flashing remain UNO-only.</p>
+        </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
           <div className="studio-selected">{selected.map(id=><button type="button" key={id} onClick={()=>toggle(id)} title="Remove component">{index[id]?.name||id} ×</button>)}</div>
@@ -168,13 +182,13 @@ export function StudioWorkspace({parts,specs={}}) {
       <div className="studio-results">
         {!project ? <div className="studio-empty"><span>⌘</span><h3>Your workbench is ready</h3><p>Select components and describe a low-voltage project to view its code, material checklist and wiring table.</p><button type="button" onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
-          <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">UNO / 5 V</span></div>
+          <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>
           {project.note&&<p className="studio-note">{project.note}</p>}
           {missing.length>0&&<div className="studio-warning"><strong>Missing from your selection</strong><p>This example requires additional catalog components:</p><ul>{missing.map(id=><li key={id}>{index[id]?.name||id} ({id})</li>)}</ul></div>}
           <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','preview','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" aria-selected={tab===item} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
           {tab==='preview'&&<StudioCircuitPreview code={code}/>}
           {tab==='code'&&<div><label className="studio-label" htmlFor="studio-code">Arduino sketch (.ino) — editable</label><textarea id="studio-code" className="studio-code" spellCheck="false" value={code} onChange={e=>{setCode(e.target.value);setCodeDirty(true);setCompile(null);}} rows={24}/></div>}
-          {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>UNO pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{!diagramReady&&<p className="studio-warning">No validated circuit netlist is available for this AI draft. Treat these connections as unreviewed suggestions.</p>}</div>}
+          {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>Board pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{!diagramReady&&<p className="studio-warning">No validated circuit netlist is available for this AI draft. Treat these connections as unreviewed suggestions.</p>}</div>}
           {tab==='schematic'&&<div className="studio-diagrams">{diagramReady?<><p className="studio-note">{sheetWarning}</p><figure><img src={spec.assets.schematic} alt={'Functional circuit schematic for '+project.title} loading="lazy"/><figcaption>Functional/module schematic — named electrical nets, not physical placement.</figcaption><a href={spec.assets.schematic} download={project.slug+'-schematic.svg'}>Download schematic SVG</a></figure><figure><img src={spec.assets.wiring} alt={'Labelled pin-to-pin wiring map for '+project.title} loading="lazy"/><figcaption>Connection / wiring reference — verify breakout board pins in person.</figcaption><a href={spec.assets.wiring} download={project.slug+'-wiring.svg'}>Download wiring SVG</a></figure></>:<p className="studio-warning">No reviewed schematic or breadboard layout exists for this AI draft. The project must be checked for voltage, IO direction, shared grounds, level shifting and component ratings before any diagram is approved.</p>}</div>}
           {tab==='bom'&&<div><p>Estimated materials for the <strong>published guided template</strong>. Prices are indicative only and are NOT a checkout quotation.</p>{spec?<><div className="studio-table"><table><thead><tr><th>Part</th><th>Qty</th><th>Unit (snapshot)</th><th>Est. subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td><strong>{line.name}</strong><small className="studio-bom-detail">{line.id} · {line.detail}{line.optional?' · optional':''}</small></td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table></div><p className="studio-bom-total"><strong>Listed required parts: {peso(bom.requiredTotal)}</strong><small>Optional variants: {peso(bom.optionalTotal)} extra</small></p>{bom.excluded.length>0&&<div className="studio-warning"><strong>Additional items excluded from the total</strong><ul>{bom.excluded.map((e,i)=><li key={i}><b>{e.qty} × {e.name}:</b> {e.reason}</li>)}</ul></div>}<p className="studio-help">{bom.pricingNotice}</p></>:<div className="studio-warning">AI draft: no reviewed materials list or trustworthy cost estimate exists yet.</div>}</div>}
           {tab==='safety'&&<div className="studio-warning"><ul>{[...(project.warnings||[]),...(spec?.cautions||[])].map((item,i)=><li key={i}>{item}</li>)}</ul></div>}

@@ -7,16 +7,11 @@ import {StudioLibraryTools} from './library-tools';
 import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
 import {StudioCircuitPreview} from './circuit-preview';
 import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
+import {BOARD_OPTIONS,studioBoardName} from '../../lib/studio-boards.mjs';
 import {useEffect} from 'react';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
 const INITIAL_PARTS = ['cb-059','cb-074','cb-029','cb-009','cb-002','cb-076'];
-const BOARD_OPTIONS=[
-  {id:'arduino:avr:uno',name:'Arduino UNO R3',catalogId:'cb-059'},
-  {id:'esp8266:esp8266:nodemcuv2',name:'ESP8266 NodeMCU',catalogId:'cb-062'},
-  {id:'esp32:esp32:esp32',name:'ESP32 Dev Module',catalogId:'cb-063'},
-  {id:'esp32:esp32:m5stack-core-esp32',name:'M5Stack Core (ESP32)',catalogId:null}
-];
 const peso = value => value===null ? 'Not priced' : '₱'+Number(value).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 function downloadText(name,text,type='text/plain') {
@@ -48,7 +43,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())).slice(0,40),[parts,query]);
   function toggle(id){setSelected(current=>current.includes(id)?current.filter(x=>x!==id):current.length<16?[...current,id]:current);}
   async function generate(){
-    setError('');setNotice('');setCompile(null);setLoading(true);
+    setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
     try {
       if(mode==='guide'){
         if(board!=='arduino:avr:uno')throw Error('Guided curriculum templates are currently Arduino UNO-only. Switch to AI generation for the selected board.');
@@ -62,7 +57,7 @@ export function StudioWorkspace({parts,specs={}}) {
         const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected,board})});
         const result=await response.json();
         if(!response.ok)throw Error(result.error||'AI generation unavailable.');
-        setProject({...result,board,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
+        setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
         setCode(insertSuggestedIncludes(result.code,selected,manualLibraries));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
@@ -140,7 +135,7 @@ export function StudioWorkspace({parts,specs={}}) {
       <div className="studio-controls">
         <section className="studio-panel">
           <label className="studio-label" htmlFor="studio-board-choice">Target development board</label>
-          <select id="studio-board-choice" value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);const item=BOARD_OPTIONS.find(x=>x.id===next);if(item?.catalogId)setSelected(current=>[item.catalogId,...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode('ai');}}>
+          <select id="studio-board-choice" disabled={loading||busy} value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);setCode('');const item=BOARD_OPTIONS.find(x=>x.id===next);setSelected(current=>[...(item?.catalogId?[item.catalogId]:[]),...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode(next==='arduino:avr:uno'?'guide':'ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Browser USB flashing is disabled. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
@@ -163,7 +158,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Tell us what to build</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
           <textarea id="studio-idea" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
-          <div className="studio-examples"><button type="button" onClick={startBlinkDemo}>Try live Blink LED preview</button>
+          <div className="studio-examples"><button type="button" disabled={loading||busy} onClick={startBlinkDemo}>Try live Blink LED preview</button>
             {[
               ['Distance alarm','Make an ultrasonic distance alarm that beeps near obstacles.'],
               ['LED scanner','Make three LEDs light up in a running sequence.'],
@@ -181,7 +176,7 @@ export function StudioWorkspace({parts,specs={}}) {
         </section>
       </div>
       <div className="studio-results">
-        {!project ? <div className="studio-empty"><span>⌘</span><h3>Your workbench is ready</h3><p>Select components and describe a low-voltage project to view its code, material checklist and wiring table.</p><button type="button" onClick={openDraft}>Load a saved draft</button></div> :
+        {!project ? <div className="studio-empty"><span>⌘</span><h3>Your workbench is ready</h3><p>Select components and describe a low-voltage project to view its code, material checklist and wiring table.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>
           {project.note&&<p className="studio-note">{project.note}</p>}
@@ -211,8 +206,8 @@ export function StudioWorkspace({parts,specs={}}) {
       </div>
     </div>
     {project&&<section id="studio-print-sheet" className="studio-print-sheet" aria-label="Printable Arduino project sheet">
-      <header><strong>CIRCUITBYTE / ARDUINO PROJECT SHEET</strong><p>Educational low-voltage prototype · Arduino UNO R3 · {new Date().toLocaleDateString('en-PH')}</p><h1>{project.title}</h1><p>{project.summary}</p></header>
-      <h2>1. Requirements</h2><p>{prompt}</p>
+      <header><strong>CIRCUITBYTE / ARDUINO PROJECT SHEET</strong><p>Educational low-voltage prototype · {studioBoardName(project.board||board)} · {new Date().toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</p><h1>{project.title}</h1><p>{project.summary}</p></header>
+      <h2>1. Requirements</h2><p>{project.prompt||prompt}</p>
       {spec?<><h2>2. Bill of materials</h2><table><thead><tr><th>Part</th><th>Qty</th><th>Unit estimate</th><th>Subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td>{line.name} ({line.id}){line.optional?' — optional':''} — {line.detail}</td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table><p><strong>Required listed parts: {peso(bom.requiredTotal)}</strong> · Optional estimate: {peso(bom.optionalTotal)}</p>{bom.excluded.length>0&&<p><strong>Unlisted/excluded:</strong> {bom.excluded.map(item=>item.qty+' × '+item.name).join('; ')}. These are not in the estimate.</p>}<p>{bom.pricingNotice}</p></>:<p><strong>AI draft: no verified project BOM or price quotation.</strong></p>}
       <h2>3. Pin connections</h2><table><thead><tr><th>Board pin</th><th>Destination</th><th>Net / signal</th></tr></thead><tbody>{connections.map((row,i)=><tr key={i}><td>{row.pin}</td><td>{row.to}</td><td>{row.net}</td></tr>)}</tbody></table>
       {diagramReady&&<><h2>4. Published connection illustrations</h2><p>{sheetWarning}</p><figure><img src={spec.assets.schematic} alt="Functional circuit schematic"/><figcaption>Published functional schematic</figcaption></figure><figure><img src={spec.assets.wiring} alt="Labelled wiring map"/><figcaption>Published pin/wiring reference</figcaption></figure></>}

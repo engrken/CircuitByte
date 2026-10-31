@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {createAuthClient} from 'better-auth/react';
+import {studioBoardName} from '../../lib/studio-boards.mjs';
 const auth=createAuthClient();
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
@@ -95,8 +96,8 @@ export default function StudioAccount(){
      <button type="submit" disabled={busy}>Save profile</button>
     </form>
    </section>
-   <section className="account-card"><div className="account-top"><div><h2>Saved Arduino projects</h2><p>{projects.length} of 10 beta project slots used.</p></div><a href="/studio">Open Studio →</a></div>
-    {projects.length? <ul className="account-projects">{projects.map(p=><li key={p.id}><div><strong>{p.title}</strong><span>Arduino UNO · {new Date(p.updated_at).toLocaleDateString('en-PH')}</span></div><div><a href={'/studio?project='+encodeURIComponent(p.id)}>Open in Studio</a><button type="button" disabled={busy} onClick={()=>deleteProject(p.id)}>Delete</button></div></li>)}</ul>:<p className="account-muted">No cloud projects yet. Generate a project in Studio and choose “Save to dashboard.”</p>}
+   <section className="account-card"><div className="account-top"><div><h2>Saved Arduino projects</h2><p>{projects.length} of 10 project slots used.</p></div><a href="/studio">Open Studio →</a></div>
+    {projects.length? <ul className="account-projects">{projects.map(p=><li key={p.id}><div><strong>{p.title}</strong><span>{studioBoardName(p.board)} · {new Date(p.updated_at).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</span></div><div><a href={'/studio?project='+encodeURIComponent(p.id)}>Open in Studio</a><button type="button" disabled={busy} onClick={()=>deleteProject(p.id)}>Delete</button></div></li>)}</ul>:<p className="account-muted">No cloud projects yet. Generate a project in Studio and choose “Save to dashboard.”</p>}
    </section>
    {!isAdmin?null:<section className="account-card account-admin-review"><h2>School verification (admin only)</h2><p>Administrators must verify actual affiliation and consent before approving public listing. Do not rely on self-declared school names alone.</p>
     <button onClick={loadReviews} type="button">Load review queue</button>

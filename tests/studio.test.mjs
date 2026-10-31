@@ -37,3 +37,14 @@ test('guided examples reject incompatible controller, current sensor and network
   }
   assert.throws(() => prepareStudioProject({prompt:'Display the sensor data on a web dashboard',parts:['cb-059','cb-077']}), /AI draft/);
 });
+test('Selected hardware never produces an unrelated guided result',()=>{
+ const parts=STUDIO_BUILDS[0].parts;
+ for(const prompt of ['Build a GPS location tracker that sends coordinates by SMS.',
+  'Build a complex quadcopter radio telemetry link','Create a sensor control project with my components']){
+  assert.throws(()=>prepareStudioProject({prompt,parts}),/AI draft|No reliable starter/);
+ }
+ // With the default alarm hardware still selected, the requested LED behavior wins.
+ assert.equal(prepareStudioProject({prompt:'Make an LED blink sequence.',parts}).slug,'three-led-scanner');
+ // A tag embedded inside a longer word must not establish a match.
+ assert.throws(()=>prepareStudioProject({prompt:'Create a spreadsheet for these components.',parts}),/No reliable starter/);
+});

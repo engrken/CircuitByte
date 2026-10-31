@@ -1,4 +1,5 @@
-import {requireAdmin,sameOrigin} from '../../../../lib/auth';
+import {requireUser,sameOrigin} from '../../../../lib/auth';
+import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import {Sandbox} from '@vercel/sandbox';
 import {resolveStudioLibraries,STUDIO_LIBRARY_REGISTRY} from '../../../../lib/studio-libraries.mjs';
 import {STUDIO_ZIP_UNPACK_PYTHON} from '../../../../lib/studio-custom-zip.mjs';
@@ -18,8 +19,7 @@ async function run(sandbox,cmd,args,{cwd}={}) {
 }
 
 export async function POST(request) {
-  try {sameOrigin(request);await requireAdmin();}
-  catch{return Response.json({error:'Cloud compilation is restricted to authenticated CircuitByte beta administrators.'},{status:403});}
+  let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student compilation.'},{status:403});}
   if(process.env.STUDIO_COMPILER_ENABLED!=='true'){
     return Response.json({error:'The sandbox compiler is not activated. Enable STUDIO_COMPILER_ENABLED after setting cost limits and verifying Vercel Sandbox access.'},{status:503});
   }
@@ -45,6 +45,8 @@ export async function POST(request) {
   if(dependencies.unknownIncludes.length && !customLibrary){
     return Response.json({error:'Unknown library header(s): '+dependencies.unknownIncludes.join(', ')+'. Import your own ZIP library or use a supported module.'},{status:422});
   }
+  let quota;try{quota=await consumeStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
+  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (25 runs).',quota},{status:429});
   let sandbox;
   try{
     sandbox=await Sandbox.create({

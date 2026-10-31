@@ -2,7 +2,6 @@
 import {useState, useMemo} from 'react';
 import {prepareStudioProject} from '../../lib/studio.mjs';
 import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-documentation.mjs';
-import {StudioUsbTools} from './usb-tools';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
@@ -137,7 +136,6 @@ export function StudioWorkspace({parts,specs={}}) {
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
-    {false&&board==='arduino:avr:uno'&&<StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>}
     <div className="studio-grid">
       <div className="studio-controls">
         <section className="studio-panel">

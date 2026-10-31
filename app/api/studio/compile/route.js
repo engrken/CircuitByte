@@ -41,6 +41,8 @@ export async function POST(request) {
   if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)))
     return Response.json({error:'Choose only supported Arduino libraries from Studio Library Manager.'},{status:400});
   const dependencies=resolveStudioLibraries({parts,code,manualLibraries});
+  // Third-party ESP board packages can be large; the sandbox has a hard execution limit.
+  // A failed installation is reported as a toolchain failure rather than a compilation success.
   const customLibrary=payload?.customLibrary;
   if(customLibrary!==undefined && (typeof customLibrary!=='string'||customLibrary.length>340000||!/^[-A-Za-z0-9+/=]+$/.test(customLibrary))){
     return Response.json({error:'Custom Arduino ZIP must be base64-encoded and no larger than 250 KB.'},{status:400});

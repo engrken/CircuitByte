@@ -62,3 +62,10 @@
 .order-studio-next .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
 .order-studio-next a:not(.primary){display:inline-flex;padding:12px 13px;border:1px solid #a5c7a3;border-radius:6px;font-size:12px;font-weight:700}
 @media(max-width:600px){.studio-store-spotlight{padding:25px 5%}.studio-store-links{align-items:stretch;flex-direction:column}.studio-store-links .primary{width:100%}.order-studio-next .actions{flex-direction:column}.order-studio-next .actions a{justify-content:center}}
+
+/* Checkout base selectors include an ID; override them for optional, accessible consent. */
+#checkout .checkout-studio-choice .studio-checkbox{display:flex;align-items:flex-start;gap:11px}
+#checkout .checkout-studio-choice .studio-checkbox input[type=checkbox]{display:inline-block;width:18px;height:18px;flex:none;margin:3px 0 0;padding:0}
+#checkout .checkout-studio-choice .studio-email-wrap{display:grid;gap:7px}
+#checkout .checkout-studio-choice .studio-email-wrap[hidden]{display:none!important}
+.service-strip{flex-wrap:wrap}

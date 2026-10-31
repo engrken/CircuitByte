@@ -4,11 +4,11 @@ import {z} from 'zod';
 import {randomUUID} from 'node:crypto';
 export const dynamic='force-dynamic';
 const saveSchema=z.object({title:z.string().trim().min(1).max(120),code:z.string().min(10).max(15000),
- parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),board:z.literal('arduino:avr:uno')});
+ parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),templateSlug:z.string().regex(/^[a-z0-9-]{0,70}$/).default(''),board:z.literal('arduino:avr:uno')});
 export async function GET(){
  let user;try{user=await requireUser();}catch{return Response.json({error:'Sign in required.'},{status:401});}
  try{
-  const r=await db().query('SELECT id,title,code,board,selected_parts,updated_at,created_at FROM studio_projects WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 20',[user.id]);
+  const r=await db().query('SELECT id,title,template_slug,code,board,selected_parts,updated_at,created_at FROM studio_projects WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 20',[user.id]);
   return Response.json({projects:r.rows},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'Project history is currently unavailable.'},{status:503});}
 }
@@ -22,7 +22,7 @@ export async function POST(request){
   const count=await client.query('SELECT count(*)::integer AS n FROM studio_projects WHERE user_id=$1',[user.id]);
   if(count.rows[0].n>=10){await client.query('ROLLBACK');return Response.json({error:'Beta accounts can save up to 10 projects. Remove one in your dashboard to save another.'},{status:409});}
   const id=randomUUID();
-  await client.query('INSERT INTO studio_projects(id,user_id,title,code,board,selected_parts) VALUES($1,$2,$3,$4,$5,$6)',[id,user.id,data.title,data.code,data.board,JSON.stringify(data.parts)]);
+  await client.query('INSERT INTO studio_projects(id,user_id,title,template_slug,code,board,selected_parts) VALUES($1,$2,$3,$4,$5,$6,$7)',[id,user.id,data.title,data.templateSlug,data.code,data.board,JSON.stringify(data.parts)]);
   await client.query('COMMIT');
   return Response.json({id,title:data.title},{status:201});
  }catch{await client.query('ROLLBACK');return Response.json({error:'Unable to save project.'},{status:503});}

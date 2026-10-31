@@ -10,7 +10,12 @@ export const maxDuration=300;
 
 const CLI_URL='https://github.com/arduino/arduino-cli/releases/download/v1.5.1/arduino-cli_1.5.1_Linux_64bit.tar.gz';
 const CLI_SHA='28a8e119c498a25607821c36cb2dc49e8463941b261a0d99091baa7bc692dd2b';
-const CORE='arduino:avr:uno';
+const BOARD_PROFILES={
+  'arduino:avr:uno':{core:'arduino:avr',fqbn:'arduino:avr:uno'},
+  'esp8266:esp8266:nodemcuv2':{core:'esp8266:esp8266',fqbn:'esp8266:esp8266:nodemcuv2',index:'https://arduino.esp8266.com/stable/package_esp8266com_index.json'},
+  'esp32:esp32:esp32':{core:'esp32:esp32',fqbn:'esp32:esp32:esp32',index:'https://espressif.github.io/arduino-esp32/package_esp32_index.json'},
+  'esp32:esp32:m5stack-core-esp32':{core:'esp32:esp32',fqbn:'esp32:esp32:m5stack-core-esp32',index:'https://espressif.github.io/arduino-esp32/package_esp32_index.json'}
+};
 
 async function run(sandbox,cmd,args,{cwd}={}) {
   const result=await sandbox.runCommand({cmd,args,...(cwd?{cwd}:{})});
@@ -26,15 +31,18 @@ export async function POST(request) {
   let payload;
   try{payload=await request.json();}catch{return Response.json({error:'Invalid request.'},{status:400});}
   const code=typeof payload?.code==='string'?payload.code:'';
-  if(payload?.board!==CORE||code.length<10||code.length>15000||
+  const profile=BOARD_PROFILES[String(payload?.board||'')];
+  if(!profile||code.length<10||code.length>15000||
     !/\bvoid\s+setup\s*\(/.test(code)||!/\bvoid\s+loop\s*\(/.test(code)){
-    return Response.json({error:'Choose Arduino UNO and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
+    return Response.json({error:'Choose a supported board and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
   }
   const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\d{3}$/.test(x)):[];
   const manualLibraries=Array.isArray(payload?.manualLibraries)?payload.manualLibraries:[];
   if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)))
     return Response.json({error:'Choose only supported Arduino libraries from Studio Library Manager.'},{status:400});
   const dependencies=resolveStudioLibraries({parts,code,manualLibraries});
+  // Third-party ESP board packages can be large; the sandbox has a hard execution limit.
+  // A failed installation is reported as a toolchain failure rather than a compilation success.
   const customLibrary=payload?.customLibrary;
   if(customLibrary!==undefined && (typeof customLibrary!=='string'||customLibrary.length>340000||!/^[-A-Za-z0-9+/=]+$/.test(customLibrary))){
     return Response.json({error:'Custom Arduino ZIP must be base64-encoded and no larger than 250 KB.'},{status:400});
@@ -46,7 +54,7 @@ export async function POST(request) {
     return Response.json({error:'Unknown library header(s): '+dependencies.unknownIncludes.join(', ')+'. Import your own ZIP library or use a supported module.'},{status:422});
   }
   let quota;try{quota=await consumeStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
-  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (25 runs).',quota},{status:429});
+  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (50 runs).',quota},{status:429});
   let sandbox;
   try{
     sandbox=await Sandbox.create({
@@ -58,8 +66,8 @@ export async function POST(request) {
       'curl -fsSL --retry 2 "'+CLI_URL+'" -o /vercel/sandbox/arduino-cli.tgz; '+
       'echo "'+CLI_SHA+'  /vercel/sandbox/arduino-cli.tgz" | sha256sum --check; '+
       'tar -xzf /vercel/sandbox/arduino-cli.tgz -C /vercel/sandbox/bin arduino-cli; '+
-      '/vercel/sandbox/bin/arduino-cli core update-index; '+
-      '/vercel/sandbox/bin/arduino-cli core install arduino:avr; '+
+      '/vercel/sandbox/bin/arduino-cli core update-index '+(profile.index?'--additional-urls '+JSON.stringify(profile.index):'')+'; '+
+      '/vercel/sandbox/bin/arduino-cli core install '+profile.core+' '+(profile.index?'--additional-urls '+JSON.stringify(profile.index):'')+'; '+
       'true'
     ]);
     if(!prep.ok)return Response.json({ok:false,stage:'toolchain',output:prep.output},{headers:{'Cache-Control':'no-store'}});
@@ -82,13 +90,13 @@ export async function POST(request) {
     await sandbox.mkDir('build');
     await sandbox.writeFiles([{path:'CircuitByteSketch/CircuitByteSketch.ino',content:Buffer.from(code,'utf8')}]);
     const result=await run(sandbox,'/vercel/sandbox/bin/arduino-cli',
-      ['compile','--fqbn',CORE,'--warnings','all',...(customLibrary?['--libraries','/vercel/sandbox/custom-libraries']:[]),'--output-dir','/vercel/sandbox/build','/vercel/sandbox/CircuitByteSketch']);
+      ['compile','--fqbn',profile.fqbn,...(profile.index?['--additional-urls',profile.index]:[]),'--warnings','all',...(customLibrary?['--libraries','/vercel/sandbox/custom-libraries']:[]),'--output-dir','/vercel/sandbox/build','/vercel/sandbox/CircuitByteSketch']);
     let firmwareHex=null;
-    if(result.ok){
+    if(result.ok && profile.core==='arduino:avr'){
       const artifact=await sandbox.readFileToBuffer({path:'build/CircuitByteSketch.ino.hex'});
       if(artifact && artifact.length<250000)firmwareHex=artifact.toString('utf8');
     }
-    return Response.json({ok:result.ok,stage:'compile',exitCode:result.exitCode,board:CORE,output:result.output||'Build finished without messages.',firmwareHex,artifactAvailable:Boolean(firmwareHex),dependencies:dependencies.details.map(x=>x.name),customLibraryImported:Boolean(customLibrary)},{headers:{'Cache-Control':'no-store'}});
+    return Response.json({ok:result.ok,stage:'compile',exitCode:result.exitCode,board:profile.fqbn,output:result.output||'Build finished without messages.',firmwareHex,artifactAvailable:Boolean(firmwareHex),dependencies:dependencies.details.map(x=>x.name),customLibraryImported:Boolean(customLibrary)},{headers:{'Cache-Control':'no-store'}});
   }catch{
     return Response.json({error:'The isolated compiler could not start or complete its build. No firmware was executed or uploaded.'},{status:503});
   }finally{

@@ -125,7 +125,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
+    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / ARDUINO UNO R3</span><h2>Build a project</h2><p>Guided examples require compatible listed hardware. Custom ESP32 projects need board-specific AI generation and are not supported by the UNO-only compiler.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     <StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>
     <div className="studio-grid">
@@ -158,7 +158,7 @@ export function StudioWorkspace({parts,specs={}}) {
           </div>
           <fieldset className="studio-modes"><legend>Generation mode</legend>
             <label><input type="radio" name="studio-mode" checked={mode==='guide'} onChange={()=>setMode('guide')}/> Guided example <small>Free · reliable templates</small></label>
-            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Admin beta · requires AI Gateway setup</small></label>
+            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Student beta · verified sign-in · 30 drafts/month</small></label>
           </fieldset>
           <button type="button" className="studio-primary" disabled={loading||prompt.trim().length<12} onClick={generate}>{loading?'Preparing project…':mode==='ai'?'Generate AI draft →':'Find a matching project →'}</button>
           {error&&<p role="alert" className="studio-error">{error}</p>}
@@ -187,11 +187,11 @@ export function StudioWorkspace({parts,specs={}}) {
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div>
           <div className="studio-compile">
-            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox, restricted to authorized beta testers. Physical wiring is not verified by the compiler.</p></div>
+            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox for verified Student accounts when enabled. Physical wiring is not verified by the compiler.</p></div>
             <button type="button" disabled={busy||!code.trim()} onClick={runCompile}>{busy?'Compiling…':'Compile for UNO'}</button>
           </div>
           {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
-          <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation remains admin-restricted and off unless enabled; printable sheets use the browser's Save as PDF option.</p>
+          <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation requires a verified Student account and must be enabled by the operator; printable sheets use the browser's Save as PDF option.</p>
         </section>}
       </div>
     </div>

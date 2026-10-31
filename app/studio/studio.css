@@ -70,3 +70,24 @@
 .studio-library-import input{display:block;font-size:13px;width:100%;padding:10px;border:1px solid #c5d4c2;border-radius:8px}
 @media(max-width:680px){.studio-library-panel{padding:16px}.studio-library-list{grid-template-columns:1fr}}
 @media print{.studio-library-panel{display:none!important}}
+
+/* CircuitByte first-party visual preview: NOT an AVR simulator */
+.studio-preview{padding:16px;border:1px solid #cadbc7;border-radius:12px;background:#f9fcf6}
+.studio-preview header{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.studio-preview h3{font-size:18px;margin:5px 0}.studio-preview p{font-size:12px;line-height:1.7;color:#5d715f}
+.studio-preview-label{font:bold 10px monospace;letter-spacing:.3px;color:#615526;background:#fff5cb;padding:8px;border-radius:6px}
+.studio-preview-board{min-height:210px;border-radius:13px;background:#143831;padding:22px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.studio-preview-chip{background:#205d55;border:2px solid #7eb8a2;border-radius:12px;padding:18px;color:#f4f8dd;display:grid;gap:9px;min-width:180px;box-shadow:inset 0 0 18px #113d37}
+.studio-preview-chip strong{font-size:17px}.studio-preview-chip small{font-size:12px;color:#b9d9c6}.studio-preview-chip span{font:11px monospace;color:#aad4a9}
+.studio-preview-leds{display:flex;gap:18px;flex-wrap:wrap;flex:1}.studio-preview-led{min-width:76px;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;color:#f5f5df}
+.studio-preview-led strong{font:700 14px monospace}.studio-preview-led small{font:10px monospace;color:#d1e8c7}.studio-preview-bulb{display:block;width:43px;height:43px;border-radius:50%;border:3px solid #814025;background:radial-gradient(circle at 40% 32%,#b58b73,#72291f 60%,#451b16);box-shadow:0 0 1px #321}
+.studio-preview-bulb.lit{background:radial-gradient(circle at 40% 30%,#fff7b5,#ffb32c 60%,#d34c13);border-color:#ec7b20;box-shadow:0 0 12px #ffc400,0 0 27px #ff9b24}
+.studio-preview-wire{height:12px;width:2px;background:#f0ae40;opacity:.8}.studio-preview-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.studio-preview-controls button{background:#22503a;color:#fff;border:0;border-radius:6px;padding:9px 14px;font-size:12px;font-weight:700}.studio-preview-controls label{display:flex;gap:8px;align-items:center;font-size:12px}.studio-preview-controls select{border:1px solid #bacfbb;border-radius:6px;background:white;padding:7px}.studio-preview-controls span{font-size:12px;color:#527058}
+.studio-preview-timeline{display:flex;gap:3px;min-height:36px;overflow:hidden}.studio-preview-timeline>div{min-width:30px;display:flex;align-items:center;justify-content:center;padding:5px 2px;background:#dbe6d4;border-radius:4px;font-size:10px;color:#365b40}.studio-preview-timeline>div.current{background:#87c565;font-weight:700;color:#173e24}
+.studio-preview-unsupported{background:#fff2dc;padding:13px;border:1px solid #ecd6a2;border-radius:7px}.studio-preview-unsupported strong{font-size:13px}.studio-preview-unsupported p{margin-bottom:6px}
+.studio-library-coverage{margin:15px 0;padding:13px;background:#edf5e8;border-radius:9px;display:grid;gap:8px;font-size:12px}.studio-library-coverage>span{color:#55725d}
+.studio-library-coverage details summary,.studio-library-manual summary{cursor:pointer;font-size:12px;font-weight:700}.studio-library-coverage ul{padding-left:17px;line-height:1.6}.studio-library-manual{padding:13px;border:1px solid #d7e1d3;border-radius:9px;margin:12px 0}.studio-library-manual p{font-size:12px;color:#5c7062}.studio-library-manual>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:10px}
+.studio-library-manual label{display:block;font-size:12px;padding:8px;border:1px solid #e2e8df;border-radius:7px}.studio-library-manual small{color:#6e8172;line-height:1.5}
+@media(max-width:600px){.studio-preview-board{padding:13px}.studio-preview-chip{width:100%}.studio-preview-leds{width:100%}.studio-preview-timeline{overflow-x:auto}.studio-library-manual>div{grid-template-columns:1fr}}
+@media print{.studio-preview{display:none!important}}

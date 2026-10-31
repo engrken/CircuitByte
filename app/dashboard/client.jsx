@@ -10,7 +10,7 @@ export default function StudioAccount(){
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
- useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');}).catch(()=>{});},[]);
+ useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');if(d.registrationOpen&&new URLSearchParams(window.location.search).get('register')==='1')setMode('signup');}).catch(()=>{});},[]);
  async function load(){
   const [p,q]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'})]);
   if(!p.ok||!q.ok)throw Error('Could not load Studio account. Database initialization may still be pending.');

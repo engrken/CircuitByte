@@ -52,6 +52,7 @@ export function StudioWorkspace({parts,specs={}}) {
     setError('');setNotice('');setCompile(null);setLoading(true);
     try {
       if(mode==='guide'){
+        if(board!=='arduino:avr:uno')throw Error('Guided curriculum templates are currently Arduino UNO-only. Switch to AI generation for the selected board.');
         const result=prepareStudioProject({prompt,parts:selected});
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
@@ -103,7 +104,7 @@ export function StudioWorkspace({parts,specs={}}) {
     const id=params.get('project');
     if(!id&&params.has('parts')){
       const ids=[...new Set(String(params.get('parts')||'').split(',').filter(part=>parts.some(product=>product.id===part)))].slice(0,16);
-      if(ids.length){setSelected(ids);setNotice('Your ordered components were loaded into the Studio picker. Add the UNO or any missing components before using a guide.');}
+      if(ids.length){setSelected(ids);const chosen=BOARD_OPTIONS.find(b=>b.catalogId&&ids.includes(b.catalogId));if(chosen){setBoard(chosen.id);if(chosen.id!=='arduino:avr:uno')setMode('ai');}setNotice('Your ordered components were loaded into the Studio picker. Select the correct controller and verify missing components.');}
     }
     if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
     let active=true;
@@ -118,7 +119,7 @@ export function StudioWorkspace({parts,specs={}}) {
     return()=>{active=false;};
   },[]);
   function startBlinkDemo(){
-    setSelected(['cb-059','cb-009','cb-002']);
+    setBoard('arduino:avr:uno');setSelected(['cb-059','cb-009','cb-002']);
     setPrompt('Blink the Arduino UNO onboard LED on D13 every 600 milliseconds.');
     setCode(BLINK_DEMO_CODE);
     setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
@@ -134,7 +135,7 @@ export function StudioWorkspace({parts,specs={}}) {
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
-    <StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>
+    {board==='arduino:avr:uno'&&<StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>}
     <div className="studio-grid">
       <div className="studio-controls">
         <section className="studio-panel">
@@ -205,7 +206,7 @@ export function StudioWorkspace({parts,specs={}}) {
             <button type="button" disabled={busy||!code.trim()} onClick={runCompile}>{busy?'Compiling…':'Compile for UNO'}</button>
           </div>
           {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
-          <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation remains admin-restricted and off unless enabled; printable sheets use the browser's Save as PDF option.</p>
+          <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation requires an enabled server feature flag and verified Student login; printable sheets use the browser's Save as PDF option.</p>
         </section>}
       </div>
     </div>

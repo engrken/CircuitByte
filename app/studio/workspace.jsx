@@ -143,7 +143,7 @@ export function StudioWorkspace({parts,specs={}}) {
             <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox, restricted to authorized beta testers. Physical wiring is not verified by the compiler.</p></div>
             <button type="button" disabled={busy||!code.trim()} onClick={runCompile}>{busy?'Compiling…':'Compile for UNO'}</button>
           </div>
-          {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre></div>}
+          {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
           <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation remains admin-restricted and off unless enabled; printable sheets use the browser's Save as PDF option.</p>
         </section>}
       </div>

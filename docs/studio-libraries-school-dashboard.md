@@ -58,3 +58,7 @@ STUDIO_AI_ENABLED=false
 CircleCI runs tests in `tests/studio-libraries-schools.test.mjs`, the existing web suite and UNO sketch compile checks. Production Next.js build should validate all new routes.
 
 **Pending independent runtime QA:** Gmail API verification emails, registration + login, Neon user profile/persistence after migration, actual Arduino custom ZIP compilation, sandbox resource quotas, school approval and public list in a real browser, as well as admin account verification. The features should not be marketed as fully public SaaS until tested and activated. Subscription billing remains disabled.
+
+## Gmail App Password alternative
+
+CircuitByte Studio registration now also accepts a Gmail SMTP sender configured by `GMAIL_SENDER_EMAIL` and `GMAIL_APP_PASSWORD` (Google 2-Step Verification required). The older OAuth2 Gmail API configuration remains supported; App Password is selected first if both exist. See `docs/studio-guest-checkout-gmail-invites.md` for setup and credential safety.

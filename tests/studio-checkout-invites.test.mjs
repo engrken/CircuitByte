@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {validateOrder} from '../lib/order-rules.mjs';
-import {gmailConfigured,formatGmailMessage,sendGmailMessage,studioInvitationMessage} from '../lib/studio-email.mjs';
+import {gmailConfigured,gmailMethod,formatGmailMessage,sendGmailMessage,studioInvitationMessage} from '../lib/studio-email.mjs';
 const base={name:'Buyer',contact:'09171234567',location:'Roxas City public market',
  city:'Roxas City, Capiz',notes:'',requestId:'abf6d7e8-99ab-4c15-a673-a082c829ef64',
  token:'f'.repeat(64),items:[{id:'cb-059',quantity:1,price_cents:29900}]};
@@ -69,4 +69,41 @@ test('checkout-to-Studio deep link uses selected product IDs, not private tracki
  assert.match(workspace,/params\.has\('parts'\)/);
  assert.match(workspace,/product\.id===part/);
  assert.doesNotMatch(storefront,/studio-build-order'\)\.href[^\n]*checkoutAttempt\.token/);
+});
+
+test('Gmail App Password configuration enables SMTP without OAuth',()=>{
+ const env={GMAIL_SENDER_EMAIL:'maker@gmail.com',GMAIL_APP_PASSWORD:'abcd efgh ijkl mnop'};
+ assert.equal(gmailMethod(env),'app-password');
+ assert.equal(gmailConfigured(env),true);
+ assert.equal(gmailConfigured({...env,GMAIL_APP_PASSWORD:'regular-password'}),false);
+ assert.equal(gmailMethod({...env,GMAIL_OAUTH_CLIENT_ID:'optional'}),'app-password');
+});
+test('Gmail SMTP uses TLS port 465 and does not expose credentials',async()=>{
+ const env={GMAIL_SENDER_EMAIL:'maker@gmail.com',GMAIL_APP_PASSWORD:'abcd efgh ijkl mnop'};
+ let opts,output,closed=false;
+ const transportFactory=options=>{opts=options;return {
+  sendMail:async data=>{output=data;return {accepted:['recipient@example.org'],messageId:'smtp-123'};},
+  close:()=>{closed=true;}
+ };};
+ const sent=await sendGmailMessage({to:'recipient@example.org',subject:'Verify CircuitByte',body:'Confirm your email'},{env,transportFactory});
+ assert.equal(sent.id,'smtp-123');
+ assert.equal(JSON.stringify(sent).includes('abcdefghijklmnop'),false);
+ assert.equal(opts.host,'smtp.gmail.com');
+ assert.equal(opts.port,465);
+ assert.equal(opts.secure,true);
+ assert.equal(opts.tls.minVersion,'TLSv1.2');
+ assert.equal(opts.auth.user,env.GMAIL_SENDER_EMAIL);
+ assert.equal(opts.auth.pass,'abcdefghijklmnop');
+ assert.equal(output.from.address,env.GMAIL_SENDER_EMAIL);
+ assert.equal(output.to,'recipient@example.org');
+ assert.equal(output.text,'Confirm your email');
+ assert.equal(output.disableUrlAccess,true);
+ assert.equal(closed,true);
+});
+test('Gmail SMTP rejects unexpected recipients, closes transport on failure',async()=>{
+ let closed=false;
+ const env={GMAIL_SENDER_EMAIL:'maker@gmail.com',GMAIL_APP_PASSWORD:'abcdefghijklmnop'};
+ const transportFactory=()=>({sendMail:async()=>({accepted:['wrong@example.org']}),close:()=>{closed=true;}});
+ await assert.rejects(sendGmailMessage({to:'correct@example.org',subject:'Test',body:'Test'},{env,transportFactory}),/did not accept/);
+ assert.equal(closed,true);
 });

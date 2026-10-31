@@ -5,6 +5,7 @@ import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-do
 import {StudioUsbTools} from './usb-tools';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
+import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
 import {useEffect} from 'react';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
@@ -45,14 +46,14 @@ export function StudioWorkspace({parts,specs={}}) {
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
-        setCode(sketch);setProject(result);setCodeDirty(false);setTab('code');
+        setCode(insertSuggestedIncludes(sketch,selected));setProject(result);setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
         const response=await fetch('/api/studio/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,parts:selected})});
         const result=await response.json();
         if(!response.ok)throw Error(result.error||'AI generation unavailable.');
         setProject({...result,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
-        setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
+        setCode(insertSuggestedIncludes(result.code,selected));setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
     finally{setLoading(false);}

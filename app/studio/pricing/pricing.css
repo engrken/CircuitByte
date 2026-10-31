@@ -1,0 +1,24 @@
+
+.studio-price-hero{max-width:1270px;margin:0 auto;padding:65px 5% 38px;display:grid;grid-template-columns:1.5fr .7fr;gap:35px;align-items:center}
+.studio-price-heading h1{font-size:clamp(38px,5vw,64px);letter-spacing:-2px;line-height:1.1;margin:18px 0}
+.studio-price-heading h1 em{font-style:normal;color:#679047}.studio-price-heading p{max-width:740px;color:#5a7165;font-size:16px;line-height:1.85}
+.studio-price-banner{padding:25px;border:1px solid #a6c496;border-radius:15px;background:#edf6e7;color:#274331;line-height:1.7}
+.studio-price-banner p{color:#4f7155;font-size:13px}.studio-price-main{max-width:1320px;margin:0 auto;padding:20px 5% 75px}
+.studio-price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.studio-price-card{background:#fff;border:1px solid #d8e3d4;border-radius:17px;padding:22px;display:flex;flex-direction:column;min-width:0;box-shadow:0 3px 18px rgba(0,0,0,.025)}
+.studio-price-featured{border-color:#7ca76b;box-shadow:0 6px 26px rgba(64,103,57,.12)}
+.studio-price-category{font-size:10px;color:#49734d;font-weight:800;letter-spacing:1px;min-height:26px}
+.studio-price-card h2{font-size:22px;letter-spacing:-.6px;line-height:1.25;margin:7px 0}
+.studio-price-audience{font-size:12px;color:#758477;line-height:1.65;min-height:53px}
+.studio-price-amount{display:flex;gap:6px;align-items:baseline;margin:12px 0}.studio-price-amount strong{font-size:clamp(29px,3vw,38px);color:#183f2e;line-height:1}.studio-price-amount span{font-size:12px;color:#697b6e}
+.studio-price-qualifier{font-size:12px;color:#667d6c;line-height:1.5;margin:0;min-height:44px}
+.studio-price-state{font-weight:800;color:#435e48;font-size:12px;border-radius:6px;background:#eaf3e5;padding:9px 10px;margin:13px 0}
+.studio-price-card ul{padding-left:19px;font-size:12px;line-height:1.7;color:#3e5446;flex:1}
+.studio-price-card li{margin-bottom:9px}.studio-price-link{display:block;text-align:center;border-radius:8px;padding:12px;text-decoration:none!important;background:#173a32;color:#fff!important;font-size:12px;font-weight:700;margin-top:17px}
+.studio-price-disclaimer{color:#677968;font-size:12px;line-height:1.75;margin:23px auto 40px;max-width:1030px}
+.studio-price-explain{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 48px;margin:45px auto;max-width:1130px}
+.studio-price-explain h2{font-size:20px;margin:0 0 7px}.studio-price-explain p{font-size:13px;line-height:1.85;color:#66766a;margin:0}
+.studio-price-bottom{text-align:center;background:#193d32;color:#fff;border-radius:16px;padding:40px 28px}
+.studio-price-bottom h2{font-size:27px}.studio-price-bottom p{font-size:13px;color:#e0eadd;line-height:1.7}.studio-price-bottom .edu-button{display:inline-flex;margin-top:15px}
+@media(max-width:1120px){.studio-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.studio-price-audience,.studio-price-qualifier{min-height:0}}
+@media(max-width:700px){.studio-price-hero{grid-template-columns:1fr;padding-top:32px;gap:22px}.studio-price-grid,.studio-price-explain{grid-template-columns:1fr}.studio-price-card{padding:22px}.studio-price-heading h1{font-size:39px}.studio-price-main{padding-top:10px}}

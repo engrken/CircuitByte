@@ -134,7 +134,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
+    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile an Uno sketch.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     <div className="studio-grid">
       <div className="studio-controls">
@@ -143,7 +143,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <select id="studio-board-choice" value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);const item=BOARD_OPTIONS.find(x=>x.id===next);if(item?.catalogId)setSelected(current=>[item.catalogId,...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode('ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples and browser USB flashing remain UNO-only. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Browser USB flashing is disabled. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
@@ -173,7 +173,7 @@ export function StudioWorkspace({parts,specs={}}) {
           </div>
           <fieldset className="studio-modes"><legend>Generation mode</legend>
             <label><input type="radio" name="studio-mode" checked={mode==='guide'} onChange={()=>setMode('guide')}/> Guided example <small>Free · reliable templates</small></label>
-            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Admin beta · requires AI Gateway setup</small></label>
+            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Verified Student account · 30 drafts/month</small></label>
           </fieldset>
           <button type="button" className="studio-primary" disabled={loading||prompt.trim().length<12} onClick={generate}>{loading?'Preparing project…':mode==='ai'?'Generate AI draft →':'Find a matching project →'}</button>
           {error&&<p role="alert" className="studio-error">{error}</p>}

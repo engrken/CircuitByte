@@ -9,13 +9,13 @@ export default function StudioAccount(){
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]);
- const [adminQueue,setAdminQueue]=useState(null);
+ const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
  useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');}).catch(()=>{});},[]);
  async function load(){
   const [p,q]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'})]);
   if(!p.ok||!q.ok)throw Error('Could not load Studio account. Database initialization may still be pending.');
   const result=await p.json(), saved=await q.json();
-  setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);
+  setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setIsAdmin(Boolean(result.isAdmin));
  }
  useEffect(()=>{if(!session?.user)return;load().catch(e=>setError(e.message));},[session?.user?.id]);
  async function login(e){
@@ -93,7 +93,7 @@ export default function StudioAccount(){
    <section className="account-card"><div className="account-top"><div><h2>Saved Arduino projects</h2><p>{projects.length} of 10 beta project slots used.</p></div><a href="/studio">Open Studio →</a></div>
     {projects.length? <ul className="account-projects">{projects.map(p=><li key={p.id}><div><strong>{p.title}</strong><span>Arduino UNO · {new Date(p.updated_at).toLocaleDateString('en-PH')}</span></div><div><a href={'/studio?project='+encodeURIComponent(p.id)}>Open in Studio</a><button type="button" disabled={busy} onClick={()=>deleteProject(p.id)}>Delete</button></div></li>)}</ul>:<p className="account-muted">No cloud projects yet. Generate a project in Studio and choose “Save to dashboard.”</p>}
    </section>
-   {session.user.email?.toLowerCase()===undefined?null:<section className="account-card account-admin-review"><h2>School verification (admin only)</h2><p>Administrators must verify actual affiliation and consent before approving public listing. Do not rely on self-declared school names alone.</p>
+   {!isAdmin?null:<section className="account-card account-admin-review"><h2>School verification (admin only)</h2><p>Administrators must verify actual affiliation and consent before approving public listing. Do not rely on self-declared school names alone.</p>
     <button onClick={loadReviews} type="button">Load review queue</button>
     {adminQueue&&<ul className="account-projects">{adminQueue.map(p=><li key={p.user_id}><div><strong>{p.school_name}</strong><span>{p.name} · {p.email} · {p.public_consent?'Opted in':'Private'} · {p.school_public_approved?'Approved':'Unapproved'}</span></div><div><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,true)}>Verified &amp; approve</button><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,false)}>Revoke</button></div></li>)}</ul>}
    </section>}

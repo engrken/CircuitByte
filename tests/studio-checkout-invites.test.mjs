@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {validateOrder} from '../lib/order-rules.mjs';
 import {gmailConfigured,formatGmailMessage,sendGmailMessage,studioInvitationMessage} from '../lib/studio-email.mjs';
 const base={name:'Buyer',contact:'09171234567',location:'Roxas City public market',
@@ -57,4 +58,15 @@ test('Studio invitation message contains public dashboard link but never trackin
  assert.match(message.body,/https:\/\/circuitbyte\.vercel\.app\/dashboard/);
  assert.match(message.body,/requested an invitation/);
  assert.doesNotMatch(message.body,/track\.html/);
+});
+
+test('checkout-to-Studio deep link uses selected product IDs, not private tracking tokens',async()=>{
+ const storefront=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
+ const workspace=await readFile(new URL('../app/studio/workspace.jsx',import.meta.url),'utf8');
+ assert.match(storefront,/studio-build-order/);
+ assert.match(storefront,/purchasedIds/);
+ assert.match(storefront,/encodeURIComponent\(purchasedIds\.join/);
+ assert.match(workspace,/params\.has\('parts'\)/);
+ assert.match(workspace,/product\.id===part/);
+ assert.doesNotMatch(storefront,/studio-build-order'\)\.href[^\n]*checkoutAttempt\.token/);
 });

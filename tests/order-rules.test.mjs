@@ -10,3 +10,15 @@ test('unknown stock may be requested but cannot be confirmed',()=>{assert.equal(
 test('confirm reserves, ready keeps stock, complete deducts both',()=>{let p={...product,...stockChange('Pending','Confirmed',product,2)};assert.equal(p.stock,10);assert.equal(p.reserved_stock,5);p={...p,...stockChange('Confirmed','Ready',p,2)};assert.equal(p.reserved_stock,5);assert.deepEqual(stockChange('Ready','Completed',p,2),{stock:8,reserved_stock:3});});
 test('cancellation releases reservations only for confirmed or ready orders',()=>{assert.deepEqual(stockChange('Pending','Cancelled',product,2),{stock:10,reserved_stock:3});for(const state of ['Confirmed','Ready'])assert.deepEqual(stockChange(state,'Cancelled',product,2),{stock:10,reserved_stock:1});});
 test('rejects overselling, double completion, terminal changes and skipped transitions',()=>{assert.throws(()=>stockChange('Pending','Confirmed',product,8));for(const from of Object.keys(transitions))for(const to of Object.keys(transitions))if(!transitions[from].includes(to))assert.throws(()=>stockChange(from,to,product,2));});
+
+test('rejects negative, noninteger and excessive cart quantities',()=>{
+ for(const quantity of [-1,0,0.5,1000])assert.throws(()=>validateOrder({...order,items:[{...order.items[0],quantity}]}));
+});
+test('prevents overselling when reservations consume remaining stock',()=>{
+ assert.throws(()=>stockChange('Pending','Confirmed',{...product,stock:5,reserved_stock:4},2));
+ assert.throws(()=>stockChange('Ready','Completed',{...product,stock:1,reserved_stock:2},2));
+});
+test('completed and cancelled orders cannot transition again',()=>{
+ assert.deepEqual(transitions.Completed,[]);
+ assert.deepEqual(transitions.Cancelled,[]);
+});

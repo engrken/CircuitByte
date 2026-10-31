@@ -155,7 +155,6 @@ export function StudioWorkspace({parts,specs={}}) {
       <h2>{diagramReady?'5':'4'}. Safety review</h2><ul>{[sheetWarning,...(project.warnings||[]),...(spec?.cautions||[])].map((note,i)=><li key={i}>{note}</li>)}</ul>
       <h2>{diagramReady?'6':'5'}. Editable Arduino sketch</h2><pre>{code}</pre>
       <footer>CircuitByte AI Project Studio · Training/reference use only · Compiler success does not validate electrical safety.</footer>
-    </section>
-      </div>
+    </section>}
   </section>;
 }

@@ -1,4 +1,5 @@
-import {requireAdmin,sameOrigin} from '../../../../lib/auth';
+import {requireUser,sameOrigin} from '../../../../lib/auth';
+import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
 
 export const runtime='nodejs';
@@ -7,8 +8,7 @@ export const dynamic='force-dynamic';
 const dangerous=/\b(mains|wall outlet|220\s*v|230\s*v|110\s*v|life support|medical device|high voltage)\b/i;
 const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,180)}]));
 export async function POST(request){
-  try{sameOrigin(request);await requireAdmin();}
-  catch{return Response.json({error:'AI generation is available only to authenticated Studio beta administrators.'},{status:403});}
+  let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student AI.'},{status:403});}
   if(process.env.STUDIO_AI_ENABLED!=='true')return Response.json({error:'AI generation is not activated for this beta. Guided starter templates remain free.'},{status:503});
   const model=process.env.STUDIO_AI_MODEL;
   const credential=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
@@ -21,6 +21,8 @@ export async function POST(request){
     return Response.json({error:'Select at least two catalog parts and describe a low-voltage educational project (12–800 characters).'}, {status:400});
   }
   if(!parts.some(part=>part.id==='cb-059'))return Response.json({error:'This beta requires the catalog Arduino UNO R3.'},{status:400});
+  let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
+  if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (15 drafts).',quota},{status:429});
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),30000);
   try{

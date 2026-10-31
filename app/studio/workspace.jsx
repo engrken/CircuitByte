@@ -111,8 +111,10 @@ export function StudioWorkspace({parts,specs={}}) {
     fetch('/api/studio/projects',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sign in to access your saved projects.');return r.json();}).then(j=>{
       if(!active)return;
       const saved=(j.projects||[]).find(p=>p.id===id);if(!saved)throw Error('Project not found in your account.');
-      const guide=STUDIO_BUILDS.find(x=>x.slug===saved.template_slug);
-      setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
+      const savedBoard=BOARD_OPTIONS.some(x=>x.id===saved.board)?saved.board:'arduino:avr:uno';
+      setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
+      const guide=savedBoard==='arduino:avr:uno'?STUDIO_BUILDS.find(x=>x.slug===saved.template_slug):null;
+      setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
       setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
       setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded. Verify the sketch, library requirements and pinout before compiling.');
     }).catch(e=>{if(active)setError(e.message);});

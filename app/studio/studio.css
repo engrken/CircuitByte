@@ -50,3 +50,23 @@
 @media(max-width:960px){.studio-usb-columns{grid-template-columns:1fr}.studio-usb-panel{padding:16px}}
 @media(max-width:600px){.studio-usb-heading{flex-direction:column}.studio-usb-panel select,.studio-usb-send input{font-size:16px}.studio-usb-send{grid-template-columns:minmax(0,1fr) 100px}.studio-usb-send button{grid-column:span 2;min-height:44px}}
 @media print{.studio-usb-panel{display:none!important}}
+
+/* Automatic Arduino library manager */
+.studio-library-panel{border:1px solid #c9dbce;border-radius:15px;padding:24px;background:#fff;margin:20px 0}
+.studio-library-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.studio-library-heading h3{margin:8px 0;font-size:21px}
+.studio-library-heading>span{border:1px solid #cadaca;background:#f1f7ee;border-radius:30px;padding:8px 12px;font-size:11px;color:#355442;font-weight:700}
+.studio-library-panel>p{color:#5b705f;font-size:13px;line-height:1.75}
+.studio-library-list{padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;list-style:none}
+.studio-library-list li{padding:13px;border:1px solid #dfebda;border-radius:8px;background:#f8fbf5;display:grid;gap:5px}
+.studio-library-list strong{font-size:13px;color:#1d4a37}
+.studio-library-list small{font-size:12px;color:#526c58}
+.studio-library-list span{font-size:10px;color:#437244;font-weight:700}
+.studio-library-panel button{background:#234f3a;color:white;border:0;border-radius:7px;padding:10px 13px;font-size:12px;font-weight:700;cursor:pointer}
+.studio-library-panel button:disabled{opacity:.5}
+.studio-library-import{border-top:1px solid #dbe6d9;margin-top:18px;padding-top:14px}
+.studio-library-import>p{font-size:12px;line-height:1.7}
+.studio-library-import button{margin:0 9px;background:#f4f7f1;border:1px solid #b5cab9;color:#234e3d}
+.studio-library-import input{display:block;font-size:13px;width:100%;padding:10px;border:1px solid #c5d4c2;border-radius:8px}
+@media(max-width:680px){.studio-library-panel{padding:16px}.studio-library-list{grid-template-columns:1fr}}
+@media print{.studio-library-panel{display:none!important}}

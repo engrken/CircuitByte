@@ -19,7 +19,7 @@ export async function POST(request){
  const existing=await db().query('SELECT order_id FROM studio_order_invites WHERE order_id=$1',[orderId]);
  if(!existing.rowCount)return Response.json({error:'No customer opted in on this order.'},{status:404});
  try{
-  const result=await dispatchStudioInvite(orderId,new URL(request.url).origin);
+  const result=await dispatchStudioInvite(orderId,process.env.BETTER_AUTH_URL||new URL(request.url).origin);
   return Response.json({delivery:result},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'Invitation delivery failed; keep the request pending for another attempt.'},{status:502});}
 }

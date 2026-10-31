@@ -1,5 +1,5 @@
-import {db} from '../../../../lib/db';
-import {requireUser,sameOrigin} from '../../../../lib/auth';
+import {db} from '../../../../lib/db.js';
+import {requireUser,sameOrigin} from '../../../../lib/auth.js';
 import {z} from 'zod';
 import {randomUUID} from 'node:crypto';
 export const dynamic='force-dynamic';
@@ -15,8 +15,9 @@ export async function GET(){
 export async function POST(request){
  let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Unauthorized'},{status:403});}
  let data;try{data=saveSchema.parse(await request.json());}catch{return Response.json({error:'Invalid project data.'},{status:400});}
- const client=await db().connect();
+ let client;
  try{
+  client=await db().connect();
   await client.query('BEGIN');
   await client.query('SELECT pg_advisory_xact_lock(hashtext($1))',[user.id]);
   const count=await client.query('SELECT count(*)::integer AS n FROM studio_projects WHERE user_id=$1',[user.id]);
@@ -25,8 +26,8 @@ export async function POST(request){
   await client.query('INSERT INTO studio_projects(id,user_id,title,template_slug,code,board,selected_parts) VALUES($1,$2,$3,$4,$5,$6,$7)',[id,user.id,data.title,data.templateSlug,data.code,data.board,JSON.stringify(data.parts)]);
   await client.query('COMMIT');
   return Response.json({id,title:data.title},{status:201});
- }catch{await client.query('ROLLBACK');return Response.json({error:'Unable to save project.'},{status:503});}
- finally{client.release();}
+ }catch{if(client){try{await client.query('ROLLBACK');}catch{}}return Response.json({error:'Unable to save project. Please retry.'},{status:503,headers:{'Cache-Control':'no-store'}});}
+ finally{client?.release();}
 }
 export async function DELETE(request){
  let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Unauthorized'},{status:403});}

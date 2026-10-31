@@ -16,11 +16,20 @@ function icon(){const wrap=el('div');wrap.innerHTML='<svg aria-hidden="true" vie
 function details(p){detailId=p.id;$('#detail-learn').href='/learn/'+p.id;$('#detail-title').textContent=p.name;$('#detail-desc').textContent=p.description;$('#detail-quantity').textContent=[p.quantityLabel,p.stock===null?'Availability: please confirm':`Stock: ${p.stock}`].filter(Boolean).join(' · ');$('#detail-price').textContent=money(p.price);$('#detail-add').disabled=p.stock===0;$('#details-dialog').showModal();}
 function renderProducts(){const term=$('#search').value.trim().toLowerCase();let shown=products.filter(p=>(category==='all'||p.categories.includes(category))&&`${p.name} ${p.description}`.toLowerCase().includes(term));const sort=$('#sort').value;if(sort==='low')shown.sort((a,b)=>a.price-b.price);if(sort==='high')shown.sort((a,b)=>b.price-a.price);if(sort==='name')shown.sort((a,b)=>a.name.localeCompare(b.name));$('#catalog-count').textContent=`${shown.length} of ${products.length} products`;$('#filter-title').textContent=labels[category];$('#empty').hidden=!!shown.length;$('#products').replaceChildren();shown.forEach(p=>{const card=el('article','product'),visual=el('div','product-visual');visual.append(icon(),el('small','','PHOTO PENDING'));if(p.imageAvailable){const img=el('img');img.src=p.image;img.alt=p.name;img.loading='lazy';img.onload=()=>visual.classList.add('has-photo');img.onerror=()=>{visual.classList.remove('has-photo');img.remove();};visual.append(img);}const body=el('div','product-body');body.append(el('span','product-category',labels[p.categories[0]]));const title=el('h3'),open=el('button','product-title',p.name);open.onclick=()=>details(p);title.append(open);body.append(title,el('p','',p.description),el('p','',p.stock===null?'Availability: confirm with us':p.stock===0?'Out of stock':`In stock: ${p.stock}`));const bottom=el('div','product-bottom');bottom.append(el('span','price',money(p.price)));const b=el('button','add','Add to cart +');b.setAttribute('aria-label',`Add ${p.name} to cart`);b.disabled=p.stock===0;b.onclick=()=>add(p.id);bottom.append(b);body.append(bottom);card.append(visual,body);$('#products').append(card);});}
 $('#cart-open').onclick=()=>$('#cart-dialog').showModal();$('#how').onclick=()=>$('#how-dialog').showModal();document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}}));$('#detail-add').onclick=()=>add(detailId);$('#search').oninput=renderProducts;$('#sort').onchange=renderProducts;$('#reset').onclick=()=>{category='all';$('#search').value='';$('#sort').value='featured';renderCategories();renderProducts();};$('#checkout').addEventListener('input',invalidate);
+const inviteCheckbox=$('#studio-invite'),studioEmail=$('#studio-email'),studioEmailWrap=$('#studio-email-wrap');
+inviteCheckbox.addEventListener('change',()=>{
+ const optedIn=inviteCheckbox.checked;
+ studioEmailWrap.hidden=!optedIn;
+ studioEmail.disabled=!optedIn;
+ studioEmail.required=optedIn;
+ if(!optedIn)studioEmail.value='';
+});
+
 let checkoutAttempt=null,placing=false;
 try{checkoutAttempt=JSON.parse(sessionStorage.getItem('circuitbyte.checkoutAttempt')||'null');}catch{}
 $('#checkout').onsubmit=async e=>{
  e.preventDefault();if(!cart.length||placing)return;const f=new FormData(e.target);
- const payload={name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),city:'Roxas City, Capiz',notes:String(f.get('notes')||''),items:cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100)}))};
+ const payload={name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),city:'Roxas City, Capiz',notes:String(f.get('notes')||''),items:cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100)})),studioInvite:inviteCheckbox.checked,studioEmail:inviteCheckbox.checked?studioEmail.value.trim():''};
  const fingerprint=JSON.stringify(payload);
  if(checkoutAttempt&&checkoutAttempt.fingerprint!==fingerprint){toast('A previous submission needs checking. Use Track order before changing this checkout.');window.location.href='/track.html#'+checkoutAttempt.token;return;}
  if(!checkoutAttempt){checkoutAttempt={fingerprint,requestId:crypto.randomUUID(),token:Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('')};try{sessionStorage.setItem('circuitbyte.checkoutAttempt',JSON.stringify(checkoutAttempt));}catch{}}
@@ -29,6 +38,12 @@ $('#checkout').onsubmit=async e=>{
  const link=location.origin+'/track.html#'+checkoutAttempt.token;
  try{localStorage.setItem('circuitbyte.lastTracking',checkoutAttempt.token);sessionStorage.removeItem('circuitbyte.checkoutAttempt');}catch{}
  checkoutAttempt=null;cart=[];save();renderCart();
+ const inviteResult=$('#studio-invite-result');
+ inviteResult.textContent=payload.studioInvite ? (data.studioInvitation==='sent'
+  ? 'Your Studio invitation was sent to the email you provided. You can also open Studio now.'
+  : 'Your opt-in is saved, but email delivery is not active yet. You can explore Studio now without waiting.')
+  : 'Free Studio tutorials, project diagrams, Arduino sketches and component libraries are available even without an account.';
+ inviteCheckbox.checked=false;studioEmail.value='';studioEmail.disabled=true;studioEmail.required=false;studioEmailWrap.hidden=true;
  $('#order-message').value='Order '+data.reference+' — '+data.status+'\nTotal: '+money(data.total_cents/100)+'\nProposed meetup: '+data.proposed_location+'\nRoxas City, Capiz\nCash at meetup. Await stock and location confirmation.\n\nPrivate tracking link (keep safe):\n'+link;
  let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});toast('Order recorded. Save your tracking link.');
  }catch(err){toast(err.message+' — Retry unchanged if the connection failed.');}finally{placing=false;$('#prepare').disabled=!cart.length;$('#prepare').textContent='Place order ↗';}

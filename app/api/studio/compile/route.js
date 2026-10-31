@@ -36,7 +36,7 @@ export async function POST(request) {
     !/\bvoid\s+setup\s*\(/.test(code)||!/\bvoid\s+loop\s*\(/.test(code)){
     return Response.json({error:'Choose a supported board and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
   }
-  if(profile.fqbn!=='arduino:avr:uno')return Response.json({error:'Cloud compilation for this board is unavailable until board-specific toolchains pass production validation.'},{status:422,headers:{'Cache-Control':'no-store'}});
+  if(profile.fqbn!=='arduino:avr:uno' && !(process.env.VERCEL_ENV==='preview' && process.env.STUDIO_UAT_MULTIBOARD_ENABLED==='true'))return Response.json({error:'This board compiler is available only in the authorized UAT preview.'},{status:422,headers:{'Cache-Control':'no-store'}});
   const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\d{3}$/.test(x)):[];
   const manualLibraries=Array.isArray(payload?.manualLibraries)?payload.manualLibraries:[];
   if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)))

@@ -49,7 +49,7 @@ test('MicroSD schematic exposes missing LDR, memory card, and 3.3V SPI level-con
 test('Proposed SaaS pricing does not activate billing or promise unlimited AI/compilation',()=>{
  assert.equal(pricing.salesEnabled,false);
  assert.equal(pricing.status,'proposal');
- assert.deepEqual(pricing.plans.map(x=>x.monthlyPhp),[0,199,499,2999]);
+ assert.deepEqual(pricing.plans.map(x=>x.monthlyPhp),[0,99,499,2999]);
  assert.equal(pricing.plans[0].aiDrafts,0);
  assert.equal(pricing.plans[0].compileRuns,0);
  assert.ok(pricing.plans.every(plan=>plan.access&&!/unlimited/i.test(plan.highlights.join(' '))));

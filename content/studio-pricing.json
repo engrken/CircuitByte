@@ -1,0 +1,85 @@
+{
+  "status": "proposal",
+  "currency": "PHP",
+  "billing": "monthly",
+  "salesEnabled": false,
+  "disclaimer": "These are indicative Philippine launch prices, not active subscriptions. No checkout or recurring billing has been enabled. Rates, taxes, quotas, support terms and eligibility require a paid pilot and actual provider-cost validation.",
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free Maker",
+      "monthlyPhp": 0,
+      "priceQualifier": "Always free for guided examples",
+      "audience": "Beginners and classroom demonstrations",
+      "highlights": [
+        "Five curated guided projects",
+        "Published schematic and labelled wiring SVGs",
+        "Itemized parts and indicative catalog BOM",
+        "Editable .ino source and browser Save as PDF",
+        "Local browser draft saving"
+      ],
+      "aiDrafts": 0,
+      "compileRuns": 0,
+      "cloudProjects": 0,
+      "access": "Available now (guided-only)",
+      "button": "Open free Studio"
+    },
+    {
+      "id": "starter",
+      "name": "Student / Hobby",
+      "monthlyPhp": 199,
+      "priceQualifier": "Proposed student launch rate",
+      "audience": "Individuals building a few projects each month",
+      "highlights": [
+        "Everything in Free",
+        "Up to 15 AI drafts/month (planned)",
+        "Up to 25 isolated UNO compiles/month (planned)",
+        "Up to 10 cloud-saved projects (planned)",
+        "Version history and private drafts (planned)"
+      ],
+      "aiDrafts": 15,
+      "compileRuns": 25,
+      "cloudProjects": 10,
+      "access": "Not yet for sale",
+      "button": "Preview Studio"
+    },
+    {
+      "id": "pro",
+      "name": "Pro Maker",
+      "monthlyPhp": 499,
+      "priceQualifier": "Proposed maker launch rate",
+      "audience": "Thesis groups, hobbyists and active builders",
+      "highlights": [
+        "Everything in Student/Hobby",
+        "Up to 60 AI drafts/month (planned)",
+        "Up to 100 cloud compiles/month (planned)",
+        "Up to 50 cloud-saved projects (planned)",
+        "Exportable documentation packs (planned)"
+      ],
+      "aiDrafts": 60,
+      "compileRuns": 100,
+      "cloudProjects": 50,
+      "access": "Not yet for sale",
+      "button": "Preview Studio"
+    },
+    {
+      "id": "school",
+      "name": "Classroom / School",
+      "monthlyPhp": 2999,
+      "priceQualifier": "Indicative starting price; custom quote required",
+      "audience": "Engineering departments, schools and training labs",
+      "highlights": [
+        "Classroom-managed users (planned)",
+        "Instructor review and assignment workspaces (planned)",
+        "Shared quotas and organization-level cost controls (planned)",
+        "Up to 30 seats in a proposed pilot, subject to agreement",
+        "Per-semester institutional pricing on request"
+      ],
+      "aiDrafts": null,
+      "compileRuns": null,
+      "cloudProjects": null,
+      "access": "Custom proposal only",
+      "button": "View institutional preview"
+    }
+  ]
+}

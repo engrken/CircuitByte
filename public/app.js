@@ -38,6 +38,8 @@ $('#checkout').onsubmit=async e=>{
  const link=location.origin+'/track.html#'+checkoutAttempt.token;
  try{localStorage.setItem('circuitbyte.lastTracking',checkoutAttempt.token);sessionStorage.removeItem('circuitbyte.checkoutAttempt');}catch{}
  checkoutAttempt=null;cart=[];save();renderCart();
+ const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
+ $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
  const inviteResult=$('#studio-invite-result');
  inviteResult.textContent=payload.studioInvite ? (data.studioInvitation==='sent'
   ? 'Your Studio invitation was sent to the email you provided. You can also open Studio now.'

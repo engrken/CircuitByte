@@ -20,6 +20,6 @@ export default function StudioPage() {
       </div>
       <aside className="studio-hero-card"><span>01  PICK YOUR PARTS</span><span>02  DESCRIBE THE IDEA</span><span>03  REVIEW THE SKETCH</span><span>04  COMPILE &amp; TEST</span><p>Guided templates are publicly available. Guided templates and editable sketches are available. Arduino UNO cloud compilation requires an enabled service and verified login; other boards are draft-only until validated.</p></aside>
     </section>
-    <StudioWorkspace parts={parts} specs={specs}/>
+    <StudioWorkspace parts={parts} specs={specs} uatMultiboard={process.env.VERCEL_ENV==='preview'&&process.env.STUDIO_UAT_MULTIBOARD_ENABLED==='true'}/>
   </EducationShell>;
 }

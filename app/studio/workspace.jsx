@@ -26,7 +26,7 @@ function downloadText(name,text,type='text/plain') {
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
-export function StudioWorkspace({parts,specs={}}) {
+export function StudioWorkspace({parts,specs={},uatMultiboard=false}) {
   const [selected,setSelected]=useState(INITIAL_PARTS);
   const [board,setBoard]=useState('arduino:avr:uno');
   const [query,setQuery]=useState('');
@@ -143,7 +143,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <select id="studio-board-choice" value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);const item=BOARD_OPTIONS.find(x=>x.id===next);if(item?.catalogId)setSelected(current=>[item.catalogId,...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode('ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples and browser USB flashing remain UNO-only. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples and browser USB flashing remain UNO-only. Cloud compilation is available for Arduino UNO. ESP compilation is enabled only for authorized preview UAT when configured.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
@@ -202,8 +202,8 @@ export function StudioWorkspace({parts,specs={}}) {
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div>
           <div className="studio-compile">
-            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. ESP8266, ESP32 and M5Stack cloud compilation is unavailable until independently validated. Physical wiring is not verified by the compiler.</p></div>
-            <button type="button" disabled={busy||!code.trim()||board!=='arduino:avr:uno'} onClick={runCompile}>{busy?'Compiling…':board==='arduino:avr:uno'?'Compile for UNO':'Compilation unavailable for selected board'}</button>
+            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. ESP8266, ESP32 and M5Stack cloud compilation is available only in the opt-in UAT preview; these builds are not production-validated. Physical wiring is not verified by the compiler.</p></div>
+            <button type="button" disabled={busy||!code.trim()||(board!=='arduino:avr:uno'&&!uatMultiboard)} onClick={runCompile}>{busy?'Compiling…':board==='arduino:avr:uno'?'Compile for UNO':uatMultiboard?'Compile for selected board (UAT)':'Compilation unavailable for selected board'}</button>
           </div>
           {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
           <p className="studio-help">Browser USB firmware uploading is disabled until physical hardware verification is completed. Cloud compilation requires an enabled server feature flag and verified Student login; printable sheets use the browser's Save as PDF option.</p>

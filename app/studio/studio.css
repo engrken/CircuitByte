@@ -24,3 +24,29 @@
  #studio-print-sheet pre{border:1px solid #c6d8cb;background:#f4f8f2;padding:9pt;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:8pt/1.45 "Courier New",monospace;page-break-before:always}
  #studio-print-sheet footer{border-top:1px solid #b5cbb8;padding-top:9pt;margin-top:18pt;font-size:8pt;color:#516457}
 }
+/* Browser-only USB/serial hardware tools; hidden from printable project sheets. */
+.studio-usb-panel{background:#fff;border:1px solid #c9daca;border-radius:16px;padding:24px;margin:24px 0;min-width:0}
+.studio-usb-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.studio-usb-heading h3{font-size:21px;margin:8px 0;letter-spacing:-.3px}.studio-usb-heading p{color:#596e61;font-size:13px;line-height:1.75;max-width:760px}
+.studio-usb-columns{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(270px,.85fr);gap:24px}
+.studio-usb-controls,.studio-usb-upload{min-width:0;border:1px solid #dfe7dc;background:#fafcf8;border-radius:11px;padding:17px}
+.studio-usb-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.studio-usb-buttons button,.studio-usb-send button{border:1px solid #b6cbb7;background:white;border-radius:7px;color:#26533c;padding:10px 12px;cursor:pointer;font-weight:700;font-size:12px}
+.studio-usb-panel button:disabled{cursor:not-allowed;opacity:.46}
+.studio-usb-panel select,.studio-usb-send input,.studio-usb-upload input[type=file]{width:100%;background:white;border:1px solid #cad8ca;border-radius:7px;min-height:40px;padding:8px;color:#294533;font-size:13px}
+.studio-usb-identity{display:grid;gap:4px;margin:12px 0;border-left:3px solid #76a364;padding:8px 12px;background:#edf5e8}
+.studio-usb-identity strong{font-size:13px}.studio-usb-identity span{font:12px monospace}.studio-usb-identity small{font-size:11px;color:#526e5a;line-height:1.6}
+.studio-serial-console{background:#0a211a;color:#ceefcf;padding:12px;border-radius:8px;min-height:180px;max-height:290px;overflow:auto}
+.studio-serial-console pre{font:12px/1.6 "Courier New",monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.studio-usb-send{display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:7px;margin-top:9px}
+.studio-usb-send input{min-width:0}
+.studio-usb-upload h4{font-size:17px;margin:0 0 8px}
+.studio-usb-upload p{font-size:12px;line-height:1.75;color:#576e5e}
+.studio-usb-binary{font-weight:700!important;color:#2d5237!important;overflow-wrap:anywhere}
+.studio-usb-consent{display:flex;gap:11px;font-size:12px;line-height:1.65;margin:16px 0;color:#4c5f4f}
+.studio-usb-consent input{align-self:flex-start;margin-top:4px;accent-color:#2d7544}
+.studio-usb-flash{background:#183c30;color:white;font-size:13px;font-weight:700;border:0;border-radius:8px;padding:14px;width:100%;min-height:44px}
+.studio-usb-upload progress{width:100%;height:15px;margin:12px 0}
+@media(max-width:960px){.studio-usb-columns{grid-template-columns:1fr}.studio-usb-panel{padding:16px}}
+@media(max-width:600px){.studio-usb-heading{flex-direction:column}.studio-usb-panel select,.studio-usb-send input{font-size:16px}.studio-usb-send{grid-template-columns:minmax(0,1fr) 100px}.studio-usb-send button{grid-column:span 2;min-height:44px}}
+@media print{.studio-usb-panel{display:none!important}}

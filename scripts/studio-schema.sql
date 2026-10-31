@@ -15,7 +15,7 @@ CREATE INDEX IF NOT EXISTS studio_profiles_public_school_idx
  ON studio_profiles(school_name) WHERE public_consent=true AND school_verified=true AND school_public_approved=true;
 CREATE TABLE IF NOT EXISTS studio_projects (
  id uuid PRIMARY KEY, user_id text NOT NULL,
- title text NOT NULL, code text NOT NULL, board text NOT NULL DEFAULT 'arduino:avr:uno',
+ title text NOT NULL, template_slug text NOT NULL DEFAULT '', code text NOT NULL, board text NOT NULL DEFAULT 'arduino:avr:uno',
  selected_parts jsonb NOT NULL DEFAULT '[]'::jsonb,
  updated_at timestamptz NOT NULL DEFAULT now(), created_at timestamptz NOT NULL DEFAULT now()
 );

@@ -69,6 +69,7 @@ export function StudioWorkspace({parts,specs={}}) {
     finally{setLoading(false);}
   }
   async function runCompile(){
+    if(board!=='arduino:avr:uno'){setError('Cloud compilation is currently UNO-only. Download this sketch and compile it using the appropriate ESP8266, ESP32 or M5Stack board package locally.');return;}
     if(!code.trim())return;setError('');setCompile(null);setBusy(true);
     try{
       const response=await fetch('/api/studio/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries})});
@@ -93,7 +94,7 @@ export function StudioWorkspace({parts,specs={}}) {
     if(!project||!code.trim())return;
     setError('');setSavingCloud(true);
     try{
-      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board:'arduino:avr:uno',parts:selected})});
+      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected})});
       const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
       setNotice('Project saved to your private dashboard.');
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}

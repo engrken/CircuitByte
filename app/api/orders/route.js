@@ -10,7 +10,7 @@ export async function POST(req){
   let invitation='not-requested';
   if(body.studioInvite===true){
    invitation='queued';
-   try{invitation=await dispatchStudioInvite(body.requestId,new URL(req.url).origin);}
+   try{invitation=await dispatchStudioInvite(body.requestId,process.env.BETTER_AUTH_URL||new URL(req.url).origin);}
    catch{/* Email failure never reverses or duplicates an already accepted order. */}
   }
   return Response.json({...order,studioInvitation:invitation},{headers:{'Cache-Control':'no-store'}});

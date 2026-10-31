@@ -30,7 +30,7 @@ export async function POST(request) {
     !/\bvoid\s+setup\s*\(/.test(code)||!/\bvoid\s+loop\s*\(/.test(code)){
     return Response.json({error:'Choose Arduino UNO and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
   }
-  const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\\d{3}$/.test(x)):[];
+  const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\d{3}$/.test(x)):[];
   const dependencies=resolveStudioLibraries({parts,code});
   const customLibrary=payload?.customLibrary;
   if(customLibrary!==undefined && (typeof customLibrary!=='string'||customLibrary.length>340000||!/^[-A-Za-z0-9+/=]+$/.test(customLibrary))){

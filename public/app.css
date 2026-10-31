@@ -41,3 +41,24 @@
 
 /* Schools are listed only after administrator verification and member consent. */
 .school-community{padding:32px 5%;background:#edf4e8;border-top:1px solid #d4e4d0;border-bottom:1px solid #d4e4d0}.school-community>div{max-width:1250px;margin:auto}.school-community h2{font-size:clamp(24px,3vw,32px);margin:8px 0}.school-community p{font-size:13px;color:#5e7364;line-height:1.7;max-width:850px}.school-pill-list{display:flex;gap:11px;flex-wrap:wrap;margin:17px 0}.school-pill{border:1px solid #b7d0b6;border-radius:28px;padding:10px 15px;background:#fff;font-size:13px;font-weight:700;color:#22553b}.school-empty{display:block;color:#627c68;font-size:13px;margin:10px 0}
+
+/* Public conversion funnel: clear SaaS promotion without forced registration. */
+.studio-store-spotlight{padding:34px 5%;background:#163a32;color:#f3f8ea}
+.studio-store-copy{max-width:1250px;margin:0 auto}.studio-store-spotlight h2{font-size:clamp(26px,3.5vw,39px);margin:7px 0 10px;letter-spacing:-1px}
+.studio-store-spotlight p{font-size:14px;color:#d6e8d7;line-height:1.85;max-width:780px}.studio-store-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.studio-store-links .primary{background:#d9f589;color:#18372f}.studio-store-links>a:not(.primary){font-size:13px;text-decoration:underline;color:#eaf5e5}
+.checkout-studio-intro{background:#edf6e8;color:#214e37;border:1px solid #c9e0c0;border-radius:9px;padding:14px;margin:15px 0}
+.checkout-studio-intro p{line-height:1.6;font-size:12px;color:#4d6955}.checkout-studio-intro a{font-weight:700;font-size:12px;text-decoration:underline}
+.checkout-studio-choice{border:1px solid #c8d7c7;border-radius:10px;padding:15px;margin:16px 0}
+.checkout-studio-choice legend{font-size:13px;font-weight:700;padding:0 7px}
+.checkout-studio-choice .studio-checkbox{display:flex;gap:11px;align-items:flex-start;cursor:pointer;font-size:13px;line-height:1.7}
+.checkout-studio-choice .studio-checkbox input{width:18px;height:18px;flex:none;accent-color:#285c3c;margin-top:3px}
+.checkout-studio-choice .studio-email-wrap{display:grid;gap:7px;padding-top:13px;font-size:12px;font-weight:700}
+.checkout-studio-choice .studio-email-wrap[hidden]{display:none!important}
+.checkout-studio-choice input[type=email]{width:100%;min-width:0;font-size:16px}
+.checkout-studio-choice p{font-size:11px;line-height:1.7}
+.order-studio-next{margin:17px 0;padding:18px;border:1px solid #bad6aa;border-radius:10px;background:#edf8e7}
+.order-studio-next h3{font-size:19px;margin:6px 0}.order-studio-next p{font-size:12px;color:#4a6355;line-height:1.65}
+.order-studio-next .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.order-studio-next a:not(.primary){display:inline-flex;padding:12px 13px;border:1px solid #a5c7a3;border-radius:6px;font-size:12px;font-weight:700}
+@media(max-width:600px){.studio-store-spotlight{padding:25px 5%}.studio-store-links{align-items:stretch;flex-direction:column}.studio-store-links .primary{width:100%}.order-studio-next .actions{flex-direction:column}.order-studio-next .actions a{justify-content:center}}

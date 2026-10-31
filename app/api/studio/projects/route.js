@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {randomUUID} from 'node:crypto';
 export const dynamic='force-dynamic';
 const saveSchema=z.object({title:z.string().trim().min(1).max(120),code:z.string().min(10).max(15000),
- parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),templateSlug:z.string().regex(/^[a-z0-9-]{0,70}$/).default(''),board:z.literal('arduino:avr:uno')});
+ parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),templateSlug:z.string().regex(/^[a-z0-9-]{0,70}$/).default(''),board:z.enum(['arduino:avr:uno','esp8266:esp8266:nodemcuv2','esp32:esp32:esp32','esp32:esp32:m5stack-core-esp32'])});
 export async function GET(){
  let user;try{user=await requireUser();}catch{return Response.json({error:'Sign in required.'},{status:401});}
  try{

@@ -31,3 +31,9 @@ test('Studio rejects unsupported high-voltage and empty requirements',()=>{
   assert.throws(()=>prepareStudioProject({prompt:'short',parts:['cb-059']}),/at least 12/);
   assert.throws(()=>prepareStudioProject({prompt:'Build a complex quadcopter radio telemetry link',parts:['cb-059']}),/No reliable starter/);
 });
+test('guided examples reject incompatible controller, current sensor and network requests', () => {
+  for (const part of ['cb-062','cb-063','cb-064','cb-081']) {
+    assert.throws(() => prepareStudioProject({prompt:'Log sensor data to SD',parts:[part,'cb-077']}), /AI draft/);
+  }
+  assert.throws(() => prepareStudioProject({prompt:'Display the sensor data on a web dashboard',parts:['cb-059','cb-077']}), /AI draft/);
+});

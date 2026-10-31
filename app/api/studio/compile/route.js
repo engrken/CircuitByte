@@ -47,10 +47,16 @@ export async function POST(request) {
     // No network during compilation of user-controlled source.
     await sandbox.update({networkPolicy:'deny-all'});
     await sandbox.mkDir('CircuitByteSketch');
+    await sandbox.mkDir('build');
     await sandbox.writeFiles([{path:'CircuitByteSketch/CircuitByteSketch.ino',content:Buffer.from(code,'utf8')}]);
     const result=await run(sandbox,'/vercel/sandbox/bin/arduino-cli',
-      ['compile','--fqbn',CORE,'--warnings','all','/vercel/sandbox/CircuitByteSketch']);
-    return Response.json({ok:result.ok,stage:'compile',exitCode:result.exitCode,board:CORE,output:result.output||'Build finished without messages.'},{headers:{'Cache-Control':'no-store'}});
+      ['compile','--fqbn',CORE,'--warnings','all','--output-dir','/vercel/sandbox/build','/vercel/sandbox/CircuitByteSketch']);
+    let firmwareHex=null;
+    if(result.ok){
+      const artifact=await sandbox.readFileToBuffer({path:'build/CircuitByteSketch.ino.hex'});
+      if(artifact && artifact.length<250000)firmwareHex=artifact.toString('utf8');
+    }
+    return Response.json({ok:result.ok,stage:'compile',exitCode:result.exitCode,board:CORE,output:result.output||'Build finished without messages.',firmwareHex,artifactAvailable:Boolean(firmwareHex)},{headers:{'Cache-Control':'no-store'}});
   }catch{
     return Response.json({error:'The isolated compiler could not start or complete its build. No firmware was executed or uploaded.'},{status:503});
   }finally{

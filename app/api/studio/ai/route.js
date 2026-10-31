@@ -31,6 +31,7 @@ export async function POST(request){
   if(board.catalogId&&!parts.some(part=>part.id===board.catalogId))return Response.json({error:'Add the selected '+board.name+' board from the CircuitByte catalog before generating.'},{status:400});
   let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
   if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (30 drafts).',quota},{status:429});
+  // The quota is consumed before any paid AI Gateway request, preventing unlimited retries.
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),30000);
   try{

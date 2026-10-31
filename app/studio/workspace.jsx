@@ -2,7 +2,6 @@
 import {useState, useMemo} from 'react';
 import {prepareStudioProject} from '../../lib/studio.mjs';
 import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-documentation.mjs';
-import {StudioUsbTools} from './usb-tools';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {insertSuggestedIncludes} from '../../lib/studio-libraries.mjs';
@@ -137,7 +136,6 @@ export function StudioWorkspace({parts,specs={}}) {
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. An arbitrary-language AI draft and cloud compilation are separate restricted beta features.</p></header>
     <StudioLibraryTools parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
-    {board==='arduino:avr:uno'&&<StudioUsbTools compiledHex={compile?.ok?compile.firmwareHex:null}/>}
     <div className="studio-grid">
       <div className="studio-controls">
         <section className="studio-panel">
@@ -145,7 +143,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <select id="studio-board-choice" value={board} onChange={e=>{const next=e.target.value;setBoard(next);setCompile(null);setProject(null);const item=BOARD_OPTIONS.find(x=>x.id===next);if(item?.catalogId)setSelected(current=>[item.catalogId,...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode('ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples and browser USB flashing remain UNO-only. Cloud compilation for other boards is experimental and requires the compiler feature to be enabled.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples and browser USB flashing remain UNO-only. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
@@ -204,11 +202,11 @@ export function StudioWorkspace({parts,specs={}}) {
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div>
           <div className="studio-compile">
-            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. ESP8266, ESP32 and M5Stack cores are experimental and may exceed sandbox time limits. Physical wiring is not verified by the compiler.</p></div>
-            <button type="button" disabled={busy||!code.trim()} onClick={runCompile}>{busy?'Compiling…':'Compile for UNO'}</button>
+            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. ESP8266, ESP32 and M5Stack cloud compilation is unavailable until independently validated. Physical wiring is not verified by the compiler.</p></div>
+            <button type="button" disabled={busy||!code.trim()||board!=='arduino:avr:uno'} onClick={runCompile}>{busy?'Compiling…':board==='arduino:avr:uno'?'Compile for UNO':'Compilation unavailable for selected board'}</button>
           </div>
           {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
-          <p className="studio-help">USB serial and HEX upload are experimental: only UNO R3/ATmega328P Optiboot at 115200 baud is supported and no real-board upload has yet been verified. Cloud compilation requires an enabled server feature flag and verified Student login; printable sheets use the browser's Save as PDF option.</p>
+          <p className="studio-help">Browser USB firmware uploading is disabled until physical hardware verification is completed. Cloud compilation requires an enabled server feature flag and verified Student login; printable sheets use the browser's Save as PDF option.</p>
         </section>}
       </div>
     </div>

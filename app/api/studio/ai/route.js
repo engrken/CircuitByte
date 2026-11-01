@@ -2,6 +2,7 @@ import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
+import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -45,7 +46,7 @@ export async function POST(request){
       body:JSON.stringify({
         model,temperature:0.2,max_tokens:3400,
         messages:[
-          {role:'system',content:'You are an engineering teaching assistant generating original low-voltage Arduino-framework educational sketches for the explicitly selected board. Respond with ONE JSON object only, keys title, summary, slug, code, wires (array of [from,to]), warnings (array of strings). The code must contain valid void setup() and void loop(). Use ONLY listed hardware plus built-in board features, board-appropriate GPIO, current limiting resistors and explicitly identified libraries. Respect the selected board logic voltage and peripheral limitations. Never invent physical capabilities, missing components, verified wiring, hardware safety, or successful compilation. No mains, AC, high-voltage, medical, or safety-critical systems. If parts are insufficient, reply with a JSON object containing error explaining precisely what is missing. Set slug to studio-generated. Code must be under 12000 characters. Do not include secrets or network credentials.'},
+          {role:'system',content:'You are an engineering teaching assistant generating original low-voltage Arduino-framework educational sketches for the explicitly selected board. Respond with ONE JSON object only, keys title, summary, slug, code, wires (array of [from,to]), netlist (array of objects with pin, to, net, kind and optional signalVoltage), warnings (array of strings). Each netlist pin must be the actual board pin, not a guessed GPIO alias. When the precise pinout or module ratings are unknown, omit that connection and explicitly warn; do not invent specifications. The code must contain valid void setup() and void loop(). Use ONLY listed hardware plus built-in board features, board-appropriate GPIO, current limiting resistors and explicitly identified libraries. Respect the selected board logic voltage and peripheral limitations. Never invent physical capabilities, missing components, verified wiring, hardware safety, or successful compilation. No mains, AC, high-voltage, medical, or safety-critical systems. If parts are insufficient, reply with a JSON object containing error explaining precisely what is missing. Set slug to studio-generated. Code must be under 12000 characters. Do not include secrets or network credentials.'},
           {role:'user',content:JSON.stringify({request:prompt,selectedParts:parts,board})}
         ]
       })
@@ -67,9 +68,12 @@ export async function POST(request){
     }
     const wires=Array.isArray(result.wires)?result.wires.filter(a=>Array.isArray(a)&&a.length===2).slice(0,18).map(a=>a.map(x=>String(x).slice(0,140))):[];
     const warnings=Array.isArray(result.warnings)?result.warnings.slice(0,8).map(x=>String(x).slice(0,250)):[];
+    const allowedKinds=new Set(['digital-input','digital-output','analog-input','i2c','spi','power','ground','conditional']);
+    const netlist=Array.isArray(result.netlist)?result.netlist.slice(0,24).filter(x=>x&&typeof x==='object'&&!Array.isArray(x)).map(x=>({pin:String(x.pin||'').slice(0,32),to:String(x.to||'').slice(0,120),net:String(x.net||'').slice(0,60),kind:allowedKinds.has(x.kind)?x.kind:'conditional',...(Number.isFinite(x.signalVoltage)&&x.signalVoltage>=0&&x.signalVoltage<=24?{signalVoltage:x.signalVoltage}:{})})):[];
+    const electricalReview=reviewElectricalDesign({board:String(input?.board||'arduino:avr:uno'),connections:netlist,components:[]});
     return Response.json({
       board:String(input?.board||'arduino:avr:uno'),title:String(result.title||'AI-generated Arduino sketch').slice(0,100),summary:String(result.summary||'AI-generated draft for review.').slice(0,350),
-      slug:'studio-generated',parts:parts.map(x=>x.id),code,wires,
+      slug:'studio-generated',parts:parts.map(x=>x.id),code,wires,netlist,electricalReview,
       warnings:[...warnings,board.voltage+' logic: '+board.notes,'Unverified AI draft. Review wiring, exact module ratings, and compile output before attempting a physical build.']
     },{headers:{'Cache-Control':'no-store'}});
   }catch{return Response.json({error:'AI generation timed out or could not be completed. No project was saved.'},{status:503});}

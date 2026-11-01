@@ -58,7 +58,7 @@ export default function StudioAccount(){
  async function loadReviews(){
   setError('');
   try{const r=await fetch('/api/admin/schools',{cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error);setAdminQueue(j.profiles||[]);}
-  catch(e){setError('School review is available only to the site administrator: '+e.message);}
+  catch(e){setAdminQueue(null);setError('Unable to load the school review queue: '+e.message);}
  }
  async function review(userId,approve){
   setBusy(true);setError('');

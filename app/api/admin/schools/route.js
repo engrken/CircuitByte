@@ -3,8 +3,8 @@ import {requireAdmin,sameOrigin} from '../../../../lib/auth';
 import {z} from 'zod';
 export const dynamic='force-dynamic';
 export async function GET(){
+ try{await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403});}
  try{
-  await requireAdmin();
   const rows=await db().query(
    'SELECT p.user_id,u.email,u.name,p.school_name,p.program,p.role_name,p.public_consent,p.school_verified,p.school_public_approved,p.verified_by,p.updated_at '+
    'FROM studio_profiles p JOIN "user" u ON u.id=p.user_id WHERE p.school_name<>$1 ORDER BY p.updated_at DESC LIMIT 100',['']);

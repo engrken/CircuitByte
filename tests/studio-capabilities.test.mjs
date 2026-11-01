@@ -12,7 +12,7 @@ test('Public availability does not leak member data or read the private ledger',
  process.env.STUDIO_AI_ENABLED='true';process.env.STUDIO_COMPILER_ENABLED='true';process.env.AI_GATEWAY_API_KEY='test-only-key';
  const response=await GET(),body=await response.json();
  assert.equal(body.authenticated,false);assert.equal(body.usage,null);assert.equal(reads,0);
- assert.equal(body.aiEnabled,true);assert.deepEqual(body.compileBoards,['arduino:avr:uno']);
+ assert.equal(body.aiEnabled,true);assert.equal(body.compileBoards.length,4);assert.deepEqual(body.uploadBoards,['arduino:avr:uno']);
  assert.match(response.headers.get('cache-control'),/no-store/);
  assert.doesNotMatch(JSON.stringify(body),/test-only-key|private-member|private@example/);
 });

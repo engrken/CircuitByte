@@ -4,6 +4,7 @@ import {prepareStudioProject} from '../../lib/studio.mjs';
 import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-documentation.mjs';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
+import {StudioUsbTools} from './usb-tools';
 import {StudioCircuitPreview} from './circuit-preview';
 import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
 import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio-boards.mjs';
@@ -42,7 +43,8 @@ export function StudioWorkspace({parts,specs={}}) {
   const [services,setServices]=useState(null),[serviceError,setServiceError]=useState(false);
   const [recovery,setRecovery]=useState(null),[draftStatus,setDraftStatus]=useState('');
   const importRef=useRef(null);
-  const working=loading||busy||savingCloud;
+  const [usbBusy,setUsbBusy]=useState(false);
+  const working=loading||busy||savingCloud||usbBusy;
   const catalogIds=useMemo(()=>parts.map(item=>item.id),[parts]);
   async function refreshServices(){
     setServiceError(false);
@@ -91,7 +93,7 @@ export function StudioWorkspace({parts,specs={}}) {
     if(services.usage[operation].remaining===0)return 'Your monthly allowance has been reached.';
     return '';
   }
-  const aiReason=serviceReason('ai'),compileReason=board==='arduino:avr:uno'?serviceReason('compile'):'Cloud compilation is unavailable for this board. Download the sketch for Arduino IDE.';
+  const aiReason=serviceReason('ai'),compileReason=services&&!services.compileBoards?.includes(board)?'Cloud compilation is unavailable for this board.':serviceReason('compile');
   async function chooseTemplate(build){
     checkpoint();
     setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
@@ -196,11 +198,11 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile an Uno sketch.</p></header>
+    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
     <section className="studio-service-strip" aria-label="Studio service availability">
       <div><strong>{services?.authenticated?'Verified account':'Visitor workspace'}</strong><span>Guided projects, starters and browser drafts are free to use.</span><a href="/dashboard">{services?.authenticated?'My dashboard →':'Sign in / create account →'}</a></div>
       <div><strong>AI generation</strong><span>{!services?'Checking availability…':!services.aiEnabled?'Currently unavailable':services.usage?services.usage.ai.remaining+' of '+services.usage.ai.limit+' drafts remaining':'Available with verified sign-in'}</span></div>
-      <div><strong>Uno compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
+      <div><strong>Cloud compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
       <button type="button" disabled={working} onClick={refreshServices}>Refresh status</button>
       {serviceError&&<p role="status">Service status could not be loaded. Browser projects remain available.</p>}
       {services?.usage&&<small>Usage period: {services.usage.period} (UTC)</small>}
@@ -224,7 +226,7 @@ export function StudioWorkspace({parts,specs={}}) {
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <button type="button" className="studio-secondary" disabled={working} onClick={startBoardProject}>Load {studioBoardName(board)} serial starter</button>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Browser USB flashing is disabled. Cloud compilation is currently supported only for Arduino UNO. ESP boards remain available for draft generation and sketch downloads.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation supports all four board targets when the service is enabled. Browser flashing supports Uno R3 ATmega328P Optiboot; other boards use their matching upload tools.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
@@ -289,15 +291,16 @@ export function StudioWorkspace({parts,specs={}}) {
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div>
           <div className="studio-compile">
-            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. ESP8266, ESP32 and M5Stack cloud compilation is unavailable until independently validated. Physical wiring is not verified by the compiler.</p></div>
+            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. Select the board that matches your hardware; compiler output identifies the target used. Physical wiring is not verified by the compiler.</p></div>
             <button type="button" disabled={working||!code.trim()||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':'Compile for '+studioBoardName(board)}</button>
           </div>
           {compileReason&&<p className="studio-help">{compileReason}</p>}
-          {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&!compile.firmwareHex&&<p>Build completed, but no firmware artifact is available for USB upload.</p>}</div>}
-          <p className="studio-help">Browser USB firmware uploading is disabled until physical hardware verification is completed. Cloud compilation requires an enabled server feature flag and verified Student login; printable sheets use the browser's Save as PDF option.</p>
+          {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><p>Build target: {compile.fqbn||compile.board}</p><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled UNO .hex</button>}{compile.ok&&compile.firmwareBin&&<><button type="button" onClick={()=>{const bytes=Uint8Array.from(atob(compile.firmwareBin),char=>char.charCodeAt(0));downloadText('CircuitByteSketch.application.bin',bytes,'application/octet-stream');}}>Download application .bin</button><p>ESP application image only. Use the matching board's bootloader, partition layout and vendor upload tools; this is not a complete merged flash image.</p></>}{compile.ok&&!compile.artifactAvailable&&<p>Build completed, but no firmware artifact is available for download.</p>}</div>}
+          <p className="studio-help">Use the USB hardware tools below for Uno uploads or serial monitoring. Cloud compilation requires verified sign-in and a remaining monthly allowance. Printable sheets use the browser's Save as PDF option.</p>
         </section>}
       </div>
     </div>
+    {services?.usbUploadEnabled&&<StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/>}
     <details className="studio-advanced"><summary>Libraries and advanced build settings</summary>
       <StudioLibraryTools board={board} readOnly={working} parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     </details>

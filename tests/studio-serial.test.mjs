@@ -68,6 +68,7 @@ test('Intel HEX refuses invalid checksum, missing EOF and bootloader overwrites'
  assert.throws(()=>parseIntelHex(valid),/end-of-file/);
  assert.throws(()=>parseIntelHex(hex(line(0,UNO_MAX_FLASH,[0x99]))),/exceeds UNO/);
  assert.throws(()=>parseIntelHex(hex(line(6,0,[]))),/Unsupported/);
+ assert.throws(()=>parseIntelHex(hex(line(0,0,[255]),line(0,0,[1]))),/overlapping/);
 });
 test('UNO serial uploader uses STK500, verifies MCU signature and flash readback',async()=>{
  const port=new FakeUnoPort();

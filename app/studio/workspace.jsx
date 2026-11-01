@@ -2,6 +2,7 @@
 import {useState,useMemo,useEffect,useRef} from 'react';
 import {prepareStudioProject} from '../../lib/studio.mjs';
 import {estimateStudioBom,validateStudioSpecification} from '../../lib/studio-documentation.mjs';
+import {reviewElectricalDesign} from '../../lib/studio-electrical-verification.mjs';
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {StudioUsbTools} from './usb-tools';
@@ -197,6 +198,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
   const bom=useMemo(()=>estimateStudioBom(spec,parts),[spec,parts]);
   const connections=spec?.connections||project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[];
+  const electricalReview=useMemo(()=>reviewElectricalDesign({board:project?.board||board,connections:spec?.connections||[],components:[]}),[board,project?.board,spec]);
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
@@ -273,6 +275,7 @@ export function StudioWorkspace({parts,specs={}}) {
         <section className="studio-panel studio-output">
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':project.method==='board-starter'?'SERIAL STARTER':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>
           {project.note&&<p className="studio-note">{project.note}</p>}
+          <div className="studio-warning" role="status"><strong>Electrical review: {electricalReview.status==='failed'?'Failed':electricalReview.status==='incomplete'?'Incomplete':'Static checks passed'}</strong><p>{electricalReview.notice} {codeDirty?'The sketch was edited after its reference diagram was prepared.':''}</p><ul>{electricalReview.findings.map((finding,i)=><li key={i}><strong>{finding.severity.toUpperCase()}:</strong> {finding.message}</li>)}</ul>{docProblems.length>0&&<p>Template specification issues: {docProblems.join('; ')}</p>}</div>
           {missing.length>0&&<div className="studio-warning"><strong>Missing from your selection</strong><p>This example requires additional catalog components:</p><ul>{missing.map(id=><li key={id}>{index[id]?.name||id} ({id})</li>)}</ul></div>}
           <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','preview','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" id={'studio-tab-'+item} aria-controls="studio-result-panel" tabIndex={tab===item?0:-1} aria-selected={tab===item} onKeyDown={e=>{const tabs=['code','preview','wiring','schematic','bom','safety'];const i=tabs.indexOf(item);const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:null;if(next!==null){e.preventDefault();setTab(tabs[next]);e.currentTarget.parentElement.querySelectorAll('[role=tab]')[next].focus();}}} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
           <div id="studio-result-panel" role="tabpanel" aria-labelledby={'studio-tab-'+tab} tabIndex={0}>

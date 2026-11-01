@@ -19,7 +19,7 @@ export async function POST(request){
   const r=await db().query(
    'UPDATE studio_profiles SET school_verified=$1,school_public_approved=$1,verified_by=$2,updated_at=now() '+
    'WHERE user_id=$3 AND public_consent=true AND school_name<>$4 RETURNING user_id,school_name,school_verified,school_public_approved',
-   [d.approve,d.approve,admin.email,d.userId,'']);
+   [d.approve,admin.email,d.userId,'']);
   if(!r.rowCount)return Response.json({error:'Member has not opted into a school listing or school name is missing.'},{status:409});
   return Response.json({profile:r.rows[0]},{headers:{'Cache-Control':'no-store'}});
  }catch(error){console.error('School affiliation review failed',error);return Response.json({error:'Unable to review affiliation. Please retry or contact support.',code:'AFFILIATION_REVIEW_UNAVAILABLE'},{status:503});}

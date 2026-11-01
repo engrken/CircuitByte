@@ -102,3 +102,5 @@
 @media(max-width:900px){.studio-service-strip{grid-template-columns:1fr 1fr}.studio-starter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.studio-service-strip{grid-template-columns:1fr;padding:16px}.studio-starter-grid{grid-template-columns:1fr}.studio-workspace input,.studio-workspace select,.studio-workspace textarea{font-size:16px!important}.studio-draft-toolbar{align-items:stretch}.studio-draft-toolbar button{flex:1 1 160px}.studio-hero{padding-top:30px;padding-bottom:30px}.studio-hero-card{display:none}}
 @media print{.studio-service-strip,.studio-starters,.studio-draft-toolbar,.studio-advanced{display:none!important}}
+.studio-uat-banner{padding:18px 22px;border:1px solid #adc99b;border-radius:13px;background:#e7f3dc;color:#264d35;margin:20px 0}.studio-uat-banner strong{font-size:16px}.studio-uat-banner p{font-size:13px;line-height:1.8;margin:8px 0}.studio-uat-banner a{font-size:12px;font-weight:700;text-decoration:underline}
+@media print{.studio-uat-banner{display:none!important}}

@@ -1,4 +1,4 @@
--- Student beta usage ledger. One row per account, operation, and UTC calendar month.
+-- Student usage ledger. One row per account, operation, and Asia/Manila calendar month.
 CREATE TABLE IF NOT EXISTS studio_usage_monthly (
  user_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
  period text NOT NULL CHECK (period ~ '^[0-9]{4}-[0-9]{2}$'),

@@ -1,5 +1,6 @@
 import {test,mock,after} from 'node:test';
 import assert from 'node:assert/strict';
+mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-15T12:00:00+08:00')});
 let authenticated=true,quotaAllowed=true,quotaReads=0,builds=0;
 mock.module('../lib/auth.js',{namedExports:{sameOrigin:()=>{},requireUser:async()=>{if(!authenticated)throw Error('Sign in required');return {id:'verified-test-member'};}}});
 mock.module('../lib/studio-usage.mjs',{namedExports:{consumeStudentQuota:async()=>{quotaReads++;return {allowed:quotaAllowed,limit:50};}}});

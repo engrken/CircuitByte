@@ -1,3 +1,4 @@
+import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth.js';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import {resolveStudioLibraries,STUDIO_LIBRARY_REGISTRY} from '../../../../lib/studio-libraries.mjs';
@@ -9,6 +10,7 @@ export const maxDuration=300;
 
 export async function POST(request) {
   let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student compilation.'},{status:403});}
+  const closed=studentUatRejection();if(closed)return closed;
   if(process.env.STUDIO_COMPILER_ENABLED!=='true'){
     return Response.json({error:'The sandbox compiler is not activated. Enable STUDIO_COMPILER_ENABLED after setting cost limits and verifying Vercel Sandbox access.'},{status:503});
   }

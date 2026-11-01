@@ -1,6 +1,8 @@
 import {studioSignupEnabled} from '../../../../lib/auth';
+import {getStudentUat} from '../../../../lib/studio-uat.mjs';
 export const dynamic='force-dynamic';
 export async function GET(){
- return Response.json({registrationOpen:studioSignupEnabled(),emailVerificationRequired:true,
- notice:studioSignupEnabled()?'Email verification is required before signing in.':'New account registration will open after verified email delivery is configured. Existing authorized users may sign in.'},{headers:{'Cache-Control':'no-store'}});
+ const uat=getStudentUat(),registrationOpen=studioSignupEnabled();
+ return Response.json({registrationOpen,emailVerificationRequired:true,uat,
+ notice:!uat.active?uat.message:registrationOpen?uat.message:'UAT registration is temporarily unavailable. Existing verified members may sign in.'},{headers:{'Cache-Control':'no-store'}});
 }

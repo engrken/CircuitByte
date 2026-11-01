@@ -52,6 +52,7 @@ export function StudioWorkspace({parts,specs={}}) {
     catch{setServiceError(true);}
   }
   useEffect(()=>{refreshServices();},[]);
+  useEffect(()=>{if(!services?.uat?.active)return;const remaining=Date.parse(services.uat.endsAt)-Date.now()+1000;const timer=setTimeout(refreshServices,Math.max(1000,Math.min(remaining,86400000)));return()=>clearTimeout(timer);},[services]);
   useEffect(()=>{
     try{const raw=localStorage.getItem(RECOVERY_KEY);if(raw)setRecovery(parseStudioDraft(raw,catalogIds));}
     catch{setDraftStatus('An older recovery draft could not be read. Your downloaded JSON files can still be imported.');}
@@ -87,6 +88,7 @@ export function StudioWorkspace({parts,specs={}}) {
   function serviceReason(operation){
     if(serviceError)return 'Service status unavailable. Refresh status to try again.';
     if(!services)return 'Checking service availability…';
+    if(services.uat&&!services.uat.active)return services.uat.message;
     if(!(operation==='ai'?services.aiEnabled:services.compilerEnabled))return operation==='ai'?'AI generation is currently unavailable.':'Cloud compilation is currently unavailable.';
     if(!services.authenticated)return 'Sign in with a verified account to continue.';
     if(!services.usage)return 'Usage information is unavailable. Please refresh status.';
@@ -199,13 +201,14 @@ export function StudioWorkspace({parts,specs={}}) {
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
+    {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
     <section className="studio-service-strip" aria-label="Studio service availability">
       <div><strong>{services?.authenticated?'Verified account':'Visitor workspace'}</strong><span>Guided projects, starters and browser drafts are free to use.</span><a href="/dashboard">{services?.authenticated?'My dashboard →':'Sign in / create account →'}</a></div>
       <div><strong>AI generation</strong><span>{!services?'Checking availability…':!services.aiEnabled?'Currently unavailable':services.usage?services.usage.ai.remaining+' of '+services.usage.ai.limit+' drafts remaining':'Available with verified sign-in'}</span></div>
       <div><strong>Cloud compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
       <button type="button" disabled={working} onClick={refreshServices}>Refresh status</button>
       {serviceError&&<p role="status">Service status could not be loaded. Browser projects remain available.</p>}
-      {services?.usage&&<small>Usage period: {services.usage.period} (UTC)</small>}
+      {services?.usage&&<small>Usage period: {services.usage.period} ({services.usage.timeZone||'Asia/Manila'})</small>}
     </section>
     <section className="studio-starters" aria-label="Project starters">
       <div><span className="edu-kicker">START WITH A COMPLETE EXAMPLE</span><h3>Choose a project. We’ll load its parts and sketch.</h3></div>
@@ -285,7 +288,7 @@ export function StudioWorkspace({parts,specs={}}) {
             <button type="button" onClick={exportDraft}>Export project JSON</button>
             <button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code,'text/plain')}>Download .ino</button>
             <button type="button" onClick={()=>window.print()}>Print / Save PDF sheet</button>
-            <button type="button" disabled={working||!services?.authenticated} onClick={saveCloudProject}>{savingCloud?'Saving…':'Save to dashboard'}</button>
+            <button type="button" disabled={working||!services?.authenticated||!services?.uat?.active} onClick={saveCloudProject}>{savingCloud?'Saving…':'Save to dashboard'}</button>
             <button type="button" onClick={saveDraft}>Save browser draft</button>
             <button type="button" onClick={openDraft}>Load draft</button>
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}

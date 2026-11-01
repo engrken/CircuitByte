@@ -1,3 +1,4 @@
+import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
@@ -15,6 +16,7 @@ const dangerous=/\b(mains|wall outlet|220\s*v|230\s*v|110\s*v|life support|medic
 const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,180)}]));
 export async function POST(request){
   let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student AI.'},{status:403});}
+  const closed=studentUatRejection();if(closed)return closed;
   if(process.env.STUDIO_AI_ENABLED!=='true')return Response.json({error:'AI generation is not activated for this beta. Guided starter templates remain free.'},{status:503});
   const models=[process.env.STUDIO_AI_MODEL||'google/gemini-2.5-flash-lite',process.env.STUDIO_AI_FALLBACK_MODEL||'openai/gpt-4.1-mini'].filter((model,index,array)=>model&&array.indexOf(model)===index);
   const credential=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;

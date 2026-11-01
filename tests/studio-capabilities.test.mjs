@@ -1,5 +1,6 @@
 import {test,mock,after} from 'node:test';
 import assert from 'node:assert/strict';
+mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-15T12:00:00+08:00')});
 let signedIn=false,ledgerDown=false,reads=0;
 mock.module('../lib/auth.js',{namedExports:{requireUser:async()=>{if(!signedIn)throw Error('Sign in required');return {id:'private-member-id',email:'private@example.org'};}}});
 mock.module('../lib/studio-usage.mjs',{namedExports:{readStudentQuota:async()=>{

@@ -8,10 +8,11 @@ const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.
 export default function StudioAccount(){
  const {data:session,isPending}=auth.useSession();
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const [uat,setUat]=useState(null);
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
- useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');if(d.registrationOpen&&new URLSearchParams(window.location.search).get('register')==='1')setMode('signup');}).catch(()=>{});},[]);
+ useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setUat(d.uat||null);setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');if(d.registrationOpen&&new URLSearchParams(window.location.search).get('register')==='1')setMode('signup');}).catch(()=>{});},[]);
  async function load(){
   const [p,q]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'})]);
   if(!p.ok||!q.ok)throw Error('Could not load Studio account. Database initialization may still be pending.');
@@ -67,6 +68,7 @@ export default function StudioAccount(){
  if(isPending)return <p className="account-message">Checking your session…</p>;
  return <div className="account-page">
   <header className="account-hero"><span className="edu-kicker">CIRCUITBYTE / MEMBER WORKSPACE</span><h1>My CircuitByte Dashboard</h1><p>Save your Arduino projects, manage your profile and school information, and build at your own pace.</p></header>
+  {uat&&<section className="account-card account-uat" aria-label="Student Hobby UAT access"><h2>{uat.active?'Student / Hobby UAT — Free':'Student / Hobby UAT closed'}</h2><p>{uat.message}</p><a href="/studio/pricing">View UAT dates and allowances →</a></section>}
   {error&&<p className="account-error" role="alert">{error}</p>}
   {notice&&<p className="account-notice" role="status">{notice}</p>}
   {session?.user && !session.user.emailVerified && !isAdmin ? <section className="account-card account-login">
@@ -82,7 +84,7 @@ export default function StudioAccount(){
      <label>Password<input name="password" type="password" required minLength={12} autoComplete={mode==='login'?'current-password':'new-password'}/></label>
      <button type="submit" disabled={busy}>{busy?'Checking…':mode==='login'?'Sign in':'Register and verify email'}</button>
     </form>
-    {registrationOpen?<button className="account-link" type="button" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');}}>{mode==='login'?'New member? Create account':'Already registered? Sign in'}</button>:<p className="account-muted">Self-registration is not enabled until secure verification emails are configured. Existing members can still sign in.</p>}
+    {registrationOpen?<button className="account-link" type="button" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');}}>{mode==='login'?'New member? Create account':'Already registered? Sign in'}</button>:<p className="account-muted">New UAT registration is currently closed. Existing members can still sign in to view their saved projects.</p>}
   </section>:
   <div className="account-layout">
    <section className="account-card"><div className="account-top"><div><h2>My profile</h2><p>Signed in as <strong>{session.user.name}</strong> ({session.user.email})</p></div><button type="button" onClick={()=>auth.signOut()}>Sign out</button></div>

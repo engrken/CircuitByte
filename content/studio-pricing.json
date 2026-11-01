@@ -3,7 +3,7 @@
   "currency": "PHP",
   "billing": "monthly",
   "salesEnabled": false,
-  "disclaimer": "These are indicative Philippine launch prices, not active subscriptions. No checkout or recurring billing has been enabled. Rates, taxes, quotas, support terms and eligibility require a paid pilot and actual provider-cost validation.",
+  "disclaimer": "Student / Hobby UAT is free during its published test period, with no payment details or automatic renewal. Other prices are future planning estimates, not active subscriptions. No checkout or recurring billing is enabled.",
   "plans": [
     {
       "id": "free",
@@ -29,20 +29,20 @@
       "id": "starter",
       "name": "Student / Hobby",
       "monthlyPhp": 99,
-      "priceQualifier": "Proposed student launch rate",
+      "priceQualifier": "Proposed rate after UAT; no automatic billing",
       "audience": "Individuals building a few projects each month",
       "highlights": [
-        "Everything in Free",
-        "Up to 15 AI drafts/month (planned)",
-        "Up to 25 isolated UNO compiles/month (planned)",
-        "Up to 10 cloud-saved projects (planned)",
-        "Version history and private drafts (planned)"
+        "Everything in Free Maker",
+        "30 AI drafts per account during the UAT month",
+        "50 isolated multi-board builds per account during the UAT month",
+        "10 private cloud-saved projects",
+        "Browser draft recovery and project JSON import/export"
       ],
-      "aiDrafts": 15,
-      "compileRuns": 25,
+      "aiDrafts": 30,
+      "compileRuns": 50,
       "cloudProjects": 10,
-      "access": "Not yet for sale",
-      "button": "Preview Studio"
+      "access": "Free access during the published Student / Hobby UAT period",
+      "button": "Join free UAT"
     },
     {
       "id": "pro",

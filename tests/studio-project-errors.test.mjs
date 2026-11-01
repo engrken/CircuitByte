@@ -1,5 +1,6 @@
 import {test,mock} from 'node:test';
 import assert from 'node:assert/strict';
+mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-15T12:00:00+08:00')});
 let connection;
 mock.module('../lib/db.js',{namedExports:{db:()=>({connect:async()=>{
  if(connection instanceof Error)throw connection;

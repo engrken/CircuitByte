@@ -131,7 +131,7 @@ export function StudioWorkspace({parts,specs={}}) {
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
         const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board});
-        setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],parts:result.parts||selected});
+        setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
         setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
@@ -197,8 +197,8 @@ export function StudioWorkspace({parts,specs={}}) {
   const spec=project?.method==='guided-template' ? specs[project.slug] : null;
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
   const bom=useMemo(()=>estimateStudioBom(spec,parts),[spec,parts]);
-  const connections=spec?.connections||project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[];
-  const electricalReview=useMemo(()=>reviewElectricalDesign({board:project?.board||board,connections:spec?.connections||[],components:[]}),[board,project?.board,spec]);
+  const connections=spec?.connections||project?.netlist?.length? (spec?.connections||project?.netlist) : project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[];
+  const electricalReview=useMemo(()=>reviewElectricalDesign({board:project?.board||board,connections:spec?.connections||project?.netlist||[],components:[]}),[board,project?.board,project?.netlist,spec]);
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">

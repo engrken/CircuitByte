@@ -11,6 +11,15 @@ CREATE TABLE IF NOT EXISTS studio_profiles (
  verified_by text,
  updated_at timestamptz NOT NULL DEFAULT now()
 );
+-- Upgrade existing profiles tables created before affiliation review fields existed.
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS school_name text NOT NULL DEFAULT '';
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS program text NOT NULL DEFAULT '';
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS role_name text NOT NULL DEFAULT 'student';
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS public_consent boolean NOT NULL DEFAULT false;
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS school_verified boolean NOT NULL DEFAULT false;
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS school_public_approved boolean NOT NULL DEFAULT false;
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS verified_by text;
+ALTER TABLE studio_profiles ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
 CREATE INDEX IF NOT EXISTS studio_profiles_public_school_idx
  ON studio_profiles(school_name) WHERE public_consent=true AND school_verified=true AND school_public_approved=true;
 CREATE TABLE IF NOT EXISTS studio_projects (

@@ -12,6 +12,8 @@ import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio
 import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-starters.mjs';
 import {StudioUpdates} from './studio-updates';
 import {StudioKnowledgeCenter} from './knowledge-center';
+import {StudioProjectCoach} from './project-coach';
+import {assessStudioProject} from '../../lib/studio-project-coach.mjs';
 import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
 import {studioRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
@@ -50,6 +52,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [recovery,setRecovery]=useState(null),[draftStatus,setDraftStatus]=useState('');
   const importRef=useRef(null);
   const [usbBusy,setUsbBusy]=useState(false);
+  const [benchChecks,setBenchChecks]=useState({});
+  useEffect(()=>{setBenchChecks({});},[board,code,selected,extraModules]);
   const working=loading||busy||savingCloud||usbBusy;
   const catalogIds=useMemo(()=>parts.map(item=>item.id),[parts]);
   async function refreshServices(){
@@ -171,6 +175,17 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     }catch(e){setError(e.message||'Compilation unavailable.');}
     finally{setBusy(false);refreshServices();}
   }
+  async function repairSketch(){
+    if(!compile||compile.ok||!code.trim()||aiReason)return;
+    checkpoint();setError('');setLoading(true);
+    try{
+      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400)});
+      setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
+      setCode(result.code);setCodeDirty(true);setCompile(null);setTab('code');
+      setNotice('AI suggested a repair. Your previous sketch is in browser recovery. Review wiring, then recompile.');
+    }catch(e){setError(e.message||'AI repair failed; your original sketch is unchanged.');}
+    finally{setLoading(false);refreshServices();}
+  }
   function saveDraft(){
     if(!project)return;
     try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}));setNotice('Saved to this browser only. Not synced to a user account.');}
@@ -231,6 +246,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     return {...review,status:review.status==='failed'?'failed':'incomplete',findings:[...review.findings,{severity:'unknown',code:'SKETCH_EDITED',message:'The sketch changed after this wiring reference was prepared. Recheck every connection and GPIO assignment.'}]};
   },[board,project?.board,project?.netlist,spec,codeDirty]);
   const diagramReady=Boolean(spec&&docProblems.length===0);
+  const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems]);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
     <StudioUpdates revision={releaseRevision}/>
@@ -327,6 +343,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         </section>
       </div>
       <div className="studio-results">
+         <StudioProjectCoach report={coachReport} checks={benchChecks} onCheck={(id,checked)=>setBenchChecks(old=>({...old,[id]:checked}))} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/>
         {!project ? <div className="studio-empty"><span>⌘</span><h3>Your workbench is ready</h3><p>Select components and describe a low-voltage project to view its code, material checklist and wiring table.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':project.method==='board-starter'?'SERIAL STARTER':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>

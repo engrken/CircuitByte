@@ -12,6 +12,7 @@ import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio
 import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-starters.mjs';
 import {StudioUpdates} from './studio-updates';
 import {StudioKnowledgeCenter} from './knowledge-center';
+import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
 import {studioRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
@@ -132,6 +133,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   }
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())),[parts,query]);
+  const selectedModuleGuides=useMemo(()=>COMMON_MODULES.filter(module=>module.catalogIds.some(id=>selected.includes(id))),[selected]);
   function toggle(id){setSelected(current=>current.includes(id)?current.filter(x=>x!==id):current.length<16?[...current,id]:current);}
   async function generate(){
     checkpoint();
@@ -280,6 +282,18 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             {!filtered.length&&<p>No matching catalog items found.</p>}
           </div>
           <p className="studio-help">Catalog items are suggestions, not proof that a particular module variant or quantity is in stock.</p>
+          {selectedModuleGuides.length>0&&<div className="studio-catalog-guides" aria-label="How to use selected catalog modules">
+            <h4>Learn about your selected modules</h4>
+            {selectedModuleGuides.map(module=><details key={module.id}>
+              <summary>{module.name} — What's this? / How to use</summary>
+              <p><strong>What is this?</strong> {module.whatIs}</p>
+              <ol>{module.howTo.map((step,i)=><li key={i}>{step}</li>)}</ol>
+              <p><strong>Libraries:</strong> {module.suggestedLibraries}</p>
+              <p><strong>First test:</strong> {module.firstExperiment}</p>
+              <p className="studio-knowledge-caution">{module.caution}</p>
+              <a href={module.sourceUrl} target="_blank" rel="noopener noreferrer">Read technical reference</a>
+            </details>)}
+          </div>}
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Tell us what to build</h3></div>

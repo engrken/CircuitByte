@@ -37,3 +37,6 @@ CREATE TABLE IF NOT EXISTS studio_knowledge_research_quota (
  used smallint NOT NULL DEFAULT 0,
  PRIMARY KEY(user_id,day_key)
 );
+
+-- Preserve reference-only modules alongside catalog parts in private cloud drafts.
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS selected_modules jsonb NOT NULL DEFAULT '[]'::jsonb;

@@ -21,3 +21,10 @@ test('Out of stock and malformed cart entries do not enter the cart',()=>{
  const lines=studioShoppingLines({selected:['zero','unknown'],products:[{id:'zero',stock:0}]});
  assert.deepEqual(addStudioCartItems([null,{id:'bad',quantity:-2}],lines),[]);
 });
+
+test('Store handoff targets the storefront directly so the home redirect cannot discard parameters',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const source=await readFile(new URL('../app/studio/parts-shop.jsx',import.meta.url),'utf8');
+ assert.ok(source.includes('/index.html?product='));
+ assert.ok(source.includes('/index.html?cart=1'));
+});

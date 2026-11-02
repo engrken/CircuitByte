@@ -40,6 +40,9 @@ test('Catalog-linked module selections and the Knowledge Center both expose step
  assert.match(center,/module\.whatIs/);
  assert.match(center,/module\.howTo\.map/);
  assert.match(center,/selectedModules\.includes\(module\.id\)/);
+ assert.match(center,/onStartExample\(module\)/);
+ assert.match(ui,/startModuleExample\(module\)/);
+ assert.match(ui,/Generate AI Project/);
  const ai=await readFile(new URL('../app/api/studio/ai/route.js',import.meta.url),'utf8');
  assert.match(ai,/setupGuide:module\.howTo/);
 });

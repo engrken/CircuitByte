@@ -272,3 +272,5 @@
  .studio-code{min-height:360px}
 }
 @media print{.studio-workbench-header,.studio-quick-access,.studio-disclosure,.studio-workspace>.studio-error{display:none!important}}
+
+.studio-index-search{border-top:1px solid #d8e3d4;margin-top:18px;padding-top:14px;min-width:0}.studio-index-search p{font-size:13px;line-height:1.7}.studio-index-search form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.studio-index-search form label{flex-basis:100%}.studio-index-search input{flex:1 1 220px;min-width:0;padding:12px;border:1px solid #c5d3c0;border-radius:8px;font:inherit}.studio-index-search button{padding:10px 14px;min-height:44px;border:1px solid #b9c9b4;border-radius:8px;background:#f4f8f0;color:#254638;cursor:pointer}.studio-index-search button:disabled{opacity:.5;cursor:not-allowed}.studio-index-search .studio-library-list{max-height:440px;overflow:auto}.studio-index-search .studio-library-list li{display:block;overflow-wrap:anywhere}.studio-index-search li small{display:block;margin:6px 0}

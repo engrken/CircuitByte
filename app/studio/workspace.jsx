@@ -400,7 +400,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       </div>
     </div>
     {services?.usbUploadEnabled&&<details className="studio-disclosure studio-hardware-tools" open={usbBusy?true:undefined}><summary>USB upload &amp; serial monitor <span>Connect your physical board</span></summary><StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/></details>}
-    <details className="studio-advanced"><summary>Libraries and advanced build settings</summary>
+    <details className="studio-advanced"><summary>Libraries &amp; build settings · search Arduino Library Manager</summary>
       <StudioLibraryTools board={board} readOnly={working} parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     </details>
     <details className="studio-disclosure studio-release-notes"><summary>What’s new <span>Studio updates and release history</span></summary><StudioUpdates revision={releaseRevision}/></details>

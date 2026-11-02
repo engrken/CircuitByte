@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-library-manager-20261103",
+    "date": "2026-11-03",
+    "title": "Arduino Library Manager catalog in Studio",
+    "type": "Studio",
+    "highlights": [
+      "LiquidCrystal_I2C.h and ACS712.h now have direct library mappings. LCD sketches using LiquidCrystal I2C no longer install hd44780 solely because an LCD was selected.",
+      "Search the official Arduino Library Manager catalog by name, author or header, and select packages for your build. Dependencies install on demand.",
+      "Unknown headers are checked against catalog metadata; ambiguous matches request a library choice. Core and ZIP headers are left for Arduino CLI to resolve. Board compatibility and library APIs still require review."
+    ]
+  },
+  {
     "id": "studio-workspace-tidy-20261103",
     "date": "2026-11-03",
     "title": "A cleaner project workspace",

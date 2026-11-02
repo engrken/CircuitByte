@@ -1,3 +1,4 @@
+import {expandIndexedLibraries} from '../../../../lib/studio-library-index.mjs';
 import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth.js';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
@@ -25,9 +26,9 @@ export async function POST(request) {
   }
   const parts=Array.isArray(payload?.parts)?payload.parts.slice(0,16).filter(x=>typeof x==='string'&&/^cb-\d{3}$/.test(x)):[];
   const manualLibraries=Array.isArray(payload?.manualLibraries)?payload.manualLibraries:[];
-  if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)))
+  if(manualLibraries.length>15||manualLibraries.some(id=>typeof id!=='string'||(!Object.hasOwn(STUDIO_LIBRARY_REGISTRY,id)&&!/^index:[A-Za-z0-9][A-Za-z0-9 ._-]{0,199}$/.test(id))))
     return Response.json({error:'Choose only supported Arduino libraries from Studio Library Manager.'},{status:400});
-  const dependencies=resolveStudioLibraries({parts,code,manualLibraries,board:profile.fqbn});
+  let dependencies=resolveStudioLibraries({parts,code,manualLibraries,board:profile.fqbn});
   // Third-party ESP board packages can be large; the sandbox has a hard execution limit.
   // A failed installation is reported as a toolchain failure rather than a compilation success.
   const customLibrary=payload?.customLibrary;
@@ -40,9 +41,7 @@ export async function POST(request) {
   if(dependencies.unknownIncludes.includes('M5Stack.h')&&!customLibrary){
     return Response.json({error:'The legacy M5Stack.h library does not support the installed ESP32 3.3.12 core. Use M5Unified.h from Library Manager, or compile with a matching legacy core in Arduino IDE.'},{status:422});
   }
-  if(dependencies.unknownIncludes.length && !customLibrary){
-    return Response.json({error:'Unknown library header(s): '+dependencies.unknownIncludes.join(', ')+'. Import your own ZIP library or use a supported module.'},{status:422});
-  }
+  try{dependencies=await expandIndexedLibraries(customLibrary?{...dependencies,unknownIncludes:[]}:dependencies,manualLibraries,profile.fqbn);}catch(error){return Response.json({error:error.message},{status:422});}
   let quota;try{quota=await consumeStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
   if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (50 runs).',quota},{status:429});
   const result=await compileStudioSketch({code,profile,dependencies,customLibrary});

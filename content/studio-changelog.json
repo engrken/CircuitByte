@@ -1,0 +1,43 @@
+[
+  {
+    "id": "studio-knowledge-20261102",
+    "date": "2026-11-02",
+    "title": "Common modules, release notices & reviewed knowledge",
+    "type": "Studio",
+    "highlights": [
+      "30 reference profiles covering GSM, GPS, RFID, wireless, displays, motors and sensors.",
+      "New What's New board and module lookup with links to external reference sources.",
+      "Verified members can submit new module questions for review; approved guidance becomes reusable."
+    ]
+  },
+  {
+    "id": "studio-boards-20261102",
+    "date": "2026-11-02",
+    "title": "Multi-board Studio and serial module starters",
+    "type": "Studio",
+    "highlights": [
+      "Expanded selectable Arduino/ESP board targets to 10 profiles.",
+      "Added educational SIM900A GSM, NEO-6M GPS and HC-05 serial starter sketches.",
+      "Board-specific library selection, saved wiring recovery and conservative electrical warnings improved."
+    ]
+  },
+  {
+    "id": "affiliations-20261102",
+    "date": "2026-11-02",
+    "title": "Community affiliation review improvements",
+    "type": "Accounts",
+    "highlights": [
+      "Improved administrator approval and revocation of school listings while respecting public consent."
+    ]
+  },
+  {
+    "id": "studio-ai-20261101",
+    "date": "2026-11-01",
+    "title": "AI netlists and electrical-review safeguards",
+    "type": "Studio",
+    "highlights": [
+      "AI drafts now include structured netlists when available.",
+      "Warnings identify incomplete pin assignments, power references and unverified component ratings."
+    ]
+  }
+]

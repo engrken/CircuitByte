@@ -163,3 +163,5 @@
 .studio-catalog-guides a{font-size:12px;font-weight:700;text-decoration:underline;color:#216442}
 @media(max-width:600px){.studio-module-guide,.studio-catalog-guides details{padding:9px}.studio-module-guide summary,.studio-catalog-guides summary{font-size:13px}}
 @media print{.studio-module-guide,.studio-catalog-guides{display:none!important}}
+
+.studio-example-guide-button{background:#23533f;color:white;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;font-weight:800;line-height:1.4;margin:8px 0}.studio-example-guide-button:hover{background:#316a4c}.studio-example-guide-button:focus-visible{outline:3px solid #8fae6f;outline-offset:2px}

@@ -10,6 +10,8 @@ import {StudioCircuitPreview} from './circuit-preview';
 import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
 import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio-boards.mjs';
 import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-starters.mjs';
+import {StudioUpdates} from './studio-updates';
+import {StudioKnowledgeCenter} from './knowledge-center';
 import {studioRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
@@ -26,6 +28,7 @@ function downloadText(name,text,type='text/plain') {
 }
 export function StudioWorkspace({parts,specs={}}) {
   const [selected,setSelected]=useState(INITIAL_PARTS);
+  const [extraModules,setExtraModules]=useState([]);
   const [board,setBoard]=useState('arduino:avr:uno');
   const [query,setQuery]=useState('');
   const [prompt,setPrompt]=useState(DEFAULT_PROMPT);
@@ -62,18 +65,18 @@ export function StudioWorkspace({parts,specs={}}) {
   useEffect(()=>{
     if(!project||!code.trim())return;
     const timer=setTimeout(()=>{
-      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
+      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
       catch{setDraftStatus('Autosave unavailable. Download your sketch or export project JSON to keep your changes.');}
     },700);
     return()=>clearTimeout(timer);
-  },[project,code,prompt,selected,board,mode,codeDirty]);
+  },[project,code,prompt,selected,board,mode,codeDirty,extraModules]);
   function checkpoint(){
     if(!project||!code.trim())return;
-    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
+    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
     catch{setDraftStatus('Draft recovery could not be updated. Export project JSON to keep your changes.');}
   }
   function restoreDraft(saved){
-    setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);
+    setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setExtraModules(saved.moduleIds||[]);
     setBoard(saved.board);setMode(saved.mode);setCodeDirty(true);setCompile(null);setError('');
     setManualLibraries([]);setCustomLibrary(null);setRecovery(null);setTab('code');
     setNotice('Project restored. Reattach any custom ZIP library before compilation.');
@@ -84,7 +87,7 @@ export function StudioWorkspace({parts,specs={}}) {
     catch(e){setError(e.message||'Could not import project.');}
   }
   function exportDraft(){
-    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty}),'application/json');}
+    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}),'application/json');}
     catch(e){setError(e.message);}
   }
   function serviceReason(operation){
@@ -105,7 +108,7 @@ export function StudioWorkspace({parts,specs={}}) {
       const r=await fetch('/education/code/'+build.slug+'.ino',{cache:'no-store'});if(!r.ok)throw Error('The project sketch could not be loaded. Please retry.');
       const sketch=await r.text();
       setBoard('arduino:avr:uno');setMode('guide');setSelected(build.parts);setPrompt(build.summary);
-      setCode(sketch);setCodeDirty(false);setManualLibraries([]);setCustomLibrary(null);setTab('code');
+      setCode(sketch);setCodeDirty(false);setManualLibraries([]);setCustomLibrary(null);setTab('code');setExtraModules([]);
       setProject({...build,board:'arduino:avr:uno',prompt:build.summary,method:'guided-template',guideUrl:'/diy/'+build.slug,missing:[],warnings:build.notes});
       setNotice('Starter loaded with its required catalog parts. Check quantities and additional supplies in Parts / BOM.');
     }catch(e){setError(e.message);}finally{setLoading(false);}
@@ -113,7 +116,7 @@ export function StudioWorkspace({parts,specs={}}) {
   function startBoardProject(){
     checkpoint();
     const starter=boardSerialStarter(board);setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
-    setSelected(starter.parts);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
+    setSelected(starter.parts);setExtraModules([]);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
   }
   function startModuleProject(starterId){
@@ -121,6 +124,7 @@ export function StudioWorkspace({parts,specs={}}) {
     try{
       const starter=moduleSerialStarter(board,starterId,selected);
       setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
+      const moduleId={'gps-neo6m':'neo6m','gsm-sim900a':'sim900a','bluetooth-hc05':'hc05'}[starterId];setExtraModules(moduleId?[moduleId]:[]);
       setCodeDirty(false);setCompile(null);setError('');
       setNotice('Module serial starter loaded. Power wiring is deliberately omitted until you verify your exact breakout, logic levels and board pins.');
       setManualLibraries([]);setCustomLibrary(null);setTab('code');
@@ -142,7 +146,7 @@ export function StudioWorkspace({parts,specs={}}) {
         setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
-        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board});
+        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules});
         setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
         setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
@@ -159,7 +163,7 @@ export function StudioWorkspace({parts,specs={}}) {
   }
   function saveDraft(){
     if(!project)return;
-    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty}));setNotice('Saved to this browser only. Not synced to a user account.');}
+    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}));setNotice('Saved to this browser only. Not synced to a user account.');}
     catch{setError('Browser storage is unavailable. Download the sketch instead.');}
   }
   function openDraft(){
@@ -172,7 +176,7 @@ export function StudioWorkspace({parts,specs={}}) {
     if(!project||!code.trim())return;
     setError('');setSavingCloud(true);
     try{
-      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected})});
+      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules})});
       const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
       setNotice('Project saved to your private dashboard.');
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
@@ -194,12 +198,13 @@ export function StudioWorkspace({parts,specs={}}) {
       const guide=savedBoard==='arduino:avr:uno'?STUDIO_BUILDS.find(x=>x.slug===saved.template_slug):null;
       setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
       setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
+      setExtraModules(Array.isArray(saved.selected_modules)?saved.selected_modules:[]);
       setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded. Verify the sketch, library requirements and pinout before compiling.');
     }).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
   },[]);
   function startBlinkDemo(){
-    setBoard('arduino:avr:uno');setMode('guide');setSelected(['cb-059','cb-009','cb-002']);setCodeDirty(false);
+    setBoard('arduino:avr:uno');setMode('guide');setSelected(['cb-059','cb-009','cb-002']);setExtraModules([]);setCodeDirty(false);
     setPrompt('Blink the Arduino UNO onboard LED on D13 every 600 milliseconds.');
     setCode(BLINK_DEMO_CODE);
     setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
@@ -218,6 +223,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
+    <StudioUpdates/>
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
     {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
     <section className="studio-service-strip" aria-label="Studio service availability">
@@ -236,6 +242,13 @@ export function StudioWorkspace({parts,specs={}}) {
       <div><span className="edu-kicker">SERIAL MODULE STARTERS</span><h3>GPS, GSM and Bluetooth modules for your selected board</h3><p>Starter sketches for the listed modules; power wiring, UART signal levels, cellular service and a GPS fix require separate verification.</p></div>
       <div className="studio-starter-grid">{MODULE_STARTERS.map(starter=><button type="button" key={starter.id} disabled={working} onClick={()=>startModuleProject(starter.id)}><strong>{starter.name}</strong><span>{starter.summary}</span></button>)}</div>
     </section>
+    <details className="studio-knowledge-shell"><summary>Explore common modules and adaptive knowledge ({extraModules.length} reference modules selected)</summary>
+      <StudioKnowledgeCenter selectedModules={extraModules} onToggleModule={id=>{
+        setExtraModules(current=>current.includes(id)?current.filter(x=>x!==id):current.length<8?[...current,id]:current);
+        setCompile(null);setCodeDirty(true);setMode('ai');
+        setNotice('Module selection updated. Regenerate the AI draft and verify the exact breakout specifications before compiling.');
+      }}/>
+    </details>
     <div className="studio-draft-toolbar" aria-label="Project file tools">
       <button type="button" disabled={working} onClick={()=>importRef.current?.click()}>Import project JSON</button>
       <input ref={importRef} type="file" accept=".json,application/json" onChange={importDraft} hidden aria-label="Import CircuitByte project file"/>

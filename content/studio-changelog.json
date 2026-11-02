@@ -5,9 +5,11 @@
     "title": "Common modules, release notices & reviewed knowledge",
     "type": "Studio",
     "highlights": [
-      "30 reference profiles covering GSM, GPS, RFID, wireless, displays, motors and sensors.",
-      "New What's New board and module lookup with links to external reference sources.",
-      "Verified members can submit new module questions for review; approved guidance becomes reusable."
+      "30 curated module profiles cover GSM, GPS, RFID, wireless, displays, actuators and common sensors.",
+      "Every module has What's This explanations, beginner How To steps, recommended libraries and a first experiment.",
+      "One-click example prompts and catalog-linked tutorials guide students through their selected modules.",
+      "Reviewed Studio knowledge, opt-in member submissions and vetted external-source research are available.",
+      "Release notices show the deployed Git commit so users can identify the exact build under UAT."
     ]
   },
   {

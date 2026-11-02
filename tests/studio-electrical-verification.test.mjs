@@ -21,7 +21,7 @@ test('3.3 V board rejects 5 V signals when voltage is specified',()=>{
  assert.equal(result.status,'failed');
 });
 test('documented ratings can pass static checks without claiming hardware validation',()=>{
- const result=reviewElectricalDesign({connections:[{pin:'D2',net:'SIGNAL'}],components:[{name:'module',supplyVoltage:5,maxSupplyVoltage:5,minSupplyVoltage:3.3,maxCurrentMa:100,loadCurrentMa:20}]});
+ const result=reviewElectricalDesign({connections:[{pin:'D2',net:'SIGNAL',to:'module input',kind:'digital-output'},{pin:'GND',net:'GND',to:'module GND',kind:'ground'}],components:[{name:'module',supplyVoltage:5,maxSupplyVoltage:5,minSupplyVoltage:3.3,maxCurrentMa:100,loadCurrentMa:20}]});
  assert.equal(result.status,'checks-passed');
  assert.equal(result.hardwareValidated,false);
 });
@@ -32,4 +32,11 @@ test('M5Stack and ESP32 never pass without a verified board-specific pinout',()=
   assert.equal(result.status,'incomplete');
   assert.ok(result.findings.some(f=>f.code==='BOARD_PINOUT_UNVERIFIED'));
  }
+});
+
+test('AI-generated netlists with missing destination and ground cannot pass static review',()=>{
+ const result=reviewElectricalDesign({connections:[{pin:'D3',net:'SIGNAL',kind:'digital-output'}],components:[{name:'sensor',supplyVoltage:5,minSupplyVoltage:3,maxSupplyVoltage:5,maxCurrentMa:50,loadCurrentMa:10}]});
+ assert.equal(result.status,'incomplete');
+ assert.ok(result.findings.some(f=>f.code==='CONNECTION_DETAILS_MISSING'));
+ assert.ok(result.findings.some(f=>f.code==='GROUND_PATH_UNVERIFIED'));
 });

@@ -3,11 +3,11 @@ import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
 import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
+import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
-import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 const BOARDS=Object.fromEntries(BOARD_OPTIONS.map(({id,name,catalogId,voltage,notes})=>[id,{name,catalogId,voltage,notes}]));
 const dangerous=/\b(mains|wall outlet|220\s*v|230\s*v|110\s*v|life support|medical device|high voltage)\b/i;
 const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,300)}]));
@@ -30,7 +30,8 @@ export async function POST(request){
   if(prompt.length<12||prompt.length>800||parts.length<2||dangerous.test(prompt)){
     return Response.json({error:'Select at least two catalog parts and describe a low-voltage educational project (12–800 characters).'}, {status:400});
   }
-  const board=BOARDS[String(input?.board||'arduino:avr:uno')];
+  const requestedBoard=String(input?.board||'arduino:avr:uno');
+  const board=Object.hasOwn(BOARDS,requestedBoard)?BOARDS[requestedBoard]:null;
   if(!board)return Response.json({error:'Unsupported board. Choose a board supported by CircuitByte Studio.'},{status:400});
   if(board.catalogId&&!parts.some(part=>part.id===board.catalogId))return Response.json({error:'Add the selected '+board.name+' board from the CircuitByte catalog before generating.'},{status:400});
   let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}

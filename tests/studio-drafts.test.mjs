@@ -38,3 +38,23 @@ test('Serial starters contain no external includes or GPIO assumptions',()=>{
   assert.doesNotMatch(starter.code,/#include|digitalWrite|pinMode/);
  }
 });
+
+test('Structured AI wiring survives JSON export and browser recovery on ESP boards',()=>{
+ const netlist=[
+  {pin:'GPIO21',to:'sensor SDA',net:'I2C_SDA',kind:'i2c',signalVoltage:3.3},
+  {pin:'GND',to:'sensor ground',net:'GND',kind:'ground'}
+ ];
+ const value={board:'esp32:esp32:esp32',code:'void setup(){} void loop(){}',prompt:'Read a sensor over I2C.',selected:['cb-063'],mode:'ai',
+  project:{slug:'studio-generated',title:'I2C sensor',method:'ai-draft',wires:[['GPIO21','sensor SDA']],netlist}};
+ const restored=parseStudioDraft(serializeStudioDraft(value),['cb-063']);
+ assert.deepEqual(restored.project.netlist,netlist);
+ assert.deepEqual(restored.project.wires,[['GPIO21','sensor SDA']]);
+ assert.equal(restored.board,'esp32:esp32:esp32');
+});
+test('Imported AI wiring is bounded and never treated as verified metadata',()=>{
+ const value={...draft(),project:{slug:'studio-generated',title:'Untrusted wiring',method:'ai-draft',
+  netlist:[{pin:'D2',to:'LED',net:'OUTPUT',kind:'verified'}]}};
+ assert.throws(()=>parseStudioDraft(value),/invalid/i);
+ value.project.netlist=[{pin:'D2',to:'LED',net:'OUTPUT',kind:'digital-output',signalVoltage:240}];
+ assert.throws(()=>parseStudioDraft(value),/invalid/i);
+});

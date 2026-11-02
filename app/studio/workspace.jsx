@@ -9,6 +9,7 @@ import {StudioUsbTools} from './usb-tools';
 import {StudioCircuitPreview} from './circuit-preview';
 import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
 import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio-boards.mjs';
+import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-starters.mjs';
 import {studioRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
@@ -110,9 +111,20 @@ export function StudioWorkspace({parts,specs={}}) {
     }catch(e){setError(e.message);}finally{setLoading(false);}
   }
   function startBoardProject(){
+    checkpoint();
     const starter=boardSerialStarter(board);setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
     setSelected(starter.parts);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
+  }
+  function startModuleProject(starterId){
+    checkpoint();
+    try{
+      const starter=moduleSerialStarter(board,starterId,selected);
+      setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
+      setCodeDirty(false);setCompile(null);setError('');
+      setNotice('Module serial starter loaded. Power wiring is deliberately omitted until you verify your exact breakout, logic levels and board pins.');
+      setManualLibraries([]);setCustomLibrary(null);setTab('code');
+    }catch(error){setError(error.message||'Module starter could not be loaded.');}
   }
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())),[parts,query]);
@@ -220,6 +232,10 @@ export function StudioWorkspace({parts,specs={}}) {
       <div><span className="edu-kicker">START WITH A COMPLETE EXAMPLE</span><h3>Choose a project. We’ll load its parts and sketch.</h3></div>
       <div className="studio-starter-grid">{STUDIO_BUILDS.map(build=><button type="button" key={build.slug} disabled={working} onClick={()=>chooseTemplate(build)}><strong>{build.title}</strong><span>{build.parts.length} catalog items · Uno · Code + diagrams</span></button>)}</div>
     </section>
+    <section className="studio-starters" aria-label="GSM, GPS and Bluetooth module starters">
+      <div><span className="edu-kicker">SERIAL MODULE STARTERS</span><h3>GPS, GSM and Bluetooth modules for your selected board</h3><p>Starter sketches for the listed modules; power wiring, UART signal levels, cellular service and a GPS fix require separate verification.</p></div>
+      <div className="studio-starter-grid">{MODULE_STARTERS.map(starter=><button type="button" key={starter.id} disabled={working} onClick={()=>startModuleProject(starter.id)}><strong>{starter.name}</strong><span>{starter.summary}</span></button>)}</div>
+    </section>
     <div className="studio-draft-toolbar" aria-label="Project file tools">
       <button type="button" disabled={working} onClick={()=>importRef.current?.click()}>Import project JSON</button>
       <input ref={importRef} type="file" accept=".json,application/json" onChange={importDraft} hidden aria-label="Import CircuitByte project file"/>
@@ -235,7 +251,7 @@ export function StudioWorkspace({parts,specs={}}) {
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <button type="button" className="studio-secondary" disabled={working} onClick={startBoardProject}>Load {studioBoardName(board)} serial starter</button>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation supports all four board targets when the service is enabled. Browser flashing supports Uno R3 ATmega328P Optiboot; other boards use their matching upload tools.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing supports Uno R3 ATmega328P Optiboot; other boards use their matching upload tools.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>

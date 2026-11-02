@@ -26,7 +26,7 @@ function downloadText(name,text,type='text/plain') {
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
-export function StudioWorkspace({parts,specs={}}) {
+export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [selected,setSelected]=useState(INITIAL_PARTS);
   const [extraModules,setExtraModules]=useState([]);
   const [board,setBoard]=useState('arduino:avr:uno');
@@ -223,7 +223,7 @@ export function StudioWorkspace({parts,specs={}}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <StudioUpdates/>
+    <StudioUpdates revision={releaseRevision}/>
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
     {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
     <section className="studio-service-strip" aria-label="Studio service availability">

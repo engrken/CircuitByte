@@ -40,3 +40,11 @@ test('AI-generated netlists with missing destination and ground cannot pass stat
  assert.ok(result.findings.some(f=>f.code==='CONNECTION_DETAILS_MISSING'));
  assert.ok(result.findings.some(f=>f.code==='GROUND_PATH_UNVERIFIED'));
 });
+
+test('Studio editor conservatively invalidates an earlier wiring review after source changes',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const source=await readFile(new URL('../app/studio/workspace.jsx',import.meta.url),'utf8');
+ assert.match(source,/status:review.status==='failed'\?'failed':'incomplete'/);
+ assert.match(source,/code:'SKETCH_EDITED'/);
+ assert.match(source,/\[board,project\?\.board,project\?\.netlist,spec,codeDirty\]/);
+});

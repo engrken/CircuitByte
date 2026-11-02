@@ -3,18 +3,19 @@ import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
 import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
+import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
-const BOARDS={
-  'arduino:avr:uno':{name:'Arduino UNO R3',catalogId:'cb-059',voltage:'5V',notes:'AVR UNO pin labels; no native Wi-Fi.'},
-  'esp8266:esp8266:nodemcuv2':{name:'ESP8266 NodeMCU',catalogId:'cb-062',voltage:'3.3V',notes:'ESP8266 GPIO is NOT 5V tolerant. Use ESP8266 Arduino core; distinguish D labels from GPIO numbers.'},
-  'esp32:esp32:esp32':{name:'ESP32 Dev Module',catalogId:'cb-063',voltage:'3.3V',notes:'ESP32 GPIO is NOT 5V tolerant. Avoid input-only pins for output, boot strapping pins and ADC2 during Wi-Fi.'},
-  'esp32:esp32:m5stack-core-esp32':{name:'M5Stack Core (ESP32)',catalogId:null,voltage:'3.3V',notes:'M5Stack Core family varies by hardware revision; use exact device pin map and M5Stack library version. Built-in display, buttons and power circuitry vary. Do not assume a specific M5Stack model or stocked catalog item.'}
-};
+const BOARDS=Object.fromEntries(BOARD_OPTIONS.map(({id,name,catalogId,voltage,notes})=>[id,{name,catalogId,voltage,notes}]));
 const dangerous=/\b(mains|wall outlet|220\s*v|230\s*v|110\s*v|life support|medical device|high voltage)\b/i;
-const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,180)}]));
+const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,300)}]));
+const MODULE_GUIDANCE={
+ 'cb-061':'SIM900A is a 2G GSM modem. Require suitable modem power, antenna, active SIM, local 2G coverage and verified UART voltage levels. Never power from MCU GPIO or assume SMS/mobile service.',
+ 'cb-030':'NEO-6M GPS sends NMEA serial data (often 9600 baud). Verify breakout supply and UART logic levels; a satellite fix needs sky visibility.',
+ 'cb-083':'NEO-6M GPS sends NMEA serial data (often 9600 baud). Verify breakout supply, antenna and UART logic levels; no instant indoor fix.'
+};
 export async function POST(request){
   let user;try{sameOrigin(request);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account to use Student AI.'},{status:403});}
   const closed=studentUatRejection();if(closed)return closed;
@@ -29,8 +30,9 @@ export async function POST(request){
   if(prompt.length<12||prompt.length>800||parts.length<2||dangerous.test(prompt)){
     return Response.json({error:'Select at least two catalog parts and describe a low-voltage educational project (12–800 characters).'}, {status:400});
   }
-  const board=BOARDS[String(input?.board||'arduino:avr:uno')];
-  if(!board)return Response.json({error:'Unsupported board. Select UNO, ESP8266 NodeMCU, ESP32 Dev Module or M5Stack Core.'},{status:400});
+  const requestedBoard=String(input?.board||'arduino:avr:uno');
+  const board=Object.hasOwn(BOARDS,requestedBoard)?BOARDS[requestedBoard]:null;
+  if(!board)return Response.json({error:'Unsupported board. Choose a board supported by CircuitByte Studio.'},{status:400});
   if(board.catalogId&&!parts.some(part=>part.id===board.catalogId))return Response.json({error:'Add the selected '+board.name+' board from the CircuitByte catalog before generating.'},{status:400});
   let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
   if(!quota.allowed)return Response.json({error:'Student monthly AI allowance reached (30 drafts).',quota},{status:429});
@@ -46,8 +48,8 @@ export async function POST(request){
       body:JSON.stringify({
         model,temperature:0.2,max_tokens:3400,
         messages:[
-          {role:'system',content:'You are an engineering teaching assistant generating original low-voltage Arduino-framework educational sketches for the explicitly selected board. Respond with ONE JSON object only, keys title, summary, slug, code, wires (array of [from,to]), netlist (array of objects with pin, to, net, kind and optional signalVoltage), warnings (array of strings). Each netlist pin must be the actual board pin, not a guessed GPIO alias. When the precise pinout or module ratings are unknown, omit that connection and explicitly warn; do not invent specifications. The code must contain valid void setup() and void loop(). Use ONLY listed hardware plus built-in board features, board-appropriate GPIO, current limiting resistors and explicitly identified libraries. Respect the selected board logic voltage and peripheral limitations. Never invent physical capabilities, missing components, verified wiring, hardware safety, or successful compilation. No mains, AC, high-voltage, medical, or safety-critical systems. If parts are insufficient, reply with a JSON object containing error explaining precisely what is missing. Set slug to studio-generated. Code must be under 12000 characters. Do not include secrets or network credentials.'},
-          {role:'user',content:JSON.stringify({request:prompt,selectedParts:parts,board})}
+          {role:'system',content:'You are an engineering teaching assistant generating original low-voltage Arduino-framework educational sketches for the explicitly selected board. Respond with ONE JSON object only, keys title, summary, slug, code, wires (array of [from,to]), netlist (array of objects with pin, to, net, kind and optional signalVoltage), warnings (array of strings). Each netlist pin must be the actual board pin, not a guessed GPIO alias. When the precise pinout or module ratings are unknown, omit that connection and explicitly warn; do not invent specifications. The code must contain valid void setup() and void loop(). Use ONLY listed hardware plus built-in board features, board-appropriate GPIO, current limiting resistors and explicitly identified libraries. Respect the selected board logic voltage and peripheral limitations. Never invent physical capabilities, missing components, verified wiring, hardware safety, or successful compilation. No mains, AC, high-voltage, medical, or safety-critical systems. For SIM900A and GPS modules use board-appropriate UART (SoftwareSerial on classic UNO/Nano where suitable, Serial1 on Mega/Leonardo, HardwareSerial on ESP32) and verify the exact pinout and signal levels before proposing wiring. Do not claim SIM900A 2G service or GPS fix availability without testing. If parts are insufficient, reply with a JSON object containing error explaining precisely what is missing. Set slug to studio-generated. Code must be under 12000 characters. Do not include secrets or network credentials.'},
+          {role:'user',content:JSON.stringify({request:prompt,selectedParts:parts.map(part=>({...part,...(MODULE_GUIDANCE[part.id]?{integrationGuidance:MODULE_GUIDANCE[part.id]}:{})})),board})}
         ]
       })
       });

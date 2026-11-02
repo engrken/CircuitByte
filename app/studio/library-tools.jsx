@@ -5,7 +5,7 @@ import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {auditStudioCatalog} from '../../lib/studio-part-capabilities.mjs';
 export function StudioLibraryTools({parts=[],catalog=[],code='',setCode,customLibrary,setCustomLibrary,manualLibraries=[],setManualLibraries=()=>{},readOnly=false,board='arduino:avr:uno'}){
  const [status,setStatus]=useState('');
- const resolution=useMemo(()=>resolveStudioLibraries({parts,code,manualLibraries}),[parts,code,manualLibraries]);
+ const resolution=useMemo(()=>resolveStudioLibraries({parts,code,manualLibraries,board}),[parts,code,manualLibraries,board]);
  const catalogAudit=useMemo(()=>auditStudioCatalog(catalog,STUDIO_LIBRARY_REGISTRY),[catalog]);
  const selectedCapabilities=catalogAudit.items.filter(p=>parts.includes(p.id));
  const libraryOptions=Object.entries(STUDIO_LIBRARY_REGISTRY).filter(([,lib])=>Boolean(lib.name));
@@ -27,7 +27,7 @@ export function StudioLibraryTools({parts=[],catalog=[],code='',setCode,customLi
   }catch(e){setStatus(e.message);}
  }
  const insert=()=>{
-  const updated=insertSuggestedIncludes(code,parts,manualLibraries);
+  const updated=insertSuggestedIncludes(code,parts,manualLibraries,board);
   if(updated===code)setStatus('All suggested include directives are already present in the sketch.');
   else {setCode(updated);setStatus('Added missing supported library includes. Confirm generated source uses the correct library API.');}
  };

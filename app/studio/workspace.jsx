@@ -9,6 +9,7 @@ import {StudioUsbTools} from './usb-tools';
 import {StudioCircuitPreview} from './circuit-preview';
 import {BLINK_DEMO_CODE} from '../../lib/studio-preview.mjs';
 import {BOARD_OPTIONS,studioBoardName,boardSerialStarter} from '../../lib/studio-boards.mjs';
+import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-starters.mjs';
 import {studioRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
@@ -110,9 +111,20 @@ export function StudioWorkspace({parts,specs={}}) {
     }catch(e){setError(e.message);}finally{setLoading(false);}
   }
   function startBoardProject(){
+    checkpoint();
     const starter=boardSerialStarter(board);setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
     setSelected(starter.parts);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
+  }
+  function startModuleProject(starterId){
+    checkpoint();
+    try{
+      const starter=moduleSerialStarter(board,starterId,selected);
+      setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
+      setCodeDirty(false);setCompile(null);setError('');
+      setNotice('Module serial starter loaded. Power wiring is deliberately omitted until you verify your exact breakout, logic levels and board pins.');
+      setManualLibraries([]);setCustomLibrary(null);setTab('code');
+    }catch(error){setError(error.message||'Module starter could not be loaded.');}
   }
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())),[parts,query]);
@@ -198,7 +210,11 @@ export function StudioWorkspace({parts,specs={}}) {
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
   const bom=useMemo(()=>estimateStudioBom(spec,parts),[spec,parts]);
   const connections=spec?.connections||(project?.netlist?.length?project.netlist:project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[]);
-  const electricalReview=useMemo(()=>reviewElectricalDesign({board:project?.board||board,connections:spec?.connections||project?.netlist||[],components:[]}),[board,project?.board,project?.netlist,spec]);
+  const electricalReview=useMemo(()=>{
+    const review=reviewElectricalDesign({board:project?.board||board,connections:spec?.connections||project?.netlist||[],components:[]});
+    if(!codeDirty)return review;
+    return {...review,status:review.status==='failed'?'failed':'incomplete',findings:[...review.findings,{severity:'unknown',code:'SKETCH_EDITED',message:'The sketch changed after this wiring reference was prepared. Recheck every connection and GPIO assignment.'}]};
+  },[board,project?.board,project?.netlist,spec,codeDirty]);
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
@@ -216,6 +232,10 @@ export function StudioWorkspace({parts,specs={}}) {
       <div><span className="edu-kicker">START WITH A COMPLETE EXAMPLE</span><h3>Choose a project. We’ll load its parts and sketch.</h3></div>
       <div className="studio-starter-grid">{STUDIO_BUILDS.map(build=><button type="button" key={build.slug} disabled={working} onClick={()=>chooseTemplate(build)}><strong>{build.title}</strong><span>{build.parts.length} catalog items · Uno · Code + diagrams</span></button>)}</div>
     </section>
+    <section className="studio-starters" aria-label="GSM, GPS and Bluetooth module starters">
+      <div><span className="edu-kicker">SERIAL MODULE STARTERS</span><h3>GPS, GSM and Bluetooth modules for your selected board</h3><p>Starter sketches for the listed modules; power wiring, UART signal levels, cellular service and a GPS fix require separate verification.</p></div>
+      <div className="studio-starter-grid">{MODULE_STARTERS.map(starter=><button type="button" key={starter.id} disabled={working} onClick={()=>startModuleProject(starter.id)}><strong>{starter.name}</strong><span>{starter.summary}</span></button>)}</div>
+    </section>
     <div className="studio-draft-toolbar" aria-label="Project file tools">
       <button type="button" disabled={working} onClick={()=>importRef.current?.click()}>Import project JSON</button>
       <input ref={importRef} type="file" accept=".json,application/json" onChange={importDraft} hidden aria-label="Import CircuitByte project file"/>
@@ -231,7 +251,7 @@ export function StudioWorkspace({parts,specs={}}) {
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <button type="button" className="studio-secondary" disabled={working} onClick={startBoardProject}>Load {studioBoardName(board)} serial starter</button>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation supports all four board targets when the service is enabled. Browser flashing supports Uno R3 ATmega328P Optiboot; other boards use their matching upload tools.</p>
+          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing supports Uno R3 ATmega328P Optiboot; other boards use their matching upload tools.</p>
         </section>
         <section className="studio-panel">
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
@@ -281,7 +301,7 @@ export function StudioWorkspace({parts,specs={}}) {
           <div id="studio-result-panel" role="tabpanel" aria-labelledby={'studio-tab-'+tab} tabIndex={0}>
           {tab==='preview'&&(board==='arduino:avr:uno'?<StudioCircuitPreview code={code}/>:<p className="studio-note">The LED signal preview represents Uno GPIO only. Download this {studioBoardName(board)} sketch for testing on the matching hardware.</p>)}
           {tab==='code'&&<div><label className="studio-label" htmlFor="studio-code">Arduino sketch (.ino) — editable</label><textarea id="studio-code" className="studio-code" readOnly={working} spellCheck="false" value={code} onChange={e=>{setCode(e.target.value);setCodeDirty(true);setCompile(null);}} rows={24}/></div>}
-          {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>Board pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{!diagramReady&&<p className="studio-warning">No reviewed circuit netlist is associated with this sketch. Any listed connections need independent review.</p>}</div>}
+          {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>Board pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{codeDirty&&<p className="studio-warning">This wiring reference may be outdated because the sketch was edited. Verify each GPIO, signal and connection again.</p>}{!diagramReady&&<p className="studio-warning">No reviewed circuit netlist is associated with this sketch. Any listed connections need independent review.</p>}</div>}
           {tab==='schematic'&&<div className="studio-diagrams">{diagramReady?<><p className="studio-note">{sheetWarning}</p><figure><img src={spec.assets.schematic} alt={'Functional circuit schematic for '+project.title} loading="lazy"/><figcaption>Functional/module schematic — named electrical nets, not physical placement.</figcaption><a href={spec.assets.schematic} download={project.slug+'-schematic.svg'}>Download schematic SVG</a></figure><figure><img src={spec.assets.wiring} alt={'Labelled pin-to-pin wiring map for '+project.title} loading="lazy"/><figcaption>Connection / wiring reference — verify breakout board pins in person.</figcaption><a href={spec.assets.wiring} download={project.slug+'-wiring.svg'}>Download wiring SVG</a></figure></>:<p className="studio-warning">No reviewed schematic or breadboard layout is associated with this sketch. The project must be checked for voltage, IO direction, shared grounds, level shifting and component ratings before any diagram is approved.</p>}</div>}
           {tab==='bom'&&<div><p>Estimated materials for the <strong>published guided template</strong>. Prices are indicative only and are NOT a checkout quotation.</p>{spec?<><div className="studio-table"><table><thead><tr><th>Part</th><th>Qty</th><th>Unit (snapshot)</th><th>Est. subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td><strong>{line.name}</strong><small className="studio-bom-detail">{line.id} · {line.detail}{line.optional?' · optional':''}</small></td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table></div><p className="studio-bom-total"><strong>Listed required parts: {peso(bom.requiredTotal)}</strong><small>Optional variants: {peso(bom.optionalTotal)} extra</small></p>{bom.excluded.length>0&&<div className="studio-warning"><strong>Additional items excluded from the total</strong><ul>{bom.excluded.map((e,i)=><li key={i}><b>{e.qty} × {e.name}:</b> {e.reason}</li>)}</ul></div>}<p className="studio-help">{bom.pricingNotice}</p></>:<div className="studio-warning">This sketch has no reviewed materials list or cost estimate.</div>}</div>}
           {tab==='safety'&&<div className="studio-warning"><ul>{[...(project.warnings||[]),...(spec?.cautions||[])].map((item,i)=><li key={i}>{item}</li>)}</ul></div>}

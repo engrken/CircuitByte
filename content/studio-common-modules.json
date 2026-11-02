@@ -1,0 +1,483 @@
+[
+  {
+    "id": "sim900a",
+    "name": "SIM900A GSM / GPRS",
+    "aliases": [
+      "sim900",
+      "gsm",
+      "2g modem"
+    ],
+    "category": "Cellular",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-061"
+    ],
+    "summary": "2G GSM/GPRS modem controlled with AT commands.",
+    "caution": "Requires a dedicated burst-current-rated supply, compatible SIM/antenna and confirmed local 2G service; verify UART logic levels.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html"
+  },
+  {
+    "id": "sim800l",
+    "name": "SIM800L GSM",
+    "aliases": [
+      "sim800",
+      "2g module"
+    ],
+    "category": "Cellular",
+    "interface": "UART",
+    "catalogIds": [],
+    "summary": "Common 2G GSM modem controlled through AT commands.",
+    "caution": "Do not assume 5V supply or MCU GPIO power. Carrier 2G coverage and exact breakout requirements must be checked.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html"
+  },
+  {
+    "id": "sim7600",
+    "name": "SIM7600 4G LTE",
+    "aliases": [
+      "4g",
+      "lte modem",
+      "sim7600e"
+    ],
+    "category": "Cellular",
+    "interface": "UART / USB",
+    "catalogIds": [],
+    "summary": "Cellular LTE modem family; supported bands and board connections vary by region and variant.",
+    "caution": "Check exact SIM7600 variant, cellular bands, antenna and dedicated supply; not a drop-in SIM900 replacement.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html"
+  },
+  {
+    "id": "neo6m",
+    "name": "NEO-6M GPS",
+    "aliases": [
+      "gps",
+      "neo 6m",
+      "gnss"
+    ],
+    "category": "Positioning",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-030",
+      "cb-083"
+    ],
+    "summary": "Receives GPS navigation data, commonly via NMEA serial messages.",
+    "caution": "NEO-6 is an older module family. Breakout supply levels differ from bare IC ratings; GPS fix needs an antenna and satellite visibility.",
+    "sourceUrl": "https://www.u-blox.com/en/product/neo-6-series"
+  },
+  {
+    "id": "neom8n",
+    "name": "NEO-M8N GNSS",
+    "aliases": [
+      "m8n",
+      "ublox m8"
+    ],
+    "category": "Positioning",
+    "interface": "UART / I2C",
+    "catalogIds": [],
+    "summary": "Multi-constellation GNSS receiver family used in navigation applications.",
+    "caution": "Verify exact module interface, firmware, antenna and board supply before designing connections.",
+    "sourceUrl": "https://www.u-blox.com/en"
+  },
+  {
+    "id": "hc05",
+    "name": "HC-05 Bluetooth",
+    "aliases": [
+      "bluetooth classic",
+      "hc-05",
+      "serial bluetooth"
+    ],
+    "category": "Wireless",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-018"
+    ],
+    "summary": "Bluetooth Classic serial transceiver commonly controlled through UART.",
+    "caution": "Confirm 3.3V UART levels on the specific board; do not confuse Bluetooth Classic with BLE.",
+    "sourceUrl": "https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html"
+  },
+  {
+    "id": "nrf24l01",
+    "name": "nRF24L01 2.4 GHz RF",
+    "aliases": [
+      "nrf24",
+      "2.4ghz rf"
+    ],
+    "category": "Wireless",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "Common 2.4 GHz packet-radio transceiver module.",
+    "caution": "Check its 3.3V supply and decoupling; never connect 5V logic to a non-tolerant SPI module.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "sx1278",
+    "name": "SX1278 / RA-02 LoRa",
+    "aliases": [
+      "lora",
+      "sx1276",
+      "ra-02"
+    ],
+    "category": "Wireless",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "LoRa radio transceiver used for long-range low-data-rate communication.",
+    "caution": "Use region-appropriate permitted frequencies, a suitable antenna and compatible 3.3V power/logic.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "mfrc522",
+    "name": "MFRC522 RFID reader",
+    "aliases": [
+      "rc522",
+      "rfid",
+      "mifare"
+    ],
+    "category": "Identification",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "13.56 MHz RFID reader module used for reading supported tags.",
+    "caution": "Check radio protocol, tags, power and SPI logic; RFID IDs alone are not secure authentication.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "pn532",
+    "name": "PN532 NFC / RFID",
+    "aliases": [
+      "nfc",
+      "pn532"
+    ],
+    "category": "Identification",
+    "interface": "I2C / SPI / UART",
+    "catalogIds": [],
+    "summary": "NFC reader/controller module supporting multiple communication interfaces.",
+    "caution": "Select and verify the breakout's hardware interface, supply and available libraries.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "bme280",
+    "name": "BME280 environment sensor",
+    "aliases": [
+      "bme 280",
+      "humidity pressure",
+      "bosch bme"
+    ],
+    "category": "Sensors",
+    "interface": "I2C / SPI",
+    "catalogIds": [],
+    "summary": "Sensor family for temperature, humidity and pressure measurements.",
+    "caution": "BME280 and BMP280 are not identical; verify breakout marking, I2C address and voltage levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "bmp280",
+    "name": "BMP280 pressure sensor",
+    "aliases": [
+      "bmp 280",
+      "barometer"
+    ],
+    "category": "Sensors",
+    "interface": "I2C / SPI",
+    "catalogIds": [],
+    "summary": "Sensor family for pressure and temperature measurements.",
+    "caution": "Do not expect humidity readings; verify actual module variant and breakout voltage regulator.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "mpu6050",
+    "name": "MPU-6050 IMU",
+    "aliases": [
+      "gy521",
+      "gy-521",
+      "accelerometer gyro"
+    ],
+    "category": "Sensors",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Motion sensor with acceleration and gyroscope measurements.",
+    "caution": "Confirm address selection, voltage tolerance and orientation calibration before use.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ds18b20",
+    "name": "DS18B20 temperature",
+    "aliases": [
+      "onewire temperature",
+      "waterproof temp"
+    ],
+    "category": "Sensors",
+    "interface": "1-Wire",
+    "catalogIds": [],
+    "summary": "Digital temperature sensor used on a one-wire data bus.",
+    "caution": "Verify sensor authenticity, wiring mode, pull-up and supply voltage; water resistance depends on probe assembly.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "max30102",
+    "name": "MAX30102 optical pulse sensor",
+    "aliases": [
+      "pulse oximeter",
+      "heart rate sensor"
+    ],
+    "category": "Sensors",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Optical heart-rate sensing component sometimes included in hobby breakout modules.",
+    "caution": "Educational estimates are not medical measurements; verify board voltage, optical layout and signal conditioning.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ads1115",
+    "name": "ADS1115 16-bit ADC",
+    "aliases": [
+      "adc",
+      "external analog"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "External analog-to-digital converter useful for low-voltage measurements.",
+    "caution": "Inputs must remain within the converter's supply and absolute ratings; never measure high voltage directly.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ina219",
+    "name": "INA219 power monitor",
+    "aliases": [
+      "current monitor",
+      "shunt"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Shunt-based voltage/current monitor family for DC circuits.",
+    "caution": "Check common-mode voltage, shunt selection, ground and current direction before designing power systems.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ina226",
+    "name": "INA226 voltage/current monitor",
+    "aliases": [
+      "power monitor ina226"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Digital current/voltage/power monitor for shunt-based DC measurement.",
+    "caution": "Verify bus voltage, common-mode range, shunt resistor and calibration; not directly suitable for mains.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ssd1306",
+    "name": "SSD1306 OLED 128x64",
+    "aliases": [
+      "oled",
+      "0.96 display"
+    ],
+    "category": "Displays",
+    "interface": "I2C / SPI",
+    "catalogIds": [
+      "cb-019"
+    ],
+    "summary": "Monochrome OLED controller often used with Arduino graphics libraries.",
+    "caution": "I2C address, driver variant, pull-ups and breakout voltage capabilities must be verified.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "lcd1602",
+    "name": "LCD1602 I2C display",
+    "aliases": [
+      "1602",
+      "i2c lcd",
+      "hd44780"
+    ],
+    "category": "Displays",
+    "interface": "I2C",
+    "catalogIds": [
+      "cb-066"
+    ],
+    "summary": "Character LCD using an I2C expander backpack.",
+    "caution": "The backpack's address, chip and LCD voltage vary; confirm PCF8574 variant and pull-up levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "mcp2515",
+    "name": "MCP2515 CAN controller",
+    "aliases": [
+      "can bus",
+      "can shield"
+    ],
+    "category": "Communication",
+    "interface": "SPI / CAN",
+    "catalogIds": [],
+    "summary": "Standalone CAN controller typically connected to an external CAN transceiver.",
+    "caution": "CAN electrical bus requires an appropriate transceiver and termination; controller alone is insufficient.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "max485",
+    "name": "MAX485 RS-485",
+    "aliases": [
+      "rs485",
+      "modbus physical"
+    ],
+    "category": "Communication",
+    "interface": "UART / RS-485",
+    "catalogIds": [],
+    "summary": "Differential serial transceiver for half-duplex RS-485 networks.",
+    "caution": "Check bus termination, biasing, direction control, grounding and device variant logic levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "hcsr04",
+    "name": "HC-SR04 ultrasonic distance",
+    "aliases": [
+      "ultrasonic",
+      "distance sensor"
+    ],
+    "category": "Sensors",
+    "interface": "Digital pulse",
+    "catalogIds": [
+      "cb-074"
+    ],
+    "summary": "Time-of-flight ultrasonic distance module with trigger and echo signals.",
+    "caution": "Many 5V versions output a 5V echo; use level shifting when connecting to 3.3V GPIO.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "dht22",
+    "name": "DHT22 / AM2302",
+    "aliases": [
+      "dht11",
+      "humidity sensor",
+      "dht"
+    ],
+    "category": "Sensors",
+    "interface": "Single-wire digital",
+    "catalogIds": [
+      "cb-050",
+      "cb-079"
+    ],
+    "summary": "Low-cost temperature/humidity sensor family with a dedicated digital protocol.",
+    "caution": "DHT11 and DHT22 have different performance; confirm the module supply and data pull-up.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "mqgas",
+    "name": "MQ-series gas sensors",
+    "aliases": [
+      "mq2",
+      "mq3",
+      "mq4",
+      "mq5",
+      "mq6",
+      "mq7",
+      "mq8",
+      "mq9",
+      "mq135",
+      "air quality"
+    ],
+    "category": "Sensors",
+    "interface": "Analog / digital",
+    "catalogIds": [
+      "cb-093",
+      "cb-094",
+      "cb-095",
+      "cb-096",
+      "cb-097",
+      "cb-098",
+      "cb-099",
+      "cb-100",
+      "cb-101"
+    ],
+    "summary": "Heated semiconductor gas sensors used for approximate educational indications.",
+    "caution": "Not calibrated life-safety alarms. Sensor heater requires power; outputs, warm-up and calibration differ by MQ type.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "ds3231",
+    "name": "DS3231 RTC",
+    "aliases": [
+      "rtc",
+      "timekeeping"
+    ],
+    "category": "Timekeeping",
+    "interface": "I2C",
+    "catalogIds": [
+      "cb-067"
+    ],
+    "summary": "Battery-backed I2C real-time clock often used for logging and scheduled control.",
+    "caution": "Confirm backup-cell chemistry, I2C address and board voltage/pull-up behavior.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "sdcard",
+    "name": "MicroSD SPI module",
+    "aliases": [
+      "sd",
+      "datalogger",
+      "memory card"
+    ],
+    "category": "Storage",
+    "interface": "SPI",
+    "catalogIds": [
+      "cb-077"
+    ],
+    "summary": "Removable microSD storage for logging sensor measurements.",
+    "caution": "Check 3.3V card interface, module level shifting, CS pin and filesystem robustness.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "l298n",
+    "name": "L298N dual H-bridge driver",
+    "aliases": [
+      "l298",
+      "motor control",
+      "dc motor"
+    ],
+    "category": "Actuators",
+    "interface": "Digital / PWM",
+    "catalogIds": [
+      "cb-073"
+    ],
+    "summary": "Dual H-bridge for brushed DC motors or bipolar steppers.",
+    "caution": "Motor power, thermal dissipation, back-EMF and separate MCU supply require engineering review.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "servo",
+    "name": "Hobby servo motor",
+    "aliases": [
+      "sg90",
+      "mg90s",
+      "mg996r",
+      "pwm servo"
+    ],
+    "category": "Actuators",
+    "interface": "PWM control",
+    "catalogIds": [
+      "cb-070",
+      "cb-071"
+    ],
+    "summary": "Position or continuous-rotation hobby servos depending on the exact model.",
+    "caution": "Do not assume continuous-rotation servos are position-controllable; use a separate appropriately sized supply.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  },
+  {
+    "id": "relays",
+    "name": "Relay module 5V",
+    "aliases": [
+      "relay shield",
+      "relay",
+      "switching"
+    ],
+    "category": "Actuators",
+    "interface": "Digital",
+    "catalogIds": [
+      "cb-017",
+      "cb-060",
+      "cb-078"
+    ],
+    "summary": "Electromechanical relay breakouts for electrically isolated switching.",
+    "caution": "Verify input activation polarity, coil current, isolation and contact ratings. Avoid mains projects in Studio.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/"
+  }
+]

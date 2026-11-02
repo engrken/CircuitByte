@@ -51,7 +51,18 @@ export function StudioKnowledgeCenter({selectedModules=[],onToggleModule=()=>{}}
   <div className="studio-knowledge-results">
    {result.modules.map(module=><article key={module.id} className="studio-knowledge-module">
     <div className="studio-knowledge-module-top"><strong>{module.name}</strong><small>{module.category} · {module.interface}</small></div>
-    <p>{module.summary}</p><p className="studio-knowledge-caution">{module.caution}</p>
+    <p>{module.summary}</p>
+    <details className="studio-module-guide" open={selectedModules.includes(module.id)}>
+      <summary>What's this? · How to use {module.name}</summary>
+      <div className="studio-module-guide-body">
+        <h4>What's this module?</h4><p>{module.whatIs}</p>
+        <h4>How to use it — beginner guide</h4>
+        <ol>{module.howTo.map((step,i)=><li key={i}>{step}</li>)}</ol>
+        <p><strong>Libraries or programming interface:</strong> {module.suggestedLibraries}</p>
+        <p><strong>First hands-on test:</strong> {module.firstExperiment}</p>
+      </div>
+    </details>
+    <p className="studio-knowledge-caution">{module.caution}</p>
     <div className="studio-knowledge-module-actions"><button type="button" aria-pressed={selectedModules.includes(module.id)} onClick={()=>onToggleModule(module.id)}>{selectedModules.includes(module.id)?'Remove from draft':'Use in AI draft'}</button>
      <a href={module.sourceUrl} target="_blank" rel="noopener noreferrer">Reference source</a>
      <span>{module.catalogIds.length?'Catalog-linked: '+module.catalogIds.join(', '):'Reference only · not in store catalog'}</span></div>

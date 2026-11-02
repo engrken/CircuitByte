@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-auto-diagrams-20261102",
+    "date": "2026-11-02",
+    "title": "Automatic AI wiring illustrations",
+    "type": "Studio",
+    "highlights": [
+      "Illustrations start automatically in the background when a signed-in user has a project connection plan and AI access. No Generate button is needed.",
+      "Tab changes reuse the same attempt and image in the current workspace. Failed attempts do not automatically retry.",
+      "Edited sketches can still show an illustration of their existing wiring plan, with a clear reminder to check GPIO assignments.",
+      "One shared AI credit is used per new plan; download the image to retain it after a page reload."
+    ]
+  },
+  {
     "id": "studio-illustrated-usb-responsive-20261102",
     "date": "2026-11-02",
     "title": "AI wiring illustrations, ESP/Nano flashing and responsive Studio",

@@ -1,0 +1,28 @@
+{
+  "name": "CircuitByte",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "settings": {
+        "github.copilot.chat.codeGeneration.useInstructionFiles": true
+      }
+    }
+  },
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Private development preview",
+      "onAutoForward": "notify"
+    }
+  },
+  "containerEnv": {
+    "TZ": "Asia/Manila",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
+}

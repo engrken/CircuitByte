@@ -21,6 +21,28 @@ test('Module reference library is complete, unique, searchable and linked to rea
   assert.equal(new URL(item.sourceUrl).protocol,'https:');
  }
 });
+test('Every common module provides a beginner what-is explanation, practical how-to and first test',()=>{
+ for(const module of COMMON_MODULES){
+  assert.ok(module.whatIs.length>=50,'Missing What Is This: '+module.id);
+  assert.ok(Array.isArray(module.howTo)&&module.howTo.length>=3,'Missing How To: '+module.id);
+  assert.ok(module.howTo.every(step=>step.length>=35),'Too-vague instructions: '+module.id);
+  assert.ok(module.suggestedLibraries.length>=10,'Missing library/interface notes: '+module.id);
+  assert.ok(module.firstExperiment.length>=18,'Missing beginner first test: '+module.id);
+  assert.doesNotMatch(module.whatIs,/definitely certified|guaranteed safety/i);
+ }
+});
+test('Catalog-linked module selections and the Knowledge Center both expose step-by-step guides',async()=>{
+ const ui=await readFile(new URL('../app/studio/workspace.jsx',import.meta.url),'utf8');
+ const center=await readFile(new URL('../app/studio/knowledge-center.jsx',import.meta.url),'utf8');
+ assert.match(ui,/selectedModuleGuides=useMemo/);
+ assert.match(ui,/module\.howTo\.map/);
+ assert.match(ui,/module\.firstExperiment/);
+ assert.match(center,/module\.whatIs/);
+ assert.match(center,/module\.howTo\.map/);
+ assert.match(center,/selectedModules\.includes\(module\.id\)/);
+ const ai=await readFile(new URL('../app/api/studio/ai/route.js',import.meta.url),'utf8');
+ assert.match(ai,/setupGuide:module\.howTo/);
+});
 test('Shared module selection is bounded and inherited input IDs are never accepted',()=>{
  const result=selectKnownModules(['sim900a','neo6m','sim900a','__proto__','constructor']);
  assert.deepEqual(result.map(x=>x.id),['sim900a','neo6m']);

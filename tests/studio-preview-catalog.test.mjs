@@ -51,3 +51,11 @@ test('Manual trusted libraries merge with automatic parts and code headers',()=>
  assert.match(sketch,/#include <RtcDS1302.h>/);
  assert.equal(insertSuggestedIncludes(sketch,['cb-066'],['rtc1302']),sketch);
 });
+
+test('Library discovery keeps board-native Wi-Fi headers on their actual board',()=>{
+ const esp32=resolveStudioLibraries({board:'esp32:esp32:esp32',code:'#include <WiFi.h>\n#include <Preferences.h>'});
+ const esp8266=resolveStudioLibraries({board:'esp8266:esp8266:nodemcuv2',code:'#include <ESP8266WiFi.h>\n#include <ESP8266WebServer.h>'});
+ assert.deepEqual(esp32.unknownIncludes,[]);
+ assert.deepEqual(esp8266.unknownIncludes,[]);
+ assert.ok(resolveStudioLibraries({board:'arduino:avr:uno',code:'#include <ESP8266WiFi.h>'}).unknownIncludes.includes('ESP8266WiFi.h'));
+});

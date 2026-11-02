@@ -24,3 +24,15 @@ test('Guard does not forward potential credentials or invalid code',()=>{
  assert.match(prepareStudioRepair('void setup(){const char* ssid="home";} void loop(){}','error').error,/secrets/);
  assert.equal(prepareStudioRepair('void setup(){Serial.begin(9600);} void loop(){}','error: expected ;').error,undefined);
 });
+
+test('Electrical blockers prevent claiming bench readiness after a passing compiler',()=>{
+ const result=assessStudioProject({board:'arduino:avr:uno',parts:['cb-059','cb-074'],prompt:'Detect objects and sound a buzzer.',project:{method:'ai-draft'},code:'void setup(){} void loop(){}',compile:{ok:true},electricalReview:{status:'failed'}});
+ assert.equal(result.phase,'Resolve blockers');assert.equal(result.bench,false);
+});
+test('Toolchain or Sandbox outages must not consume AI repair quota',()=>{
+ const base={board:'arduino:avr:uno',parts:['cb-059','cb-074'],prompt:'Detect objects and sound a buzzer.',project:{method:'ai-draft'},code:'void setup(){Serial.begin(9600);} void loop(){}'};
+ for(const stage of ['service','toolchain']){
+  const result=assessStudioProject({...base,compile:{ok:false,stage,output:'Failed to install core'}});
+  assert.equal(result.phase,'Troubleshoot compilation');assert.equal(result.repair,false);
+ }
+});

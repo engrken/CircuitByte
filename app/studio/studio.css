@@ -104,3 +104,64 @@
 @media print{.studio-service-strip,.studio-starters,.studio-draft-toolbar,.studio-advanced{display:none!important}}
 .studio-uat-banner{padding:18px 22px;border:1px solid #adc99b;border-radius:13px;background:#e7f3dc;color:#264d35;margin:20px 0}.studio-uat-banner strong{font-size:16px}.studio-uat-banner p{font-size:13px;line-height:1.8;margin:8px 0}.studio-uat-banner a{font-size:12px;font-weight:700;text-decoration:underline}
 @media print{.studio-uat-banner{display:none!important}}
+
+
+/* Release-specific What's New board and privacy-preserving adaptive module discovery. */
+.studio-updates{background:#fff;border:1px solid #cad9c4;border-radius:16px;padding:24px;margin:0 0 25px}
+.studio-updates-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.studio-updates h2{margin:7px 0;font-size:25px}.studio-updates p{color:#576c5b;font-size:13px;line-height:1.6}
+.studio-updates-count{font:700 11px/1.5 monospace;color:#3a674d;background:#eaf3e6;padding:8px;border-radius:8px;white-space:nowrap}
+.studio-updates-list{display:grid;gap:10px;margin-top:14px}
+.studio-updates-list details{border:1px solid #dce7d6;background:#fbfdf9;border-radius:10px;padding:12px 14px}
+.studio-updates-list summary{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;cursor:pointer}
+.studio-updates-list summary strong{font-size:14px}.studio-update-date{font-size:11px;color:#617f62;min-width:135px}
+.studio-updates-list ul{margin:12px 0 0;padding-left:22px;color:#465e4d;font-size:12px;line-height:1.7}
+.studio-knowledge-shell{background:white;border:1px solid #cfdfc7;border-radius:16px;margin:22px 0;padding:16px}
+.studio-knowledge-shell>summary{cursor:pointer;font-size:17px;font-weight:800;color:#264b35;line-height:1.6;padding:5px}
+.studio-knowledge{margin:18px 0 0;min-width:0}
+.studio-knowledge-heading h3{font-size:21px;margin:8px 0}.studio-knowledge-heading p,.studio-knowledge p{font-size:13px;line-height:1.7;color:#526854}
+.studio-knowledge-search{margin:18px 0;padding:16px;background:#f5f8f1;border-radius:10px}
+.studio-knowledge-search label,.studio-knowledge-contribute label{display:block;font-weight:700;font-size:12px;color:#345141;margin:7px 0}
+.studio-knowledge-search>div{display:flex;gap:8px;flex-wrap:wrap}
+.studio-knowledge-search input,.studio-knowledge-contribute input,.studio-knowledge-contribute textarea{flex:1;min-width:160px;width:100%;font:inherit;font-size:14px;border:1px solid #c8d9c6;border-radius:8px;padding:11px;color:#203a2b;background:white}
+.studio-knowledge-search button,.studio-knowledge-module-actions button,.studio-knowledge-research button{border:0;border-radius:8px;padding:10px 13px;background:#173a32;color:#fff;font-weight:700;cursor:pointer}
+.studio-knowledge button:disabled{opacity:.55;cursor:not-allowed}
+.studio-knowledge-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.studio-knowledge-module{border:1px solid #d9e4d3;border-radius:12px;padding:15px;background:#fdfefa;min-width:0}
+.studio-knowledge-module-top{display:flex;gap:7px;flex-wrap:wrap;align-items:baseline;justify-content:space-between}
+.studio-knowledge-module-top strong{font-size:14px;color:#173d2d}
+.studio-knowledge-module-top small,.studio-knowledge-module-actions span{font-size:11px;color:#6a7b6d}
+.studio-knowledge-module .studio-knowledge-caution{color:#7a4c23;background:#fff5e5;padding:8px;border-radius:6px;font-size:12px}
+.studio-knowledge-module-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.studio-knowledge-module-actions button{font-size:11px;padding:8px}.studio-knowledge-module-actions button[aria-pressed=true]{background:#286b4a}
+.studio-knowledge-module-actions a,.studio-reviewed-knowledge a,.studio-external-sources a{font-weight:700;font-size:12px;color:#226846;text-decoration:underline;overflow-wrap:anywhere}
+.studio-knowledge-research{border-top:1px solid #d8e6d2;padding:14px 3px;margin-top:14px}
+.studio-knowledge-research summary{font-weight:700;color:#204b36;cursor:pointer;font-size:14px}
+.studio-knowledge-contribute{display:grid;gap:8px;max-width:770px}
+.studio-knowledge-consent{display:flex!important;align-items:flex-start;gap:10px;font-weight:400!important}
+.studio-knowledge-consent input{flex:none;width:auto;min-width:0}
+.studio-knowledge-disclaimer{margin-top:16px!important;font-size:11px!important;color:#637369!important}
+.studio-reviewed-knowledge{border:1px solid #bcd8bf;border-radius:12px;padding:15px;margin:18px 0}
+.studio-reviewed-knowledge h4{margin:0 0 12px}
+.studio-reviewed-knowledge article{padding:12px 0;border-bottom:1px solid #d8e8d4}
+.studio-reviewed-knowledge article:last-child{border-bottom:0}.studio-reviewed-knowledge article div{display:flex;gap:12px;flex-wrap:wrap}
+.studio-external-sources{margin-top:12px;padding:12px;background:#f5f7f1;border-radius:8px}
+.studio-external-sources li{margin:12px 0;font-size:12px}.studio-external-sources small{color:#8a6039}
+@media(max-width:750px){.studio-knowledge-results{grid-template-columns:1fr}.studio-updates-heading{flex-wrap:wrap}.studio-knowledge-search>div{flex-direction:column}.studio-updates{padding:16px}}
+@media print{.studio-updates,.studio-knowledge-shell{display:none!important}}
+
+
+/* What Is This and How To tutorials for both catalog-linked and reference-only modules. */
+.studio-module-guide,.studio-catalog-guides details{border:1px solid #d3e3d2;border-radius:9px;background:#f8fbf6;padding:10px 12px;margin:10px 0}
+.studio-module-guide summary,.studio-catalog-guides summary{cursor:pointer;font-weight:800;font-size:12px;color:#205740;line-height:1.6}
+.studio-module-guide h4,.studio-catalog-guides h4{font-size:13px;color:#205039;margin:12px 0 6px}
+.studio-module-guide ol,.studio-catalog-guides ol{padding-left:22px;margin:8px 0;line-height:1.6;color:#375440;font-size:12px}
+.studio-module-guide li,.studio-catalog-guides li{margin-bottom:8px;overflow-wrap:anywhere}
+.studio-module-guide-body p,.studio-catalog-guides details p{font-size:12px;line-height:1.7}
+.studio-catalog-guides{background:#f8fbf7;border:1px solid #cbdccc;padding:12px;border-radius:10px;margin:15px 0}
+.studio-catalog-guides h4{margin:4px 0 10px}
+.studio-catalog-guides a{font-size:12px;font-weight:700;text-decoration:underline;color:#216442}
+@media(max-width:600px){.studio-module-guide,.studio-catalog-guides details{padding:9px}.studio-module-guide summary,.studio-catalog-guides summary{font-size:13px}}
+@media print{.studio-module-guide,.studio-catalog-guides{display:none!important}}
+
+.studio-example-guide-button{background:#23533f;color:white;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;font-weight:800;line-height:1.4;margin:8px 0}.studio-example-guide-button:hover{background:#316a4c}.studio-example-guide-button:focus-visible{outline:3px solid #8fae6f;outline-offset:2px}

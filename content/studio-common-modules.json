@@ -1,0 +1,753 @@
+[
+  {
+    "id": "sim900a",
+    "name": "SIM900A GSM / GPRS",
+    "aliases": [
+      "sim900",
+      "gsm",
+      "2g modem"
+    ],
+    "category": "Cellular",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-061"
+    ],
+    "summary": "2G GSM/GPRS modem controlled with AT commands.",
+    "caution": "Requires a dedicated burst-current-rated supply, compatible SIM/antenna and confirmed local 2G service; verify UART logic levels.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html",
+    "whatIs": "A second-generation (2G) cellular modem that exchanges SMS, calls or GPRS data using AT commands over a serial interface.",
+    "howTo": [
+      "Identify the exact SIM900A breakout power input, UART levels, antenna connector and SIM requirements.",
+      "Prepare a dedicated, burst-current-capable supply; do not power the modem from an Arduino GPIO pin.",
+      "Choose the selected board's compatible serial port and cross-connect TX to RX only after verifying voltage compatibility.",
+      "Open a serial terminal, send AT and check for an OK response; test network registration only when 2G coverage is confirmed."
+    ],
+    "suggestedLibraries": "Arduino HardwareSerial or SoftwareSerial on a suitable AVR board",
+    "firstExperiment": "Read the modem model and basic AT response."
+  },
+  {
+    "id": "sim800l",
+    "name": "SIM800L GSM",
+    "aliases": [
+      "sim800",
+      "2g module"
+    ],
+    "category": "Cellular",
+    "interface": "UART",
+    "catalogIds": [],
+    "summary": "Common 2G GSM modem controlled through AT commands.",
+    "caution": "Do not assume 5V supply or MCU GPIO power. Carrier 2G coverage and exact breakout requirements must be checked.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html",
+    "whatIs": "A small 2G cellular modem often used for SMS and data applications; it is not compatible with 4G-only service.",
+    "howTo": [
+      "Read the specific SIM800L board's supply range and peak current requirements before attaching power.",
+      "Install a suitable cellular antenna and active SIM with confirmed local 2G support.",
+      "Use a board-appropriate UART and verified level shifting where needed.",
+      "Run a minimal AT response test, then check SIM/network registration separately."
+    ],
+    "suggestedLibraries": "Board UART; optional TinyGSM for advanced network examples",
+    "firstExperiment": "Receive AT/OK without attempting SMS."
+  },
+  {
+    "id": "sim7600",
+    "name": "SIM7600 4G LTE",
+    "aliases": [
+      "4g",
+      "lte modem",
+      "sim7600e"
+    ],
+    "category": "Cellular",
+    "interface": "UART / USB",
+    "catalogIds": [],
+    "summary": "Cellular LTE modem family; supported bands and board connections vary by region and variant.",
+    "caution": "Check exact SIM7600 variant, cellular bands, antenna and dedicated supply; not a drop-in SIM900 replacement.",
+    "sourceUrl": "https://www.simcom.com/technical_files.html",
+    "whatIs": "A family of LTE cellular modem modules with USB and serial control interfaces; available frequency bands depend on the variant.",
+    "howTo": [
+      "Identify the exact SIM7600 suffix and verify the cellular bands and SIM with your carrier.",
+      "Choose the vendor's documented supply, antenna arrangement and USB/UART level requirements.",
+      "Connect a compatible USB host or dedicated serial port using the exact breakout pinout.",
+      "Read modem identification and registration status before attempting data access."
+    ],
+    "suggestedLibraries": "Vendor AT reference; optional TinyGSM after matching modem support",
+    "firstExperiment": "Identify the modem firmware/version using AT commands."
+  },
+  {
+    "id": "neo6m",
+    "name": "NEO-6M GPS",
+    "aliases": [
+      "gps",
+      "neo 6m",
+      "gnss"
+    ],
+    "category": "Positioning",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-030",
+      "cb-083"
+    ],
+    "summary": "Receives GPS navigation data, commonly via NMEA serial messages.",
+    "caution": "NEO-6 is an older module family. Breakout supply levels differ from bare IC ratings; GPS fix needs an antenna and satellite visibility.",
+    "sourceUrl": "https://www.u-blox.com/en/product/neo-6-series",
+    "whatIs": "A GPS receiver that processes satellite signals and sends navigation messages, commonly as NMEA sentences on UART.",
+    "howTo": [
+      "Inspect the antenna and breakout label to confirm supply and serial logic levels.",
+      "Connect receiver TX to the MCU UART RX with compatible levels; a TX-to-receiver-RX connection is optional for basic reading.",
+      "Use the matching board serial port and, if desired, TinyGPSPlus to decode NMEA messages.",
+      "Test outdoors with a clear sky view; show both valid and no-fix states rather than inventing coordinates."
+    ],
+    "suggestedLibraries": "TinyGPSPlus for parsing; a serial monitor can display raw NMEA",
+    "firstExperiment": "Print whether a valid location fix has been acquired."
+  },
+  {
+    "id": "neom8n",
+    "name": "NEO-M8N GNSS",
+    "aliases": [
+      "m8n",
+      "ublox m8"
+    ],
+    "category": "Positioning",
+    "interface": "UART / I2C",
+    "catalogIds": [],
+    "summary": "Multi-constellation GNSS receiver family used in navigation applications.",
+    "caution": "Verify exact module interface, firmware, antenna and board supply before designing connections.",
+    "sourceUrl": "https://www.u-blox.com/en",
+    "whatIs": "A multi-constellation GNSS receiver family for position, time and speed measurements.",
+    "howTo": [
+      "Identify the exact breakout model and available UART, I2C or USB interface.",
+      "Check supply and antenna requirements and connect only voltage-compatible pins.",
+      "Read receiver messages with the supported interface or a manufacturer tool.",
+      "Confirm fix status in an open-sky location before using coordinates."
+    ],
+    "suggestedLibraries": "TinyGPSPlus for supported NMEA UART output",
+    "firstExperiment": "Display satellite/fix status, not fabricated locations."
+  },
+  {
+    "id": "hc05",
+    "name": "HC-05 Bluetooth",
+    "aliases": [
+      "bluetooth classic",
+      "hc-05",
+      "serial bluetooth"
+    ],
+    "category": "Wireless",
+    "interface": "UART",
+    "catalogIds": [
+      "cb-018"
+    ],
+    "summary": "Bluetooth Classic serial transceiver commonly controlled through UART.",
+    "caution": "Confirm 3.3V UART levels on the specific board; do not confuse Bluetooth Classic with BLE.",
+    "sourceUrl": "https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html",
+    "whatIs": "A Bluetooth Classic Serial Port Profile module, commonly used to bridge a microcontroller UART and another Bluetooth device.",
+    "howTo": [
+      "Check the HC-05 module's power supply, logic levels and mode pins on the specific breakout.",
+      "Connect UART TX/RX appropriately, using level shifting if required for the module RX.",
+      "Start a simple UART echo sketch with a documented baud rate.",
+      "Pair with a compatible Bluetooth Classic device and verify a text exchange; BLE-only devices may not work."
+    ],
+    "suggestedLibraries": "HardwareSerial or board-compatible SoftwareSerial",
+    "firstExperiment": "Echo a short text message over Bluetooth Classic."
+  },
+  {
+    "id": "nrf24l01",
+    "name": "nRF24L01 2.4 GHz RF",
+    "aliases": [
+      "nrf24",
+      "2.4ghz rf"
+    ],
+    "category": "Wireless",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "Common 2.4 GHz packet-radio transceiver module.",
+    "caution": "Check its 3.3V supply and decoupling; never connect 5V logic to a non-tolerant SPI module.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A 2.4 GHz packet radio transceiver that communicates with a microcontroller over SPI.",
+    "howTo": [
+      "Use a verified 3.3V power source and place recommended local decoupling near the transceiver.",
+      "Identify the board's valid SPI and CE/CSN GPIO pins using its schematic.",
+      "Install an appropriate RF24 library and connect two compatible transceivers.",
+      "Send numbered packets between devices and report actual acknowledgements or packet loss."
+    ],
+    "suggestedLibraries": "RF24 library",
+    "firstExperiment": "Send a test counter between two radios."
+  },
+  {
+    "id": "sx1278",
+    "name": "SX1278 / RA-02 LoRa",
+    "aliases": [
+      "lora",
+      "sx1276",
+      "ra-02"
+    ],
+    "category": "Wireless",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "LoRa radio transceiver used for long-range low-data-rate communication.",
+    "caution": "Use region-appropriate permitted frequencies, a suitable antenna and compatible 3.3V power/logic.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A LoRa radio transceiver module controlled via SPI for low-data-rate wireless links.",
+    "howTo": [
+      "Verify the exact module, regional permitted frequency, antenna and 3.3V voltage requirements.",
+      "Connect MOSI/MISO/SCK, chip select, reset and interrupt pins based on the selected MCU board.",
+      "Use a maintained SX127x-compatible LoRa library and set a region-appropriate frequency.",
+      "Exchange test messages between two devices with correct antennas; measure real reception rather than assuming range."
+    ],
+    "suggestedLibraries": "LoRa or RadioLib library (verify compatibility first)",
+    "firstExperiment": "Exchange a labeled test message between two LoRa nodes."
+  },
+  {
+    "id": "mfrc522",
+    "name": "MFRC522 RFID reader",
+    "aliases": [
+      "rc522",
+      "rfid",
+      "mifare"
+    ],
+    "category": "Identification",
+    "interface": "SPI",
+    "catalogIds": [],
+    "summary": "13.56 MHz RFID reader module used for reading supported tags.",
+    "caution": "Check radio protocol, tags, power and SPI logic; RFID IDs alone are not secure authentication.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A 13.56 MHz RFID reader IC often found on RC522 SPI breakout boards.",
+    "howTo": [
+      "Check that the RC522 breakout receives the appropriate low-voltage supply and GPIO levels.",
+      "Connect SPI pins and reader reset/SS to known usable GPIOs.",
+      "Install a matching MFRC522 reader library for the selected board.",
+      "Read a compatible tag's UID and confirm that a UID alone is not secure access authentication."
+    ],
+    "suggestedLibraries": "MFRC522 reader library",
+    "firstExperiment": "Read and print the UID of a test RFID tag."
+  },
+  {
+    "id": "pn532",
+    "name": "PN532 NFC / RFID",
+    "aliases": [
+      "nfc",
+      "pn532"
+    ],
+    "category": "Identification",
+    "interface": "I2C / SPI / UART",
+    "catalogIds": [],
+    "summary": "NFC reader/controller module supporting multiple communication interfaces.",
+    "caution": "Select and verify the breakout's hardware interface, supply and available libraries.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "An NFC controller chip used for supported proximity-card and NFC communications.",
+    "howTo": [
+      "Identify whether the breakout is configured for I2C, SPI or UART and its allowed supply voltage.",
+      "Select the matching interface and verify its board wiring.",
+      "Install the compatible PN532 library and run a reader-detection example.",
+      "Scan a supported test tag and handle unsupported tag types without assumptions."
+    ],
+    "suggestedLibraries": "Adafruit PN532 library (verify breakout interface)",
+    "firstExperiment": "Detect a supported NFC tag without writing to it."
+  },
+  {
+    "id": "bme280",
+    "name": "BME280 environment sensor",
+    "aliases": [
+      "bme 280",
+      "humidity pressure",
+      "bosch bme"
+    ],
+    "category": "Sensors",
+    "interface": "I2C / SPI",
+    "catalogIds": [],
+    "summary": "Sensor family for temperature, humidity and pressure measurements.",
+    "caution": "BME280 and BMP280 are not identical; verify breakout marking, I2C address and voltage levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A digital environmental sensor that measures temperature, humidity and atmospheric pressure.",
+    "howTo": [
+      "Check the actual BME280 marking; avoid confusing it with BMP280, which has no humidity measurement.",
+      "Power the breakout within its specified range and connect I2C/SPI at safe logic levels.",
+      "Find the I2C address or chosen SPI pins and install a compatible BME280 library.",
+      "Read temperature, humidity and pressure; compare with a known reference for sanity checking."
+    ],
+    "suggestedLibraries": "Adafruit BME280 and Adafruit Unified Sensor",
+    "firstExperiment": "Show temperature, humidity and pressure on Serial Monitor."
+  },
+  {
+    "id": "bmp280",
+    "name": "BMP280 pressure sensor",
+    "aliases": [
+      "bmp 280",
+      "barometer"
+    ],
+    "category": "Sensors",
+    "interface": "I2C / SPI",
+    "catalogIds": [],
+    "summary": "Sensor family for pressure and temperature measurements.",
+    "caution": "Do not expect humidity readings; verify actual module variant and breakout voltage regulator.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A pressure and temperature sensor; unlike BME280 it does not directly measure humidity.",
+    "howTo": [
+      "Confirm the breakout is BMP280, not BME280 or a different compatible-looking sensor.",
+      "Verify breakout supply, I2C/SPI voltage and address selection.",
+      "Use the matching BMP280 library and read pressure and temperature.",
+      "Show measured values and flag read failures rather than assuming correct calibration."
+    ],
+    "suggestedLibraries": "Adafruit BMP280 and Adafruit Unified Sensor",
+    "firstExperiment": "Display pressure and temperature."
+  },
+  {
+    "id": "mpu6050",
+    "name": "MPU-6050 IMU",
+    "aliases": [
+      "gy521",
+      "gy-521",
+      "accelerometer gyro"
+    ],
+    "category": "Sensors",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Motion sensor with acceleration and gyroscope measurements.",
+    "caution": "Confirm address selection, voltage tolerance and orientation calibration before use.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A six-axis inertial measurement unit containing an accelerometer and gyroscope.",
+    "howTo": [
+      "Confirm the breakout's supply and I2C address pin configuration.",
+      "Wire a compatible I2C bus and use board-correct SDA/SCL connections.",
+      "Install a supported MPU6050 library and read raw acceleration/rotation.",
+      "Calibrate offsets with the sensor stationary, then rotate the module to observe changes."
+    ],
+    "suggestedLibraries": "Adafruit MPU6050 and dependencies",
+    "firstExperiment": "Detect a tilt or angular-rate change."
+  },
+  {
+    "id": "ds18b20",
+    "name": "DS18B20 temperature",
+    "aliases": [
+      "onewire temperature",
+      "waterproof temp"
+    ],
+    "category": "Sensors",
+    "interface": "1-Wire",
+    "catalogIds": [],
+    "summary": "Digital temperature sensor used on a one-wire data bus.",
+    "caution": "Verify sensor authenticity, wiring mode, pull-up and supply voltage; water resistance depends on probe assembly.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A digital temperature sensor that communicates over a one-wire bus.",
+    "howTo": [
+      "Identify the probe or bare sensor pinout and choose powered or parasite-power mode.",
+      "Use a proper pull-up resistor on the data line as specified for the chosen topology.",
+      "Install OneWire and DallasTemperature libraries and scan the sensor address.",
+      "Read a temperature, check disconnected-sensor errors and compare against a reference."
+    ],
+    "suggestedLibraries": "OneWire and DallasTemperature",
+    "firstExperiment": "Read one sensor without treating -127°C as real data."
+  },
+  {
+    "id": "max30102",
+    "name": "MAX30102 optical pulse sensor",
+    "aliases": [
+      "pulse oximeter",
+      "heart rate sensor"
+    ],
+    "category": "Sensors",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Optical heart-rate sensing component sometimes included in hobby breakout modules.",
+    "caution": "Educational estimates are not medical measurements; verify board voltage, optical layout and signal conditioning.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "An optical photoplethysmography sensor component used for experimental pulse-signal monitoring.",
+    "howTo": [
+      "Check the exact breakout's regulator and level-shifter arrangement before connecting I2C.",
+      "Follow the vendor's mechanical/optical setup and select a compatible driver library.",
+      "Read raw red/infrared samples while the sensor is uncovered, then with a finger positioned consistently.",
+      "Plot the raw waveform and clearly label any derived pulse value as non-medical."
+    ],
+    "suggestedLibraries": "MAX3010x compatible sensor library",
+    "firstExperiment": "Plot relative optical signal values; no clinical diagnosis."
+  },
+  {
+    "id": "ads1115",
+    "name": "ADS1115 16-bit ADC",
+    "aliases": [
+      "adc",
+      "external analog"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "External analog-to-digital converter useful for low-voltage measurements.",
+    "caution": "Inputs must remain within the converter's supply and absolute ratings; never measure high voltage directly.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A 16-bit analog-to-digital converter with a configurable gain setting that communicates over I2C.",
+    "howTo": [
+      "Verify the ADS1115 board supply voltage and the maximum allowed analog pin range.",
+      "Connect I2C safely and start with a low-voltage, ground-referenced signal only.",
+      "Install a suitable ADS1X15 library and select the correct input and gain.",
+      "Read raw ADC counts and converted voltages; never exceed the ADC input supply or absolute ratings."
+    ],
+    "suggestedLibraries": "Adafruit ADS1X15",
+    "firstExperiment": "Measure a known low-voltage divider output."
+  },
+  {
+    "id": "ina219",
+    "name": "INA219 power monitor",
+    "aliases": [
+      "current monitor",
+      "shunt"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Shunt-based voltage/current monitor family for DC circuits.",
+    "caution": "Check common-mode voltage, shunt selection, ground and current direction before designing power systems.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A DC shunt-based current and bus-voltage monitor controlled over I2C.",
+    "howTo": [
+      "Read the exact breakout shunt value, voltage range and layout.",
+      "Place the shunt in series only with a safely isolated, low-voltage DC test load.",
+      "Connect SDA/SCL and use a matching INA219 library.",
+      "Calibrate or verify using a multimeter and compare positive/negative current signs."
+    ],
+    "suggestedLibraries": "Adafruit INA219",
+    "firstExperiment": "Log DC load current and bus voltage under a safe test load."
+  },
+  {
+    "id": "ina226",
+    "name": "INA226 voltage/current monitor",
+    "aliases": [
+      "power monitor ina226"
+    ],
+    "category": "Measurement",
+    "interface": "I2C",
+    "catalogIds": [],
+    "summary": "Digital current/voltage/power monitor for shunt-based DC measurement.",
+    "caution": "Verify bus voltage, common-mode range, shunt resistor and calibration; not directly suitable for mains.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A precision shunt-based DC current, voltage and power monitor accessed through I2C.",
+    "howTo": [
+      "Check allowed bus voltage, common-mode limits, the shunt value and wiring orientation.",
+      "Place the current shunt on the correct DC circuit path; avoid mains or unprotected high energy sources.",
+      "Connect the I2C bus and configure calibration using a suitable INA226 library.",
+      "Compare logged bus voltage/current against calibrated instruments before computing energy."
+    ],
+    "suggestedLibraries": "Compatible INA226 library (check calibration API)",
+    "firstExperiment": "Display measured DC current, voltage and calculated power."
+  },
+  {
+    "id": "ssd1306",
+    "name": "SSD1306 OLED 128x64",
+    "aliases": [
+      "oled",
+      "0.96 display"
+    ],
+    "category": "Displays",
+    "interface": "I2C / SPI",
+    "catalogIds": [
+      "cb-019"
+    ],
+    "summary": "Monochrome OLED controller often used with Arduino graphics libraries.",
+    "caution": "I2C address, driver variant, pull-ups and breakout voltage capabilities must be verified.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A monochrome OLED display controller often used for 128×64 pixel graphics.",
+    "howTo": [
+      "Confirm the OLED controller, pixel size and whether the breakout uses I2C or SPI.",
+      "Check the board supply, pull-ups, interface and address, commonly discovered by an I2C scanner.",
+      "Install Adafruit SSD1306 and Adafruit GFX libraries (or another compatible pair).",
+      "Render a simple text/rectangle demo and investigate blank display or wrong address errors."
+    ],
+    "suggestedLibraries": "Adafruit SSD1306 and Adafruit GFX Library",
+    "firstExperiment": "Show a hello message and a simple geometric shape."
+  },
+  {
+    "id": "lcd1602",
+    "name": "LCD1602 I2C display",
+    "aliases": [
+      "1602",
+      "i2c lcd",
+      "hd44780"
+    ],
+    "category": "Displays",
+    "interface": "I2C",
+    "catalogIds": [
+      "cb-066"
+    ],
+    "summary": "Character LCD using an I2C expander backpack.",
+    "caution": "The backpack's address, chip and LCD voltage vary; confirm PCF8574 variant and pull-up levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A 16-character by 2-line LCD, often used with an I2C GPIO-expander backpack.",
+    "howTo": [
+      "Identify the backpack's I2C expander and power supply requirements.",
+      "Use an I2C address scanner and connect board-correct SDA/SCL lines.",
+      "Install the hd44780 I2C-expander library or a verified compatible driver.",
+      "Print text on both lines and adjust the LCD contrast potentiometer if the screen is blank."
+    ],
+    "suggestedLibraries": "hd44780 with hd44780_I2Cexp",
+    "firstExperiment": "Display two lines of sensor status text."
+  },
+  {
+    "id": "mcp2515",
+    "name": "MCP2515 CAN controller",
+    "aliases": [
+      "can bus",
+      "can shield"
+    ],
+    "category": "Communication",
+    "interface": "SPI / CAN",
+    "catalogIds": [],
+    "summary": "Standalone CAN controller typically connected to an external CAN transceiver.",
+    "caution": "CAN electrical bus requires an appropriate transceiver and termination; controller alone is insufficient.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A stand-alone CAN bus controller that requires a separate CAN physical-layer transceiver.",
+    "howTo": [
+      "Identify the MCP2515 oscillator frequency, transceiver type and breakout's supply/logic levels.",
+      "Connect MCU SPI, chip-select and interrupt pins from the chosen board schematic.",
+      "Fit bus termination and proper transceiver wiring for a safe, low-voltage test CAN network.",
+      "Configure a matching CAN library and verify receiving/sending frames on two nodes."
+    ],
+    "suggestedLibraries": "MCP_CAN compatible library (check oscillator setting)",
+    "firstExperiment": "Transmit a frame between two safely terminated CAN nodes."
+  },
+  {
+    "id": "max485",
+    "name": "MAX485 RS-485",
+    "aliases": [
+      "rs485",
+      "modbus physical"
+    ],
+    "category": "Communication",
+    "interface": "UART / RS-485",
+    "catalogIds": [],
+    "summary": "Differential serial transceiver for half-duplex RS-485 networks.",
+    "caution": "Check bus termination, biasing, direction control, grounding and device variant logic levels.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "An RS-485 transceiver chip for converting UART-level serial signals into a differential pair.",
+    "howTo": [
+      "Verify the exact breakout's supply and logic voltage; not every MAX485 variant works at 3.3V.",
+      "Connect UART TX/RX and direction pins, and route A/B over a suitable pair of wires.",
+      "Apply termination/biasing only as required by the bus topology.",
+      "Exchange a known packet with a second RS-485 device before adding Modbus framing."
+    ],
+    "suggestedLibraries": "HardwareSerial / SoftwareSerial; optional Modbus library",
+    "firstExperiment": "Receive a known serial packet across a short RS-485 link."
+  },
+  {
+    "id": "hcsr04",
+    "name": "HC-SR04 ultrasonic distance",
+    "aliases": [
+      "ultrasonic",
+      "distance sensor"
+    ],
+    "category": "Sensors",
+    "interface": "Digital pulse",
+    "catalogIds": [
+      "cb-074"
+    ],
+    "summary": "Time-of-flight ultrasonic distance module with trigger and echo signals.",
+    "caution": "Many 5V versions output a 5V echo; use level shifting when connecting to 3.3V GPIO.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A pulse-echo ultrasonic distance module used for approximate object-range detection.",
+    "howTo": [
+      "Identify the ultrasonic module voltage, trigger and echo labels.",
+      "Provide its documented supply and level-shift a 5V echo before any 3.3V GPIO.",
+      "Generate a short trigger pulse and time the echo with a timeout to avoid hanging.",
+      "Convert echo time to approximate distance, noting target shape and temperature affect accuracy."
+    ],
+    "suggestedLibraries": "Arduino digitalWrite/pulseIn or non-blocking timer",
+    "firstExperiment": "Measure an object at two known distances."
+  },
+  {
+    "id": "dht22",
+    "name": "DHT22 / AM2302",
+    "aliases": [
+      "dht11",
+      "humidity sensor",
+      "dht"
+    ],
+    "category": "Sensors",
+    "interface": "Single-wire digital",
+    "catalogIds": [
+      "cb-050",
+      "cb-079"
+    ],
+    "summary": "Low-cost temperature/humidity sensor family with a dedicated digital protocol.",
+    "caution": "DHT11 and DHT22 have different performance; confirm the module supply and data pull-up.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A digital sensor for approximate temperature and relative humidity readings.",
+    "howTo": [
+      "Identify whether the sensor is DHT11, DHT22 or an AM2302 breakout, and verify pin order.",
+      "Connect a suitable supply and data pull-up when needed for the sensor wiring.",
+      "Install DHT sensor library with its required Unified Sensor dependency.",
+      "Sample at the sensor's recommended interval and check for invalid/NaN readings."
+    ],
+    "suggestedLibraries": "DHT sensor library and Adafruit Unified Sensor",
+    "firstExperiment": "Print temperature and humidity once every few seconds."
+  },
+  {
+    "id": "mqgas",
+    "name": "MQ-series gas sensors",
+    "aliases": [
+      "mq2",
+      "mq3",
+      "mq4",
+      "mq5",
+      "mq6",
+      "mq7",
+      "mq8",
+      "mq9",
+      "mq135",
+      "air quality"
+    ],
+    "category": "Sensors",
+    "interface": "Analog / digital",
+    "catalogIds": [
+      "cb-093",
+      "cb-094",
+      "cb-095",
+      "cb-096",
+      "cb-097",
+      "cb-098",
+      "cb-099",
+      "cb-100",
+      "cb-101"
+    ],
+    "summary": "Heated semiconductor gas sensors used for approximate educational indications.",
+    "caution": "Not calibrated life-safety alarms. Sensor heater requires power; outputs, warm-up and calibration differ by MQ type.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "MQ-series gas sensors use a heated sensing element and require careful calibration for meaningful results.",
+    "howTo": [
+      "Identify the exact MQ model and its target-gas sensitivity before selecting a sample project.",
+      "Supply the heater and analog interface as specified; check voltage divider and ADC limits.",
+      "Log analog values and allow the manufacturer's recommended warm-up period.",
+      "Compare relative readings in controlled, safe conditions; do not use the DIY build as a gas-safety alarm."
+    ],
+    "suggestedLibraries": "Analog input / ADC (no special library required)",
+    "firstExperiment": "Observe changes in raw analog response, without inferring safety concentrations."
+  },
+  {
+    "id": "ds3231",
+    "name": "DS3231 RTC",
+    "aliases": [
+      "rtc",
+      "timekeeping"
+    ],
+    "category": "Timekeeping",
+    "interface": "I2C",
+    "catalogIds": [
+      "cb-067"
+    ],
+    "summary": "Battery-backed I2C real-time clock often used for logging and scheduled control.",
+    "caution": "Confirm backup-cell chemistry, I2C address and board voltage/pull-up behavior.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A high-accuracy battery-backed real-time clock accessed over I2C.",
+    "howTo": [
+      "Identify I2C pins and the breakout's supply and pull-up voltages.",
+      "Verify backup-battery compatibility and safe charging-circuit design on the breakout.",
+      "Install RTClib and read current clock registers.",
+      "Set the RTC once, disconnect main power briefly, then verify it retained time."
+    ],
+    "suggestedLibraries": "RTClib",
+    "firstExperiment": "Show a stable timestamp before and after a power cycle."
+  },
+  {
+    "id": "sdcard",
+    "name": "MicroSD SPI module",
+    "aliases": [
+      "sd",
+      "datalogger",
+      "memory card"
+    ],
+    "category": "Storage",
+    "interface": "SPI",
+    "catalogIds": [
+      "cb-077"
+    ],
+    "summary": "Removable microSD storage for logging sensor measurements.",
+    "caution": "Check 3.3V card interface, module level shifting, CS pin and filesystem robustness.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A microSD breakout provides removable storage, typically over SPI, for data logs.",
+    "howTo": [
+      "Check whether the module includes appropriate regulation and signal level shifting.",
+      "Connect SPI pins and a suitable chip-select GPIO for the board.",
+      "Use the Arduino SD library or a board-compatible filesystem library.",
+      "Write a short CSV entry, close the file, and read the contents back to verify."
+    ],
+    "suggestedLibraries": "SD library",
+    "firstExperiment": "Append and read a CSV row on a test microSD card."
+  },
+  {
+    "id": "l298n",
+    "name": "L298N dual H-bridge driver",
+    "aliases": [
+      "l298",
+      "motor control",
+      "dc motor"
+    ],
+    "category": "Actuators",
+    "interface": "Digital / PWM",
+    "catalogIds": [
+      "cb-073"
+    ],
+    "summary": "Dual H-bridge for brushed DC motors or bipolar steppers.",
+    "caution": "Motor power, thermal dissipation, back-EMF and separate MCU supply require engineering review.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A dual H-bridge motor driver used to switch and reverse suitable DC motors.",
+    "howTo": [
+      "Read the motor and driver voltage/current/thermal limitations; use a separate rated motor supply.",
+      "Connect logic inputs and enable pins according to the module schematic; share reference ground where appropriate.",
+      "Start with a small low-voltage motor, no mechanical load, and a current-limited supply.",
+      "Run forward/stop/reverse tests with safe pauses and check driver temperature."
+    ],
+    "suggestedLibraries": "Arduino GPIO and PWM (no mandatory library)",
+    "firstExperiment": "Reverse a small motor at low voltage while monitoring current."
+  },
+  {
+    "id": "servo",
+    "name": "Hobby servo motor",
+    "aliases": [
+      "sg90",
+      "mg90s",
+      "mg996r",
+      "pwm servo"
+    ],
+    "category": "Actuators",
+    "interface": "PWM control",
+    "catalogIds": [
+      "cb-070",
+      "cb-071"
+    ],
+    "summary": "Position or continuous-rotation hobby servos depending on the exact model.",
+    "caution": "Do not assume continuous-rotation servos are position-controllable; use a separate appropriately sized supply.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A hobby servo uses pulse timing to command position or speed depending on its design.",
+    "howTo": [
+      "Identify whether the exact servo is standard positional or continuous rotation.",
+      "Use a separately sized regulated supply; never power a high-current servo from a GPIO.",
+      "Connect only a suitable control pin and common signal reference after verifying requirements.",
+      "Run a slow small-range test with a compatible servo library and watch for stalls."
+    ],
+    "suggestedLibraries": "Servo on AVR; ESP32Servo on supported ESP32 variants",
+    "firstExperiment": "Sweep a positional servo slowly, or test neutral/speed on continuous rotation."
+  },
+  {
+    "id": "relays",
+    "name": "Relay module 5V",
+    "aliases": [
+      "relay shield",
+      "relay",
+      "switching"
+    ],
+    "category": "Actuators",
+    "interface": "Digital",
+    "catalogIds": [
+      "cb-017",
+      "cb-060",
+      "cb-078"
+    ],
+    "summary": "Electromechanical relay breakouts for electrically isolated switching.",
+    "caution": "Verify input activation polarity, coil current, isolation and contact ratings. Avoid mains projects in Studio.",
+    "sourceUrl": "https://docs.arduino.cc/libraries/",
+    "whatIs": "A relay module uses a coil-driven switch to control an electrically separate circuit.",
+    "howTo": [
+      "Identify module coil voltage, trigger polarity and optocoupler isolation arrangement.",
+      "Power coils from a suitable supply and verify the module's control input compatibility.",
+      "Begin with only a low-voltage, current-limited load; do not use mains wiring in Studio.",
+      "Toggle the relay under controlled conditions and inspect the contact's normally open/closed behavior."
+    ],
+    "suggestedLibraries": "Arduino digital I/O (no mandatory library)",
+    "firstExperiment": "Toggle an LED on a separate low-voltage test circuit."
+  }
+]

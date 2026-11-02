@@ -4,13 +4,14 @@ import {requireUser,sameOrigin} from '../../../../lib/auth.js';
 import {z} from 'zod';
 import {randomUUID} from 'node:crypto';
 import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
+import {COMMON_MODULES} from '../../../../lib/studio-modules.mjs';
 export const dynamic='force-dynamic';
 const saveSchema=z.object({title:z.string().trim().min(1).max(120),code:z.string().min(10).max(15000),
- parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),templateSlug:z.string().regex(/^[a-z0-9-]{0,70}$/).default(''),board:z.enum(BOARD_OPTIONS.map(item=>item.id))});
+ parts:z.array(z.string().regex(/^cb-\d{3}$/)).max(16),moduleIds:z.array(z.enum(COMMON_MODULES.map(module=>module.id))).max(8).default([]),templateSlug:z.string().regex(/^[a-z0-9-]{0,70}$/).default(''),board:z.enum(BOARD_OPTIONS.map(item=>item.id))});
 export async function GET(){
  let user;try{user=await requireUser();}catch{return Response.json({error:'Sign in required.'},{status:401});}
  try{
-  const r=await db().query('SELECT id,title,template_slug,code,board,selected_parts,updated_at,created_at FROM studio_projects WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 20',[user.id]);
+  const r=await db().query('SELECT id,title,template_slug,code,board,selected_parts,selected_modules,updated_at,created_at FROM studio_projects WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 20',[user.id]);
   return Response.json({projects:r.rows},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'Project history is currently unavailable.'},{status:503});}
 }
@@ -26,7 +27,7 @@ export async function POST(request){
   const count=await client.query('SELECT count(*)::integer AS n FROM studio_projects WHERE user_id=$1',[user.id]);
   if(count.rows[0].n>=STUDENT_UAT.limits.cloudProjects){await client.query('ROLLBACK');return Response.json({error:'Student / Hobby UAT accounts can save up to '+STUDENT_UAT.limits.cloudProjects+' projects. Remove one in your dashboard to save another.'},{status:409});}
   const id=randomUUID();
-  await client.query('INSERT INTO studio_projects(id,user_id,title,template_slug,code,board,selected_parts) VALUES($1,$2,$3,$4,$5,$6,$7)',[id,user.id,data.title,data.templateSlug,data.code,data.board,JSON.stringify(data.parts)]);
+  await client.query('INSERT INTO studio_projects(id,user_id,title,template_slug,code,board,selected_parts,selected_modules) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,user.id,data.title,data.templateSlug,data.code,data.board,JSON.stringify(data.parts),JSON.stringify(data.moduleIds)]);
   await client.query('COMMIT');
   return Response.json({id,title:data.title},{status:201});
  }catch{if(client){try{await client.query('ROLLBACK');}catch{}}return Response.json({error:'Unable to save project. Please retry.'},{status:503,headers:{'Cache-Control':'no-store'}});}

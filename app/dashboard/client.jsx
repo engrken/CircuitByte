@@ -2,6 +2,7 @@
 import {useEffect,useState} from 'react';
 import {createAuthClient} from 'better-auth/react';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
+import {StudioKnowledgeReview} from './knowledge-review';
 const auth=createAuthClient();
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
@@ -105,6 +106,7 @@ export default function StudioAccount(){
     <button onClick={loadReviews} type="button">Load review queue</button>
     {adminQueue&&<ul className="account-projects">{adminQueue.map(p=><li key={p.user_id}><div><strong>{p.school_name}</strong><span>{p.name} · {p.email} · {p.public_consent?'Opted in':'Private'} · {p.school_public_approved?'Approved':'Unapproved'}</span></div><div><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,true)}>Verified &amp; approve</button><button type="button" disabled={busy||(!p.school_public_approved&&!p.school_verified)} onClick={()=>review(p.user_id,false)}>Revoke</button></div></li>)}</ul>}
    </section>}
+   {isAdmin&&<StudioKnowledgeReview/>}
   </div>}
  </div>;
 }

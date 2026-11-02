@@ -5,3 +5,13 @@
 .account-form .account-check .account-check-copy{display:block;flex:1 1 0;min-width:0;overflow-wrap:break-word;word-break:normal;font-weight:400;line-height:1.65}
 .account-form .account-check .account-check-copy strong{display:inline;font-weight:700}
 .account-uat{margin:0 0 22px;border-color:#abc99d!important;background:#eff8e9!important}.account-uat p{font-size:14px;line-height:1.8}.account-uat a{font-weight:700;color:#28593e}
+
+
+/* Member knowledge review moderation; never shown to unprivileged accounts. */
+.studio-knowledge-review-form{padding:16px;margin-top:16px;border:1px solid #c6d8c3;border-radius:10px;background:#f7faf5}
+.studio-knowledge-review-form h3{font-size:19px;margin:4px 0 10px}
+.studio-knowledge-review-form p{font-size:12px;color:#536956;line-height:1.6}
+.studio-knowledge-review-form label{display:block;font-weight:700;font-size:12px;margin:12px 0;color:#244b34}
+.studio-knowledge-review-form label input,.studio-knowledge-review-form label textarea{display:block;margin-top:7px;padding:11px;border:1px solid #bfcebd;border-radius:7px;background:white;color:#183422;font:inherit;width:100%;min-width:0;box-sizing:border-box}
+.studio-review-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.studio-review-actions button{min-height:40px}
+@media(max-width:600px){.studio-knowledge-review-form{padding:12px}.studio-review-actions{flex-direction:column}}

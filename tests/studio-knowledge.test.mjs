@@ -55,7 +55,7 @@ test('Shared knowledge only accepts sources from vetted manufacturer or official
  for(const url of ['https://evil.example/docs','https://docs.arduino.cc.evil.example/','http://docs.arduino.cc','https://user:pass@www.u-blox.com/','https://localhost/private'])
   assert.equal(isReviewedSourceUrl(url),false,url);
 });
-test('Release notices contain stable IDs, dates and readable change logs',()=>{
+test('Release notices contain stable IDs, dates and readable change logs',async()=>{
  assert.ok(changelog.length>=2);
  assert.equal(new Set(changelog.map(item=>item.id)).size,changelog.length);
  assert.ok(changelog.every(item=>/^20\d{2}-\d\d-\d\d$/.test(item.date)&&item.title&&item.highlights.length));

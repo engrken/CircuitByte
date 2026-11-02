@@ -18,7 +18,7 @@ export default function StudioPage() {
         <p>Choose the hardware you have, describe what you want it to do, and start from a catalog-linked Arduino design. Follow the Project Success Coach to check requirements, inspect wiring, diagnose compilation errors and test the actual prototype.</p>
         <div className="studio-hero-links"><a href="#workspace" className="edu-button">Open workspace →</a><a href="/diy">See guided projects</a><a href="/studio/pricing">Pricing plans</a></div>
       </div>
-      <aside className="studio-hero-card"><span>01  PICK YOUR PARTS</span><span>02  DESCRIBE THE IDEA</span><span>03  REVIEW THE SKETCH</span><span>04  COMPILE &amp; TEST</span><p>Guided templates and editable sketches are publicly available. Cloud compilation requires an enabled service and verified login. USB flashing supports Uno R3 ATmega328P Optiboot in Web Serial-capable browsers.</p></aside>
+      <aside className="studio-hero-card"><span>01  PICK YOUR PARTS</span><span>02  DESCRIBE THE IDEA</span><span>03  REVIEW THE SKETCH</span><span>04  COMPILE &amp; TEST</span><p>Guided templates and editable sketches are publicly available. Cloud compilation requires an enabled service and verified login. USB flashing supports Uno, classic Nano and listed ESP-family boards in Web Serial-capable desktop browsers. See the board support table for upload methods.</p></aside>
     </section>
     <StudioWorkspace parts={parts} specs={specs} releaseRevision={process.env.VERCEL_GIT_COMMIT_SHA||''}/>
   </EducationShell>;

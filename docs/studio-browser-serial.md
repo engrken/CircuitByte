@@ -1,41 +1,29 @@
-# CircuitByte Studio: Browser USB Serial and Firmware Upload Beta
+# Studio browser hardware support
 
-## What is implemented
+Updated November 2, 2026. Implementation is available for owner-led UAT; physical-device success is not claimed.
 
-The Studio workbench at `/studio` offers client-side, user-permission-based Web Serial hardware tools independent of SaaS subscriptions:
+| Target | Browser uploader | Firmware |
+| --- | --- | --- |
+| Uno R3 ATmega328P | STK500v1, 115200 baud | Intel HEX; 32,256-byte application limit |
+| Classic Nano ATmega328P | STK500v1, 115200 baud | Intel HEX; 30,720-byte application limit |
+| Classic Nano old bootloader | STK500v1, 57600 baud | Intel HEX; 30,720-byte application limit |
+| ESP8266 NodeMCU | Espressif esptool-js | Matching complete BIN / offset 0 |
+| ESP32, ESP32-S3, ESP32-C3 | Espressif esptool-js | Core-produced merged image or explicitly addressed matching BIN files |
+| M5Stack Core ESP32 | Espressif esptool-js | Same ESP32 chip family; owner must confirm model/revision |
+| Mega 2560, Leonardo | Arduino IDE upload | Browser bootloader protocols not implemented |
 
-- `Connect / Choose USB port` invokes `navigator.serial.requestPort()` directly from a user click, and `Refresh permitted ports` calls `getPorts()`. No hidden probing or automatic device permission; browsers expose only ports the origin has permission for.
-- USB VID/PID hints for Arduino USB, WCH CH340/CH341/CH910x, CP210x, and FTDI. **VID/PID does not prove the MCU, exact board or installed bootloader.** The hardware identity must be confirmed by the person.
-- A Web Serial monitor at selectable 9600/19200/38400/57600/115200 baud with incoming text, editable send text, line endings and clear/disconnect actions. Monitor and uploading never own the same port at the same time.
-- Experimental Arduino UNO R3 (ATmega328P/Optiboot, 115200-baud STK500v1) firmware upload using a user-supplied Intel HEX file or a compiled artifact returned by the existing admin-only compiler.
-- Strict HEX checksum, record length, EOF and 32,256-byte application flash bounds checks; chip signature must equal ATmega328P `1E 95 0F`, programming uses 128-byte pages with byte-for-byte readback verification.
-- User must select a port and separately check an explicit authorization/warning box before overwriting any board firmware. No background uploads.
-- `/api/studio/compile` now attempts to include a `.ino.hex` artifact when an **admin-authorized and explicitly enabled** isolated Arduino CLI build succeeds. Production compiler remains disabled by default; this change does **not** enable paid compute or remove authentication.
+All ten listed targets retain code generation, compilation, wiring guides and optional AI illustrations. This does not mean every board supports the same browser upload protocol or arbitrary firmware simulation.
 
-## Browser and hardware limitations
+Use HTTPS and a desktop Web Serial browser such as Chrome or Edge. Phone/tablet users can edit, view diagrams and shop; USB depends on actual browser support. Ports require a user gesture and explicit device permission. Upload requires separate overwrite consent. AVR upload checks the MCU signature and readback; ESP upload detects the chip family, checks flash capacity, rejects overlapping sectors and verifies transfer MD5. No automatic full-chip erase is requested. A merged image still overwrites every region it contains, including possible stored data.
 
-The Web Serial API requires HTTPS (or a secure context), browser support and a direct user permission prompt. Chromium desktop browsers are a primary target. Some Android browsers and Android USB/OTG configurations expose serial devices but this is not universal. Safari/iOS, many in-app browsers and environments without Web Serial must use code/HEX downloads and a desktop Arduino IDE.
+ESP32 core 3.3.12 emits a merged image padded to the configured flash size. The server transports that image using gzip/base64, keeping the exact bytes and its offset; the browser decompresses before writing or downloading. If no merged image is available, application-only downloads remain explicitly labelled. Imported firmware offsets must come from the matching build upload command.
 
-USB serial is not the same thing as WebUSB. A generic USB-to-serial VID/PID (including CH340) alone cannot identify the device behind it. A serial monitor will not automatically discover which sketch or pinout is installed.
+## Illustrated wiring guides
 
-The first uploader only supports **UNO R3 / ATmega328P running compatible Optiboot at 115200 baud**. It intentionally refuses incorrect MCU signatures; Leonardo, Mega, ESP32, native-USB variants, Arduino UNO R4, older Nano bootloaders and other targets are unsupported until separately implemented and tested. This is not a universal Arduino board compiler or device manager.
+The free SVG is generated directly from connection data. Drawn board terminals are symbolic, not a physical pinout. AI illustration uses an on-demand server-side AI Gateway image request, with verified sign-in, the existing UAT gate, same-origin validation and the shared 30-request AI allowance. One quota unit is reserved before the provider call; no automatic retries are made. No sketch or credentials are sent to the image provider. Generated images remain in page memory and can be downloaded; they are not automatically published to public Blob storage.
 
-Bootloader reset timing and USB bridge DTR behavior vary. The USB serial port must not be open in the native Arduino IDE or another terminal. Disconnect other devices, ensure a data-capable cable and choose a supported browser. Uploading overwrites the existing sketch; verify electronics power and safe physical wiring first.
+Model default: google/gemini-3.1-flash-image, discovered from the Gateway model catalog. STUDIO_DIAGRAM_MODEL can override this with a compatible multimodal image model. Generated labels and placement must be checked against the connection table and manufacturer datasheets. Output is an illustration, not a verified electrical schematic.
 
-## What is and is not verified
+## Release validation scope
 
-- New `tests/studio-serial.test.mjs` unit tests simulate the UNO bootloader using a mock serial port, including sync, MCU signature, write, readback, checksum and failure paths.
-- CI and Vercel build check JavaScript and server routes.
-- **No real USB Arduino UNO board is attached to this assistant environment.** Actual physical upload, DTR reset timing, CH340 driver behavior, Windows COM port selection and Android/OTG compatibility must be bench-tested on target hardware before promoting the uploader from experimental to validated.
-- Existing CircleCI Arduino CLI compilation tests verify existing examples; they do not automatically verify the new on-demand sandbox endpoint or hardware upload.
-- Cloud compilation and AI drafting remain restricted to CircuitByte administrators and disabled unless explicitly enabled. Neither subscription payments nor unlimited compilation is enabled.
-
-## Future Arduino IDE parity
-
-1. Bench-test UNO R3 and clone bridges on Windows and Android where supported, publish a compatibility matrix.
-2. Package a pinned Arduino CLI sandbox image with installed toolchains and a quota-guarded queue for paid cloud compiles.
-3. Offer explicit board/FQBN selection, library management, syntax diagnostics and persistent project accounts.
-4. Introduce separate, hardware-tested upload protocols per board family, direct serial-plotting UI and firmware artifacts with expiry/permissions.
-5. Provide a signed, opt-in local desktop bridge for browsers and boards inaccessible through native Web Serial.
-
-No changes to CLEAR System, existing CircuitByte marketplace pricing, financial collections, stock or subscriber billing.
+At the owner's request, no test suite, browser walkthrough, paid image request or physical flashing run was performed for this update. Source syntax review and the required deployment build are separate from UAT. The release commit skips CI jobs to conserve resources.

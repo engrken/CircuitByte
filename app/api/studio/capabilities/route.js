@@ -1,3 +1,4 @@
+import {UPLOAD_PROFILES} from '../../../../lib/studio-upload-profiles.mjs';
 import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 import {requireUser} from '../../../../lib/auth.js';
 import {readStudentQuota} from '../../../../lib/studio-usage.mjs';
@@ -11,8 +12,9 @@ export async function GET(){
  return Response.json({
   authenticated:Boolean(user),
   aiEnabled:uat.active&&process.env.STUDIO_AI_ENABLED==='true'&&Boolean(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN),
+  diagramEnabled:uat.active&&process.env.STUDIO_AI_ENABLED==='true'&&Boolean(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN),
   compilerEnabled:uat.active&&process.env.STUDIO_COMPILER_ENABLED==='true',uat,
   usbUploadEnabled:process.env.STUDIO_USB_UPLOAD_ENABLED==='true',
-  compileBoards:BOARD_OPTIONS.map(board=>board.id),uploadBoards:['arduino:avr:uno'],usage
+  compileBoards:BOARD_OPTIONS.map(board=>board.id),uploadBoards:Object.keys(UPLOAD_PROFILES),usage
  },{headers:{'Cache-Control':'private, no-store'}});
 }

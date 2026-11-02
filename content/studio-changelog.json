@@ -1,5 +1,19 @@
 [
   {
+    "id": "studio-illustrated-usb-responsive-20261102",
+    "date": "2026-11-02",
+    "title": "AI wiring illustrations, ESP/Nano flashing and responsive Studio",
+    "type": "Studio",
+    "highlights": [
+      "Generate an illustrated board-and-module wiring guide on demand, with colored wires, pin mapping and voltage notes. One shared AI credit per request; compare the image against the exact connection table.",
+      "The free connection guide has a cleaner board view, readable pin cards, zoom and SVG download.",
+      "Browser flashing now includes classic Nano (new/old bootloaders), ESP8266, ESP32, ESP32-S3, ESP32-C3 and M5Stack Core, with chip checks and transfer verification. Hardware UAT is pending.",
+      "The support table distinguishes code/compile, diagram and upload capabilities. Mega and Leonardo still use Arduino IDE for upload.",
+      "Phone and tablet layouts use touch-sized controls, scrollable tabs and readable wiring details. Desktop Chrome/Edge is recommended for USB work.",
+      "This release is handed to the owner for UAT without automated test-suite or browser-test runs."
+    ]
+  },
+  {
     "id": "studio-connected-preview-shop-20261102",
     "date": "2026-11-02",
     "title": "Connected board diagrams and shoppable parts",

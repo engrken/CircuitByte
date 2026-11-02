@@ -165,3 +165,25 @@
 @media print{.studio-module-guide,.studio-catalog-guides{display:none!important}}
 
 .studio-example-guide-button{background:#23533f;color:white;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-size:12px;font-weight:800;line-height:1.4;margin:8px 0}.studio-example-guide-button:hover{background:#316a4c}.studio-example-guide-button:focus-visible{outline:3px solid #8fae6f;outline-offset:2px}
+
+/* Project Success Coach */
+.studio-project-coach{border-color:#c3d9c3;display:grid;gap:10px}
+.studio-coach-heading{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.studio-coach-heading h3{font-size:21px;margin:4px 0}
+.studio-coach-heading strong{background:#e9f3ec;color:#205a40;border-radius:8px;padding:9px;font-size:12px}
+.studio-project-coach h4{font-size:14px;margin:5px 0}
+.studio-coach-questions{background:#f5f9ed;border-left:4px solid #749651;padding:12px}
+.studio-coach-questions ul,.studio-coach-actions{padding-left:22px;font-size:13px;line-height:1.65}
+.studio-coach-actions li{margin:7px 0;overflow-wrap:anywhere}
+.studio-coach-blocker{color:#86392d}.studio-coach-review{color:#805f34}.studio-coach-next{color:#245b40}
+.studio-coach-repair{border:1px solid #bbd4c0;background:#f0f7f1;border-radius:9px;padding:12px}
+.studio-coach-repair p,.studio-coach-disclaimer{font-size:12px;line-height:1.65}
+.studio-coach-repair button{background:#21563e;color:white;border:0;border-radius:8px;padding:10px;cursor:pointer}
+.studio-coach-repair button:disabled{opacity:.6}
+.studio-bench-checks{border:1px solid #c4d9c9;border-radius:9px;padding:12px}
+.studio-bench-checks legend{font-weight:700;font-size:13px}
+.studio-bench-checks label{display:flex;align-items:start;gap:9px;font-size:13px;line-height:1.5;margin:9px 0}
+.studio-bench-checks input{flex-shrink:0}
+.studio-coach-disclaimer{color:#705d4f;border-top:1px solid #dfebdf;padding-top:10px}
+@media(max-width:600px){.studio-project-coach{padding:16px}}
+@media print{.studio-project-coach{display:none!important}}

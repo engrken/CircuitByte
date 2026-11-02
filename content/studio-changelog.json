@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-success-coach-20261102",
+    "date": "2026-11-02",
+    "title": "Project Success Coach and AI compiler repair",
+    "type": "Studio",
+    "highlights": [
+      "Adaptive guidance now identifies missing parts, vague requirements, unverified GPIO ratings, electrical warnings, and next steps.",
+      "A failed compilation can trigger an explicit quota-counted AI repair without deleting the old browser draft.",
+      "Potential secrets in code or diagnostics are rejected before AI repair.",
+      "Users can record physical bench checks; software results do not guarantee hardware function."
+    ]
+  },
+  {
     "id": "studio-knowledge-20261102",
     "date": "2026-11-02",
     "title": "Common modules, release notices & reviewed knowledge",

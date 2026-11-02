@@ -149,3 +149,17 @@
 .studio-external-sources li{margin:12px 0;font-size:12px}.studio-external-sources small{color:#8a6039}
 @media(max-width:750px){.studio-knowledge-results{grid-template-columns:1fr}.studio-updates-heading{flex-wrap:wrap}.studio-knowledge-search>div{flex-direction:column}.studio-updates{padding:16px}}
 @media print{.studio-updates,.studio-knowledge-shell{display:none!important}}
+
+
+/* What Is This and How To tutorials for both catalog-linked and reference-only modules. */
+.studio-module-guide,.studio-catalog-guides details{border:1px solid #d3e3d2;border-radius:9px;background:#f8fbf6;padding:10px 12px;margin:10px 0}
+.studio-module-guide summary,.studio-catalog-guides summary{cursor:pointer;font-weight:800;font-size:12px;color:#205740;line-height:1.6}
+.studio-module-guide h4,.studio-catalog-guides h4{font-size:13px;color:#205039;margin:12px 0 6px}
+.studio-module-guide ol,.studio-catalog-guides ol{padding-left:22px;margin:8px 0;line-height:1.6;color:#375440;font-size:12px}
+.studio-module-guide li,.studio-catalog-guides li{margin-bottom:8px;overflow-wrap:anywhere}
+.studio-module-guide-body p,.studio-catalog-guides details p{font-size:12px;line-height:1.7}
+.studio-catalog-guides{background:#f8fbf7;border:1px solid #cbdccc;padding:12px;border-radius:10px;margin:15px 0}
+.studio-catalog-guides h4{margin:4px 0 10px}
+.studio-catalog-guides a{font-size:12px;font-weight:700;text-decoration:underline;color:#216442}
+@media(max-width:600px){.studio-module-guide,.studio-catalog-guides details{padding:9px}.studio-module-guide summary,.studio-catalog-guides summary{font-size:13px}}
+@media print{.studio-module-guide,.studio-catalog-guides{display:none!important}}

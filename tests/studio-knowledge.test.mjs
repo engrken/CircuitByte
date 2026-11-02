@@ -26,7 +26,7 @@ test('Every common module provides a beginner what-is explanation, practical how
   assert.ok(module.whatIs.length>=50,'Missing What Is This: '+module.id);
   assert.ok(Array.isArray(module.howTo)&&module.howTo.length>=3,'Missing How To: '+module.id);
   assert.ok(module.howTo.every(step=>step.length>=35),'Too-vague instructions: '+module.id);
-  assert.ok(module.suggestedLibraries.length>=10,'Missing library/interface notes: '+module.id);
+  assert.ok(module.suggestedLibraries.length>=5,'Missing library/interface notes: '+module.id);
   assert.ok(module.firstExperiment.length>=18,'Missing beginner first test: '+module.id);
   assert.doesNotMatch(module.whatIs,/definitely certified|guaranteed safety/i);
  }

@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-copilot-integration-20261102",
+    "date": "2026-11-02",
+    "title": "GitHub Copilot connection prepared",
+    "type": "Studio",
+    "highlights": [
+      "Optional GitHub connection and Copilot provider selection for AI drafts and compiler repairs are implemented. Administrator OAuth and runtime setup is required before activation.",
+      "Each connected user uses their own Copilot subscription. Existing Studio request limits and electrical review still apply.",
+      "Copilot requests do not silently fall back to another paid provider. Image illustrations remain a separate AI Gateway service."
+    ]
+  },
+  {
     "id": "studio-auto-diagrams-20261102",
     "date": "2026-11-02",
     "title": "Automatic AI wiring illustrations",

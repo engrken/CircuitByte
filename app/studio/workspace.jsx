@@ -6,6 +6,7 @@ import {reviewElectricalDesign} from '../../lib/studio-electrical-verification.m
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {StudioUsbTools} from './usb-tools';
+import {StudioCopilot} from './copilot';
 import {StudioAiDiagram,useAutomaticDiagram} from './ai-diagram';
 import {UPLOAD_PROFILES,decodeEspImage} from '../../lib/studio-upload-profiles.mjs';
 import {StudioConnectionDiagram} from './connection-diagram';
@@ -46,6 +47,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [error,setError]=useState('');
   const [compile,setCompile]=useState(null);
   const [mode,setMode]=useState('guide');
+  const [aiProvider,setAiProvider]=useState('gateway');
   const [tab,setTab]=useState('code');
   const [notice,setNotice]=useState('');
   const [codeDirty,setCodeDirty]=useState(false);
@@ -104,6 +106,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!services)return 'Checking service availability…';
     if(services.uat&&!services.uat.active)return services.uat.message;
     if(!(operation==='ai'?services.aiEnabled:services.compilerEnabled))return operation==='ai'?'AI generation is currently unavailable.':'Cloud compilation is currently unavailable.';
+    if(operation==='ai'&&aiProvider==='copilot'&&!services.copilot?.connected)return 'Connect GitHub Copilot below before generating.';
     if(!services.authenticated)return 'Sign in with a verified account to continue.';
     if(!services.usage)return 'Usage information is unavailable. Please refresh status.';
     if(services.usage[operation].remaining===0)return 'Your monthly allowance has been reached.';
@@ -164,7 +167,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
         setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
-        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules});
+        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
         setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
         setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
@@ -183,7 +186,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!compile||compile.ok||!code.trim()||aiReason)return;
     checkpoint();setError('');setLoading(true);
     try{
-      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400)});
+      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400),provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
       setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
       setCode(result.code);setCodeDirty(true);setCompile(null);setTab('code');
       setNotice('AI suggested a repair. Your previous sketch is in browser recovery. Review wiring, then recompile.');
@@ -255,6 +258,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
     <StudioUpdates revision={releaseRevision}/><aside className="studio-device-tip"><strong>Best on a desktop or laptop</strong><p>Use your phone or tablet to plan, edit, view diagrams and shop. For a larger workbench and USB flashing, we recommend desktop Chrome or Edge with a USB data cable. Hardware controls appear only when this browser supports Web Serial.</p></aside>
+    <StudioCopilot services={services} provider={aiProvider} onProvider={setAiProvider} refresh={refreshServices} disabled={working}/>
     <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
     {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
     <section className="studio-service-strip" aria-label="Studio service availability">

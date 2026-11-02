@@ -59,3 +59,10 @@ test('Library discovery keeps board-native Wi-Fi headers on their actual board',
  assert.deepEqual(esp8266.unknownIncludes,[]);
  assert.ok(resolveStudioLibraries({board:'arduino:avr:uno',code:'#include <ESP8266WiFi.h>'}).unknownIncludes.includes('ESP8266WiFi.h'));
 });
+
+test('Interactive Studio library manager passes the selected target board to resolution and include insertion',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const source=await readFile(new URL('../app/studio/library-tools.jsx',import.meta.url),'utf8');
+ assert.match(source,/resolveStudioLibraries\(\{parts,code,manualLibraries,board\}\)/);
+ assert.match(source,/insertSuggestedIncludes\(code,parts,manualLibraries,board\)/);
+});

@@ -6,6 +6,7 @@ import {discoverModuleReferences} from '../lib/studio-research.mjs';
 import {isReviewedSourceUrl,normalizeKnowledgeKey} from '../lib/studio-knowledge-store.mjs';
 import catalog from '../scripts/catalog.json' with {type:'json'};
 import changelog from '../content/studio-changelog.json' with {type:'json'};
+import {resolveStudioLibraries} from '../lib/studio-libraries.mjs';
 
 test('Module reference library is complete, unique, searchable and linked to real catalog IDs',()=>{
  const ids=new Set(catalog.map(x=>x.id));
@@ -45,6 +46,25 @@ test('Catalog-linked module selections and the Knowledge Center both expose step
  assert.match(ui,/Generate AI Project/);
  const ai=await readFile(new URL('../app/api/studio/ai/route.js',import.meta.url),'utf8');
  assert.match(ai,/setupGuide:module\.howTo/);
+});
+test('Common module Arduino headers resolve to well-known managed libraries with dependencies',()=>{
+ const patterns={
+  'Adafruit_BME280.h':['Adafruit BME280 Library','Adafruit Unified Sensor','Adafruit BusIO'],
+  'Adafruit_BMP280.h':['Adafruit BMP280 Library','Adafruit BusIO'],
+  'Adafruit_MPU6050.h':['Adafruit MPU6050','Adafruit BusIO'],
+  'Adafruit_ADS1X15.h':['Adafruit ADS1X15','Adafruit BusIO'],
+  'Adafruit_INA219.h':['Adafruit INA219','Adafruit BusIO'],
+  'Adafruit_PN532.h':['Adafruit PN532','Adafruit BusIO'],
+  'DallasTemperature.h':['DallasTemperature','OneWire'],
+  'MFRC522.h':['MFRC522'],
+  'RF24.h':['RF24'],
+  'RadioLib.h':['RadioLib']
+ };
+ for(const [header,packages] of Object.entries(patterns)){
+  const resolved=resolveStudioLibraries({code:'#include <'+header+'>',board:'arduino:avr:uno'});
+  assert.deepEqual(resolved.unknownIncludes,[],header);
+  for(const item of packages)assert.ok(resolved.packages.includes(item),header+' missing '+item);
+ }
 });
 test('Shared module selection is bounded and inherited input IDs are never accepted',()=>{
  const result=selectKnownModules(['sim900a','neo6m','sim900a','__proto__','constructor']);

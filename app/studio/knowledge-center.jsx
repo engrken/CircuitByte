@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
 
-export function StudioKnowledgeCenter({selectedModules=[],onToggleModule=()=>{}}){
+export function StudioKnowledgeCenter({selectedModules=[],onToggleModule=()=>{},onStartExample=()=>{}}){
  const [query,setQuery]=useState('');
  const [result,setResult]=useState({modules:COMMON_MODULES.slice(0,12),reviewed:[],knowledgeAvailable:true});
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
@@ -60,6 +60,7 @@ export function StudioKnowledgeCenter({selectedModules=[],onToggleModule=()=>{}}
         <ol>{module.howTo.map((step,i)=><li key={i}>{step}</li>)}</ol>
         <p><strong>Libraries or programming interface:</strong> {module.suggestedLibraries}</p>
         <p><strong>First hands-on test:</strong> {module.firstExperiment}</p>
+        <button type="button" className="studio-example-guide-button" onClick={()=>onStartExample(module)}>Try this beginner example in Studio</button>
       </div>
     </details>
     <p className="studio-knowledge-caution">{module.caution}</p>

@@ -103,7 +103,7 @@ export default function StudioAccount(){
    </section>
    {!isAdmin?null:<section className="account-card account-admin-review"><h2>School verification (admin only)</h2><p>Administrators must verify actual affiliation and consent before approving public listing. Do not rely on self-declared school names alone.</p>
     <button onClick={loadReviews} type="button">Load review queue</button>
-    {adminQueue&&<ul className="account-projects">{adminQueue.map(p=><li key={p.user_id}><div><strong>{p.school_name}</strong><span>{p.name} · {p.email} · {p.public_consent?'Opted in':'Private'} · {p.school_public_approved?'Approved':'Unapproved'}</span></div><div><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,true)}>Verified &amp; approve</button><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,false)}>Revoke</button></div></li>)}</ul>}
+    {adminQueue&&<ul className="account-projects">{adminQueue.map(p=><li key={p.user_id}><div><strong>{p.school_name}</strong><span>{p.name} · {p.email} · {p.public_consent?'Opted in':'Private'} · {p.school_public_approved?'Approved':'Unapproved'}</span></div><div><button type="button" disabled={busy||!p.public_consent} onClick={()=>review(p.user_id,true)}>Verified &amp; approve</button><button type="button" disabled={busy||(!p.school_public_approved&&!p.school_verified)} onClick={()=>review(p.user_id,false)}>Revoke</button></div></li>)}</ul>}
    </section>}
   </div>}
  </div>;

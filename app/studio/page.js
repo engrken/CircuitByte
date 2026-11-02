@@ -20,6 +20,6 @@ export default function StudioPage() {
       </div>
       <aside className="studio-hero-card"><span>01  PICK YOUR PARTS</span><span>02  DESCRIBE THE IDEA</span><span>03  REVIEW THE SKETCH</span><span>04  COMPILE &amp; TEST</span><p>Guided templates and editable sketches are publicly available. Cloud compilation requires an enabled service and verified login. USB flashing supports Uno R3 ATmega328P Optiboot in Web Serial-capable browsers.</p></aside>
     </section>
-    <StudioWorkspace parts={parts} specs={specs}/>
+    <StudioWorkspace parts={parts} specs={specs} releaseRevision={process.env.VERCEL_GIT_COMMIT_SHA||''}/>
   </EducationShell>;
 }

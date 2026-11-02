@@ -131,6 +131,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       setManualLibraries([]);setCustomLibrary(null);setTab('code');
     }catch(error){setError(error.message||'Module starter could not be loaded.');}
   }
+  function startModuleExample(module){
+    checkpoint();
+    setExtraModules(current=>current.includes(module.id)?current:current.length<8?[...current,module.id]:[...current.slice(1),module.id]);
+    setPrompt('Using a '+module.name+' with my selected '+studioBoardName(board)+' board, create a low-voltage beginner learning project to '+module.firstExperiment.replace(/[.!]$/,'')+'. Include the required library, beginner code, verification procedure and wiring precautions.');
+    setMode('ai');setCompile(null);setError('');
+    setNotice('A beginner example prompt has been prepared. Review your materials and selected board, then choose Generate AI Project.');
+    document.getElementById('studio-idea')?.focus();
+  }
   const index=useMemo(()=>Object.fromEntries(parts.map(p=>[p.id,p])),[parts]);
   const filtered=useMemo(()=>parts.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(query.toLowerCase())),[parts,query]);
   const selectedModuleGuides=useMemo(()=>COMMON_MODULES.filter(module=>module.catalogIds.some(id=>selected.includes(id))),[selected]);
@@ -245,7 +253,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       <div className="studio-starter-grid">{MODULE_STARTERS.map(starter=><button type="button" key={starter.id} disabled={working} onClick={()=>startModuleProject(starter.id)}><strong>{starter.name}</strong><span>{starter.summary}</span></button>)}</div>
     </section>
     <details className="studio-knowledge-shell"><summary>Explore common modules and adaptive knowledge ({extraModules.length} reference modules selected)</summary>
-      <StudioKnowledgeCenter selectedModules={extraModules} onToggleModule={id=>{
+      <StudioKnowledgeCenter selectedModules={extraModules} onStartExample={startModuleExample} onToggleModule={id=>{
         setExtraModules(current=>current.includes(id)?current.filter(x=>x!==id):current.length<8?[...current,id]:current);
         setCompile(null);setCodeDirty(true);setMode('ai');
         setNotice('Module selection updated. Regenerate the AI draft and verify the exact breakout specifications before compiling.');
@@ -290,6 +298,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
               <ol>{module.howTo.map((step,i)=><li key={i}>{step}</li>)}</ol>
               <p><strong>Libraries:</strong> {module.suggestedLibraries}</p>
               <p><strong>First test:</strong> {module.firstExperiment}</p>
+              <button type="button" className="studio-example-guide-button" onClick={()=>startModuleExample(module)}>Try this beginner example</button>
               <p className="studio-knowledge-caution">{module.caution}</p>
               <a href={module.sourceUrl} target="_blank" rel="noopener noreferrer">Read technical reference</a>
             </details>)}

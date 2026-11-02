@@ -187,3 +187,5 @@
 .studio-coach-disclaimer{color:#705d4f;border-top:1px solid #dfebdf;padding-top:10px}
 @media(max-width:600px){.studio-project-coach{padding:16px}}
 @media print{.studio-project-coach{display:none!important}}
+
+.studio-diagram-scroll{overflow-x:auto;background:#fff;border-radius:12px;padding:12px}.studio-diagram-scroll svg{display:block;min-width:760px;width:100%;height:auto}.studio-connected-diagram{margin:16px 0}.studio-shop{padding:16px;border:1px solid #cbd5e1;border-radius:12px;margin-bottom:20px}.studio-shop button{min-height:40px;padding:8px 12px;cursor:pointer}.studio-shop button:disabled{opacity:.5;cursor:not-allowed}

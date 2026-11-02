@@ -1,14 +1,16 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
+import {StudioConnectionDiagram} from './connection-diagram';
+import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {previewArduinoSketch} from '../../lib/studio-preview.mjs';
-export function StudioCircuitPreview({code=''}){
- const simulation=useMemo(()=>previewArduinoSketch(code),[code]);
+export function StudioCircuitPreview({code='',board='arduino:avr:uno',connections=[],stale=false}){
+ const simulation=useMemo(()=>previewArduinoSketch(code,board),[code,board]);
  const [playing,setPlaying]=useState(true);
  const [elapsed,setElapsed]=useState(0);
  const [speed,setSpeed]=useState(1);
  useEffect(()=>{
   setElapsed(0);
- },[code]);
+ },[code,board]);
  useEffect(()=>{
   if(!playing||!simulation.supported)return;
   const clock=setInterval(()=>setElapsed(x=>x+50*speed),50);
@@ -20,14 +22,15 @@ export function StudioCircuitPreview({code=''}){
   for(const item of simulation.frames){frame=item;if(remaining<item.duration)break;remaining-=item.duration;}
  }
  return <section className="studio-preview" aria-label="Arduino output animation preview">
-  <header><div><span className="edu-kicker">VISUAL OUTPUT / PREVIEW</span><h3>What happens when this sketch runs?</h3></div><span className="studio-preview-label">ILLUSTRATIVE · NOT AVR EMULATION</span></header>
+  <header><div><span className="edu-kicker">VISUAL OUTPUT / PREVIEW</span><h3>What happens when this sketch runs?</h3></div><span className="studio-preview-label">ILLUSTRATIVE · SIGNAL MODEL · NOT FIRMWARE EMULATION</span></header>
+  <StudioConnectionDiagram board={board} connections={connections} output={simulation.supported?frame.output:{}} stale={stale}/>
   {!simulation.supported?<div className="studio-preview-unsupported"><strong>Live preview unavailable for this sketch.</strong><p>{simulation.reason}</p><p>The code editor, diagram, USB monitor and Arduino compiler can still be used. This preview does not invent behavior for unsupported code.</p></div>:
   <>
    <p>{simulation.disclaimer}</p>
    <div className="studio-preview-board">
-    <div className="studio-preview-chip"><strong>Arduino UNO R3</strong><small>GPIO signal model</small><span>ATmega328P</span></div>
+    <div className="studio-preview-chip"><strong>{studioBoardName(board)}</strong><small>GPIO signal model</small><span>Logical GPIO outputs</span></div>
     <div className="studio-preview-leds">
-     {simulation.pins.map(pin=><div className="studio-preview-led" key={pin}><span className={'studio-preview-bulb '+(frame.output[pin]?'lit':'')} role="img" aria-label={'Pin D'+pin+': '+(frame.output[pin]?'HIGH':'LOW')}></span><strong>D{pin}</strong><small>{frame.output[pin]?'HIGH · ON':'LOW · OFF'}</small><div className="studio-preview-wire" aria-hidden="true"></div></div>)}
+     {simulation.pins.map(pin=><div className="studio-preview-led" key={pin}><span className={'studio-preview-bulb '+(frame.output[pin]?'lit':'')} role="img" aria-label={'Pin '+pin+': '+(frame.output[pin]?'HIGH':'LOW')}></span><strong>Pin {pin}</strong><small>{frame.output[pin]?'HIGH · ON':'LOW · OFF'}</small><div className="studio-preview-wire" aria-hidden="true"></div></div>)}
     </div>
    </div>
    <div className="studio-preview-controls">

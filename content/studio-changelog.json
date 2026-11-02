@@ -1,5 +1,18 @@
 [
   {
+    "id": "studio-connected-preview-shop-20261102",
+    "date": "2026-11-02",
+    "title": "Connected board diagrams and shoppable parts",
+    "type": "Studio",
+    "highlights": [
+      "Every listed board now has a connection map generated from its project wiring rows.",
+      "Simple numeric GPIO HIGH/LOW sequences can be previewed across all board targets; unsupported firmware is explicitly labelled.",
+      "Connections highlight supported digital output states; edited sketches pause the wiring overlay until regenerated.",
+      "Parts / BOM reads current Product List prices and available stock, with individual Buy buttons and a required-parts cart action.",
+      "Unlisted boards, out-of-stock products, optional parts and missing supplies remain visible; checkout verifies prices and availability."
+    ]
+  },
+  {
     "id": "studio-success-coach-20261102",
     "date": "2026-11-02",
     "title": "Project Success Coach and AI compiler repair",

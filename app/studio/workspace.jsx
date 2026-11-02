@@ -257,18 +257,9 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems]);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   return <section className="studio-workspace" id="workspace">
-    <StudioUpdates revision={releaseRevision}/><aside className="studio-device-tip"><strong>Best on a desktop or laptop</strong><p>Use your phone or tablet to plan, edit, view diagrams and shop. For a larger workbench and USB flashing, we recommend desktop Chrome or Edge with a USB data cable. Hardware controls appear only when this browser supports Web Serial.</p></aside>
-    <StudioCopilot services={services} provider={aiProvider} onProvider={setAiProvider} refresh={refreshServices} disabled={working}/>
-    <header className="studio-heading"><span className="edu-kicker">WORKSPACE / MULTI-BOARD AI STUDIO</span><h2>Build a project</h2><p>Five published curriculum examples provide a guided starting point. Sign in with a verified Student account to generate custom AI drafts or compile a sketch for your selected board.</p></header>
-    {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
-    <section className="studio-service-strip" aria-label="Studio service availability">
-      <div><strong>{services?.authenticated?'Verified account':'Visitor workspace'}</strong><span>Guided projects, starters and browser drafts are free to use.</span><a href="/dashboard">{services?.authenticated?'My dashboard →':'Sign in / create account →'}</a></div>
-      <div><strong>AI generation</strong><span>{!services?'Checking availability…':!services.aiEnabled?'Currently unavailable':services.usage?services.usage.ai.remaining+' of '+services.usage.ai.limit+' AI credits remaining (drafts + diagrams)':'Available with verified sign-in'}</span></div>
-      <div><strong>Cloud compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
-      <button type="button" disabled={working} onClick={refreshServices}>Refresh status</button>
-      {serviceError&&<p role="status">Service status could not be loaded. Browser projects remain available.</p>}
-      {services?.usage&&<small>Usage period: {services.usage.period} ({services.usage.timeZone||'Asia/Manila'})</small>}
-    </section>
+    <header className="studio-workbench-header"><div><h2>Your workspace</h2><p>Desktop or laptop recommended for editing and USB flashing. Planning and diagrams work on mobile and tablet.</p></div><a href="#studio-workbench">Go to workbench ↓</a></header>
+    <div className="studio-quick-access">
+      <details className="studio-disclosure" id="studio-examples"><summary>Examples &amp; modules <span>Start with a ready-made project</span></summary><div className="studio-disclosure-body">
     <section className="studio-starters" aria-label="Project starters">
       <div><span className="edu-kicker">START WITH A COMPLETE EXAMPLE</span><h3>Choose a project. We’ll load its parts and sketch.</h3></div>
       <div className="studio-starter-grid">{STUDIO_BUILDS.map(build=><button type="button" key={build.slug} disabled={working} onClick={()=>chooseTemplate(build)}><strong>{build.title}</strong><span>{build.parts.length} catalog items · Uno · Code + diagrams</span></button>)}</div>
@@ -284,6 +275,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         setNotice('Module selection updated. Regenerate the AI draft and verify the exact breakout specifications before compiling.');
       }}/>
     </details>
+      </div></details>
+      <details className="studio-disclosure"><summary>Files &amp; saved drafts <span>Import or recover a project</span></summary><div className="studio-disclosure-body">
     <div className="studio-draft-toolbar" aria-label="Project file tools">
       <button type="button" disabled={working} onClick={()=>importRef.current?.click()}>Import project JSON</button>
       <input ref={importRef} type="file" accept=".json,application/json" onChange={importDraft} hidden aria-label="Import CircuitByte project file"/>
@@ -291,19 +284,35 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       {recovery&&<button type="button" disabled={working} onClick={()=>restoreDraft(recovery)}>Recover last project: {recovery.project.title}</button>}
       <span role="status">{draftStatus||'Draft recovery stores this project on your current browser.'}</span>
     </div>
+      </div></details>
+      <details className="studio-disclosure"><summary>Account &amp; AI settings <span>{services?.authenticated?'Signed in':'Sign in and service availability'}</span></summary><div className="studio-disclosure-body">
+    {services?.uat&&<aside className="studio-uat-banner" aria-label="Student Hobby UAT"><strong>{services.uat.active?'Student / Hobby UAT — Free through November 30, 2026':'Student / Hobby UAT closed'}</strong><p>{services.uat.message}</p><a href="/studio/pricing">View UAT access →</a></aside>}
+    <section className="studio-service-strip" aria-label="Studio service availability">
+      <div><strong>{services?.authenticated?'Verified account':'Visitor workspace'}</strong><span>Guided projects, starters and browser drafts are free to use.</span><a href="/dashboard">{services?.authenticated?'My dashboard →':'Sign in / create account →'}</a></div>
+      <div><strong>AI generation</strong><span>{!services?'Checking availability…':!services.aiEnabled?'Currently unavailable':services.usage?services.usage.ai.remaining+' of '+services.usage.ai.limit+' AI credits remaining (drafts + diagrams)':'Available with verified sign-in'}</span></div>
+      <div><strong>Cloud compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
+      <button type="button" disabled={working} onClick={refreshServices}>Refresh status</button>
+      {serviceError&&<p role="status">Service status could not be loaded. Browser projects remain available.</p>}
+      {services?.usage&&<small>Usage period: {services.usage.period} ({services.usage.timeZone||'Asia/Manila'})</small>}
+    </section>
+      <StudioCopilot services={services} provider={aiProvider} onProvider={setAiProvider} refresh={refreshServices} disabled={working}/>
+      </div></details>
+    </div>
+    {serviceError&&<p role="status" className="studio-error">Service status unavailable. Open Account &amp; AI settings to refresh.</p>}
     <div className="studio-grid">
       <div className="studio-controls">
         <section className="studio-panel">
-          <label className="studio-label" htmlFor="studio-board-choice">Target development board</label>
+          <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Choose your board</h3></div><label className="studio-label" htmlFor="studio-board-choice">Development board</label>
           <select id="studio-board-choice" disabled={working} value={board} onChange={e=>{const next=e.target.value;checkpoint();setBoard(next);setCompile(null);setProject(null);setCode('');setError('');setNotice('');setManualLibraries([]);setCustomLibrary(null);const item=BOARD_OPTIONS.find(x=>x.id===next);setSelected(current=>[...(item?.catalogId?[item.catalogId]:[]),...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode(next==='arduino:avr:uno'?'guide':'ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <button type="button" className="studio-secondary" disabled={working} onClick={startBoardProject}>Load {studioBoardName(board)} serial starter</button>
-          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing: Uno, classic Nano (both bootloaders), ESP8266, ESP32/S3/C3 and M5Stack Core. Mega and Leonardo currently use Arduino IDE for flashing. Hardware UAT is pending; compilation, visualization and USB flashing are separate capabilities.</p><details className="studio-capability-matrix"><summary>Board support: code, diagrams and flashing</summary><div className="studio-table"><table><thead><tr><th>Board</th><th>Code / compile target</th><th>Diagrams</th><th>Upload method</th></tr></thead><tbody>{BOARD_OPTIONS.map(item=><tr key={item.id}><td>{item.name}</td><td>Available</td><td>Wiring + AI illustration</td><td>{UPLOAD_PROFILES[item.id]?'Browser USB · hardware UAT pending':'Arduino IDE · browser protocol pending'}</td></tr>)}</tbody></table></div><p>Live animation supports simple GPIO sequences, not arbitrary firmware or full sensor simulation. Serial monitoring requires a compatible browser and permitted port.</p></details>
+<details className="studio-capability-matrix"><summary>Board support: code, diagrams and flashing</summary>          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing: Uno, classic Nano (both bootloaders), ESP8266, ESP32/S3/C3 and M5Stack Core. Mega and Leonardo currently use Arduino IDE for flashing. Hardware UAT is pending; compilation, visualization and USB flashing are separate capabilities.</p><div className="studio-table"><table><thead><tr><th>Board</th><th>Code / compile target</th><th>Diagrams</th><th>Upload method</th></tr></thead><tbody>{BOARD_OPTIONS.map(item=><tr key={item.id}><td>{item.name}</td><td>Available</td><td>Wiring + AI illustration</td><td>{UPLOAD_PROFILES[item.id]?'Browser USB · hardware UAT pending':'Arduino IDE · browser protocol pending'}</td></tr>)}</tbody></table></div><p>Live animation supports simple GPIO sequences, not arbitrary firmware or full sensor simulation. Serial monitoring requires a compatible browser and permitted port.</p></details>
         </section>
         <section className="studio-panel">
-          <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
+          <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
           <div className="studio-selected">{selected.map(id=><button type="button" key={id} disabled={working} onClick={()=>toggle(id)} title="Remove component">{index[id]?.name||id} ×</button>)}</div>
+          <details className="studio-catalog-picker"><summary>Add or browse parts <span>{selected.length}/16 selected</span></summary>
           <label className="studio-label" htmlFor="studio-parts-search">Find a product in the CircuitByte catalog</label>
           <input id="studio-parts-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search UNO, sensor, LED, LCD..." autoComplete="off"/>
           <p className="studio-help" aria-live="polite">Showing {filtered.length} matching parts · {selected.length}/16 selected</p>
@@ -315,6 +324,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             {!filtered.length&&<p>No matching catalog items found.</p>}
           </div>
           <p className="studio-help">Catalog items are suggestions, not proof that a particular module variant or quantity is in stock.</p>
+          </details>
           {selectedModuleGuides.length>0&&<div className="studio-catalog-guides" aria-label="How to use selected catalog modules">
             <h4>Learn about your selected modules</h4>
             {selectedModuleGuides.map(module=><details key={module.id}>
@@ -330,7 +340,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           </div>}
         </section>
         <section className="studio-panel">
-          <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Tell us what to build</h3></div>
+          <div className="studio-panel-heading"><span className="studio-step">03</span><h3>Describe your idea</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
           <textarea id="studio-idea" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
           <div className="studio-examples"><button type="button" disabled={working} onClick={startBlinkDemo}>Try live Blink LED preview</button>
@@ -351,13 +361,13 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {notice&&<p role="status" className="studio-notice">{notice}</p>}
         </section>
       </div>
-      <div className="studio-results">
-         <StudioProjectCoach report={coachReport} checks={benchChecks} onCheck={(id,checked)=>setBenchChecks(old=>({...old,[id]:checked}))} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/>
-        {!project ? <div className="studio-empty"><span>⌘</span><h3>Your workbench is ready</h3><p>Select components and describe a low-voltage project to view its code, material checklist and wiring table.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
+      <div className="studio-results" id="studio-workbench" tabIndex={-1}>
+
+        {!project ? <div className="studio-empty"><span>⌘</span><h3>Build something useful.</h3><p>Complete the three setup steps, or open Examples &amp; modules to load a starter. Your sketch, preview and wiring will appear here.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':project.method==='board-starter'?'SERIAL STARTER':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>
           {project.note&&<p className="studio-note">{project.note}</p>}
-          <div className="studio-warning" role="status"><strong>Electrical review: {electricalReview.status==='failed'?'Failed':electricalReview.status==='incomplete'?'Incomplete':'Static checks passed'}</strong><p>{electricalReview.notice} {codeDirty?'The sketch was edited after its reference diagram was prepared.':''}</p><ul>{electricalReview.findings.map((finding,i)=><li key={i}><strong>{finding.severity.toUpperCase()}:</strong> {finding.message}</li>)}</ul>{docProblems.length>0&&<p>Template specification issues: {docProblems.join('; ')}</p>}</div>
+          <details className="studio-warning studio-review" open={electricalReview.status==='failed'?true:undefined}><summary><strong>Electrical review: {electricalReview.status==='failed'?'Failed':electricalReview.status==='incomplete'?'Incomplete':'Static checks passed'}</strong><span>{codeDirty?' · Sketch changed — recheck wiring':' · View findings before wiring'}</span></summary><p>{electricalReview.notice} {codeDirty?'The sketch was edited after its reference diagram was prepared.':''}</p><ul>{electricalReview.findings.map((finding,i)=><li key={i}><strong>{finding.severity.toUpperCase()}:</strong> {finding.message}</li>)}</ul>{docProblems.length>0&&<p>Template specification issues: {docProblems.join('; ')}</p>}</details>
           {missing.length>0&&<div className="studio-warning"><strong>Missing from your selection</strong><p>This example requires additional catalog components:</p><ul>{missing.map(id=><li key={id}>{index[id]?.name||id} ({id})</li>)}</ul></div>}
           <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','preview','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" id={'studio-tab-'+item} aria-controls="studio-result-panel" tabIndex={tab===item?0:-1} aria-selected={tab===item} onKeyDown={e=>{const tabs=['code','preview','wiring','schematic','bom','safety'];const i=tabs.indexOf(item);const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:null;if(next!==null){e.preventDefault();setTab(tabs[next]);e.currentTarget.parentElement.querySelectorAll('[role=tab]')[next].focus();}}} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
           <div id="studio-result-panel" role="tabpanel" aria-labelledby={'studio-tab-'+tab} tabIndex={0}>
@@ -368,7 +378,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {tab==='bom'&&<div><StudioPartsShop spec={spec} selected={selected} board={board}/><p>Estimated materials for the <strong>published guided template</strong>. Prices are indicative only and are NOT a checkout quotation.</p>{spec?<><div className="studio-table"><table><thead><tr><th>Part</th><th>Qty</th><th>Unit (snapshot)</th><th>Est. subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td><strong>{line.name}</strong><small className="studio-bom-detail">{line.id} · {line.detail}{line.optional?' · optional':''}</small></td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table></div><p className="studio-bom-total"><strong>Listed required parts: {peso(bom.requiredTotal)}</strong><small>Optional variants: {peso(bom.optionalTotal)} extra</small></p>{bom.excluded.length>0&&<div className="studio-warning"><strong>Additional items excluded from the total</strong><ul>{bom.excluded.map((e,i)=><li key={i}><b>{e.qty} × {e.name}:</b> {e.reason}</li>)}</ul></div>}<p className="studio-help">{bom.pricingNotice}</p></>:<div className="studio-warning">This sketch has no reviewed materials list or cost estimate.</div>}</div>}
           {tab==='safety'&&<div className="studio-warning"><ul>{[...(project.warnings||[]),...(spec?.cautions||[])].map((item,i)=><li key={i}>{item}</li>)}</ul></div>}
           </div>
-          <div className="studio-buttons">
+          <details className="studio-export-tools"><summary>Save, download &amp; export</summary><div className="studio-buttons">
             <button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(code);setNotice('Sketch copied. Paste it into Arduino IDE.');}catch{setError('Clipboard access is unavailable. Select the sketch text or download the .ino file.');}}}>Copy sketch</button>
             <button type="button" onClick={exportDraft}>Export project JSON</button>
             <button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code,'text/plain')}>Download .ino</button>
@@ -377,21 +387,23 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             <button type="button" onClick={saveDraft}>Save browser draft</button>
             <button type="button" disabled={working} onClick={openDraft}>Load draft</button>
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
-          </div>
+          </div></details>
           <div className="studio-compile">
-            <div><h4>Real Arduino CLI compilation</h4><p>Builds run in an isolated cloud sandbox when enabled. Select the board that matches your hardware; compiler output identifies the target used. Physical wiring is not verified by the compiler.</p></div>
+            <div><h4>Compile your sketch</h4><p>Check the sketch for your selected board. Compilation does not verify physical wiring.</p></div>
             <button type="button" disabled={working||!code.trim()||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':'Compile for '+studioBoardName(board)}</button>
           </div>
           {compileReason&&<p className="studio-help">{compileReason}</p>}
           {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><p>Build target: {compile.fqbn||compile.board}</p><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled .hex</button>}{compile.ok&&compile.firmwareImages?.map((file,i)=><button type="button" key={i} onClick={async()=>{try{downloadText(file.name,await decodeEspImage(file),'application/octet-stream');}catch(e){setError(e.message);}}}>Download flash package · {file.name}</button>)}{compile.ok&&compile.firmwareBin&&<><button type="button" onClick={()=>{const bytes=Uint8Array.from(atob(compile.firmwareBin),char=>char.charCodeAt(0));downloadText('CircuitByteSketch.application.bin',bytes,'application/octet-stream');}}>Download application .bin</button><p>ESP application image only. Use the matching board's bootloader, partition layout and vendor upload tools; this is not a complete merged flash image.</p></>}{compile.ok&&!compile.artifactAvailable&&<p>Build completed, but no firmware artifact is available for download.</p>}</div>}
           <p className="studio-help">Use the USB hardware tools below for your selected board’s upload method or serial monitoring. Cloud compilation requires verified sign-in and a remaining monthly allowance. Printable sheets use the browser's Save as PDF option.</p>
         </section>}
+        {project&&<details className="studio-disclosure studio-coach-disclosure" open={compile&&!compile.ok?true:undefined}><summary>Project coach &amp; checks <span>{coachReport.phase}</span></summary><StudioProjectCoach report={coachReport} checks={benchChecks} onCheck={(id,checked)=>setBenchChecks(old=>({...old,[id]:checked}))} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/></details>}
       </div>
     </div>
-    {services?.usbUploadEnabled&&<StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/>}
+    {services?.usbUploadEnabled&&<details className="studio-disclosure studio-hardware-tools" open={usbBusy?true:undefined}><summary>USB upload &amp; serial monitor <span>Connect your physical board</span></summary><StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/></details>}
     <details className="studio-advanced"><summary>Libraries and advanced build settings</summary>
       <StudioLibraryTools board={board} readOnly={working} parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     </details>
+    <details className="studio-disclosure studio-release-notes"><summary>What’s new <span>Studio updates and release history</span></summary><StudioUpdates revision={releaseRevision}/></details>
     {project&&<section id="studio-print-sheet" className="studio-print-sheet" aria-label="Printable Arduino project sheet">
       <header><strong>CIRCUITBYTE / ARDUINO PROJECT SHEET</strong><p>Educational low-voltage prototype · {studioBoardName(project.board||board)} · {new Date().toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</p><h1>{project.title}</h1><p>{project.summary}</p></header>
       <h2>1. Requirements</h2><p>{project.prompt||prompt}</p>

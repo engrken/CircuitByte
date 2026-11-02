@@ -200,3 +200,75 @@
 @media(max-width:760px){.studio-workspace{padding-inline:16px}.studio-ai-diagram,.studio-connected-diagram{padding:14px}.studio-ai-diagram-heading,.studio-diagram-title,.studio-usb-heading,.studio-preview header{flex-wrap:wrap}.studio-preview-board{flex-wrap:wrap}.studio-preview-chip{max-width:100%}.studio-preview-controls{flex-wrap:wrap}.studio-device-tip{padding:14px}.studio-workspace button{min-height:44px}.studio-workspace input:not([type=checkbox]):not([type=radio]),.studio-workspace select{font-size:16px!important;min-height:44px}.studio-usb-send{display:flex;flex-wrap:wrap}.studio-usb-send input{flex:1 1 100%;min-width:0}.studio-board{white-space:normal;overflow-wrap:anywhere}.studio-ai-diagram h3{font-size:21px}.studio-wiring-notes{grid-template-columns:1fr}.studio-usb-panel{padding:16px}.studio-pin-cards{padding-left:20px}.studio-preview-label{white-space:normal!important}.studio-capability-matrix .studio-table table{min-width:570px}}
 @media(max-width:420px){.studio-workspace{padding-inline:10px}.studio-panel{padding:12px}.studio-hero h1{font-size:34px}.studio-device-tip p{font-size:12px}.studio-diagram-title h3{font-size:19px}.studio-buttons>*{flex:1 1 45%}}
 @media print{.studio-device-tip,.studio-capability-matrix,.studio-ai-diagram,.studio-connected-diagram{display:none!important}}
+
+/* Focused workbench: setup and results first, supporting tools on demand. */
+@media screen {
+ .studio-hero.studio-hero-compact{max-width:1500px;padding:30px 4% 24px;grid-template-columns:minmax(0,1fr) auto;gap:24px}
+ .studio-hero-compact h1{font-size:clamp(28px,3.2vw,44px);letter-spacing:-1.3px;margin:8px 0;line-height:1.2}
+ .studio-hero-compact p{font-size:14px;margin:0;line-height:1.7}
+ .studio-hero-compact .studio-hero-links{gap:16px;font-size:13px}
+ .studio-workspace{padding:26px max(4%,calc((100% - 1380px)/2)) 60px;background:#f4f6f2}
+ .studio-workbench-header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:18px}
+ .studio-workbench-header h2{font-size:21px;margin:0 0 6px;letter-spacing:-.4px}
+ .studio-workbench-header p{font-size:12px;line-height:1.6;color:#617268;margin:0;max-width:700px}
+ .studio-workbench-header>a{font-size:12px;font-weight:700;white-space:nowrap;color:#285c48}
+ .studio-quick-access{display:flex;flex-direction:column;gap:8px}
+ .studio-disclosure{border:1px solid #d9e2d8;border-radius:10px;background:#fff;min-width:0;overflow:clip}
+ .studio-disclosure>summary{padding:14px 17px;cursor:pointer;font-size:13px;font-weight:700;color:#284b3a;min-height:48px}
+ .studio-disclosure>summary span{font-size:12px;font-weight:400;color:#69796e;margin-left:10px}
+ .studio-disclosure[open]>summary{border-bottom:1px solid #e1e8dd;background:#f9fbf7}
+ .studio-disclosure-body{padding:16px}
+ .studio-disclosure-body .studio-starters,.studio-disclosure-body .studio-service-strip,.studio-disclosure-body .studio-uat-banner{margin:0 0 16px;box-shadow:none}
+ .studio-disclosure-body .studio-starters h3{font-size:18px}
+ .studio-disclosure-body .studio-starters p{font-size:13px;line-height:1.6}
+ .studio-grid{grid-template-columns:minmax(290px,350px) minmax(0,1fr);gap:20px;margin-top:20px}
+ .studio-controls,.studio-results{gap:16px}
+ .studio-panel{padding:20px;border-radius:12px;box-shadow:none}
+ .studio-panel-heading{margin-bottom:12px;gap:10px}
+ .studio-panel-heading h3{font-size:17px}
+ .studio-step{font-size:12px;padding:9px}
+ .studio-selected{max-height:150px;overflow-y:auto;padding:2px}
+ .studio-selected button{font-size:11px;line-height:1.5;text-align:left}
+ .studio-catalog-picker{margin:14px 0 0;border-top:1px solid #e1e8dd;padding-top:12px}
+ .studio-catalog-picker>summary,.studio-export-tools>summary{cursor:pointer;font-size:13px;font-weight:700;color:#285c48;padding:8px 0;min-height:40px}
+ .studio-catalog-picker>summary span{font-size:11px;font-weight:400;float:right;margin:2px 0 0 8px;color:#64776a}
+ .studio-capability-matrix{padding:10px;margin-bottom:0;font-size:12px}
+ .studio-output-heading h3{font-size:23px}
+ .studio-output-heading p{line-height:1.6;margin:7px 0}
+ .studio-review>summary{cursor:pointer;font-size:12px;min-height:24px}
+ .studio-review>summary span{font-weight:400}
+ .studio-tabs{margin-top:18px}
+ .studio-tabs button{padding-inline:11px}
+ .studio-code{min-height:480px;font-size:13px!important}
+ .studio-export-tools{border-top:1px solid #e0e8dd;margin-top:16px;padding:8px 0}
+ .studio-export-tools .studio-buttons{margin:6px 0}
+ .studio-compile{margin-top:4px}
+ .studio-empty{min-height:440px;padding:40px 24px;background:linear-gradient(160deg,#fff,#f5f9f0);border:1px solid #d5e1d0}
+ .studio-empty>span{font-size:40px;margin-bottom:12px}
+ .studio-empty h3{font-size:26px}
+ .studio-empty p{line-height:1.8;max-width:410px}
+ .studio-coach-disclosure .studio-project-coach{border:0;margin:0;border-radius:0}
+ .studio-hardware-tools,.studio-release-notes{margin-top:16px}
+ .studio-release-notes .studio-updates{border:0;margin:0;box-shadow:none}
+ .studio-workspace>.studio-advanced{margin-top:16px;background:white}
+ #studio-workbench{scroll-margin-top:24px}
+ .studio-disclosure>summary:focus-visible,.studio-catalog-picker>summary:focus-visible,.studio-export-tools>summary:focus-visible,.studio-review>summary:focus-visible{outline:3px solid #2a77b9;outline-offset:-3px}
+}
+@media screen and (max-width:900px){
+ .studio-grid{grid-template-columns:minmax(0,1fr)}
+ .studio-hero.studio-hero-compact{grid-template-columns:1fr;padding:24px 4% 20px;gap:12px}
+ .studio-workbench-header{align-items:flex-start}
+ .studio-workspace{padding:20px 4% 44px}
+ .studio-empty{min-height:260px}
+}
+@media screen and (max-width:600px){
+ .studio-workbench-header{flex-direction:column;gap:10px}
+ .studio-disclosure>summary span{display:block;margin:5px 0 0 17px;line-height:1.5}
+ .studio-disclosure-body{padding:12px}
+ .studio-panel{padding:16px}
+ .studio-controls{gap:12px}
+ .studio-workspace button{min-height:44px}
+ .studio-review>summary span{display:block}
+ .studio-code{min-height:360px}
+}
+@media print{.studio-workbench-header,.studio-quick-access,.studio-disclosure,.studio-workspace>.studio-error{display:none!important}}

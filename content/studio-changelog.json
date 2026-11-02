@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-workspace-tidy-20261103",
+    "date": "2026-11-03",
+    "title": "A cleaner project workspace",
+    "type": "Studio",
+    "highlights": [
+      "Board, materials and project description now form three clear setup steps beside the workbench.",
+      "Examples, saved drafts and account settings are grouped in expandable sections. Release notes, USB tools and the project coach remain available without crowding the editor.",
+      "Compact page header, a wider desktop editor and a single-column phone/tablet layout. Failed electrical checks and compiler feedback remain visible."
+    ]
+  },
+  {
     "id": "studio-copilot-integration-20261102",
     "date": "2026-11-02",
     "title": "GitHub Copilot connection prepared",

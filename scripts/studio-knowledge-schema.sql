@@ -29,3 +29,11 @@ CREATE INDEX IF NOT EXISTS studio_knowledge_submissions_pending_idx
  ON studio_knowledge_submissions(status,created_at DESC);
 CREATE INDEX IF NOT EXISTS studio_knowledge_submissions_owner_idx
  ON studio_knowledge_submissions(user_id,created_at DESC);
+
+-- Rate limit paid/external lookups without storing the research question or transmitting member data.
+CREATE TABLE IF NOT EXISTS studio_knowledge_research_quota (
+ user_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+ day_key varchar(10) NOT NULL,
+ used smallint NOT NULL DEFAULT 0,
+ PRIMARY KEY(user_id,day_key)
+);

@@ -27,3 +27,16 @@ test('A usable delivered illustration consumes exactly one AI credit',async()=>{
  globalThis.fetch=async()=>Response.json({choices:[{message:{images:[{image_url:{url:'data:image/png;base64,'+png.toString('base64')}}]}}]});
  const response=await POST(request());assert.equal(response.status,200);assert.match((await response.json()).image,/^data:image\/jpeg;base64,/);assert.equal(charged,1);
 });
+test('The default image-generation API delivers a real image and charges only once',async()=>{
+ const before=charged;
+ const png=await sharp({create:{width:4,height:4,channels:3,background:'green'}}).png().toBuffer();
+ globalThis.fetch=async(url,options)=>{
+  assert.equal(url,'https://ai-gateway.vercel.sh/v1/images/generations');
+  assert.equal(JSON.parse(options.body).model,'bfl/flux-2-flex');
+  return Response.json({data:[{b64_json:png.toString('base64')}]});
+ };
+ const response=await POST(request());assert.equal(response.status,200);
+ const result=await response.json();assert.equal(result.model,'bfl/flux-2-flex');
+ assert.equal((await sharp(Buffer.from(result.image.split(',')[1],'base64')).metadata()).format,'jpeg');
+ assert.equal(charged,before+1);
+});

@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-image-access-20261103",
+    "date": "2026-11-03",
+    "title": "Image model compatibility and automatic wiring fallback",
+    "type": "Studio",
+    "highlights": [
+      "AI illustrations use a model listed as eligible for free AI Gateway credits through its supported image-generation API.",
+      "Accounts intentionally configured for Gemini image models retain the chat image API.",
+      "Provider outages or unavailable AI allowance show the free illustrated wiring view; invalid or electrically rejected connections remain blocked.",
+      "One credit is charged only for a usable AI image. The automatic SVG fallback uses no AI credits."
+    ]
+  },
+  {
     "id": "studio-terminal-validation-20261103",
     "date": "2026-11-03",
     "title": "Connection endpoint validation and sensor supply checks",

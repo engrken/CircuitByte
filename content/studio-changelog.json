@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-hardware-wiring-20261103",
+    "date": "2026-11-03",
+    "title": "Illustrated hardware connection view",
+    "type": "Studio",
+    "highlights": [
+      "Automatic board-and-module illustrations with colored wires from the project connection plan.",
+      "Zoom, connection highlighting, full terminal labels and downloadable SVG. No image-generation request is needed for this view.",
+      "Illustrations use symbolic terminal positions; follow actual hardware labels. Stale plans remain clearly marked."
+    ]
+  },
+  {
     "id": "studio-product-libraries-20261103",
     "date": "2026-11-03",
     "title": "Library guidance for every store product",

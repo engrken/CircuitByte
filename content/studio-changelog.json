@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-interactive-scene-20261103",
+    "date": "2026-11-03",
+    "title": "Interactive project preview and clearer electrical findings",
+    "type": "Studio",
+    "highlights": [
+      "Live Preview now includes an assembled hardware scene with signal playback and a separate interactive concept demo for sample sensor inputs, thresholds, display text and servo angle.",
+      "Board-prefixed power and ground labels are normalized; duplicate electrical findings are removed. Unknown findings now read Needs verification.",
+      "Concept controls do not execute or change firmware. Missing ratings and board-specific pin constraints still require verification."
+    ]
+  },
+  {
     "id": "studio-hardware-wiring-20261103",
     "date": "2026-11-03",
     "title": "Illustrated hardware connection view",

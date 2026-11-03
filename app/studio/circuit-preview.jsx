@@ -1,5 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
+import {StudioProjectScene} from './project-scene';
+import {StudioHardwareWiring} from './hardware-wiring';
 import {StudioConnectionDiagram} from './connection-diagram';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {previewArduinoSketch} from '../../lib/studio-preview.mjs';
@@ -23,8 +25,10 @@ export function StudioCircuitPreview({code='',board='arduino:avr:uno',connection
  }
  return <section className="studio-preview" aria-label="Arduino output animation preview">
   <header><div><span className="edu-kicker">VISUAL OUTPUT / PREVIEW</span><h3>What happens when this sketch runs?</h3></div><span className="studio-preview-label">ILLUSTRATIVE · SIGNAL MODEL · NOT FIRMWARE EMULATION</span></header>
-  <StudioConnectionDiagram board={board} connections={connections} output={simulation.supported?frame.output:{}} stale={stale}/>
-  {!simulation.supported?<div className="studio-preview-unsupported"><strong>Live preview unavailable for this sketch.</strong><p>{simulation.reason}</p><p>The code editor, diagram, USB monitor and Arduino compiler can still be used. This preview does not invent behavior for unsupported code.</p></div>:
+  <StudioProjectScene key={board+code} board={board} connections={connections} output={simulation.supported?frame.output:{}} supported={simulation.supported} stale={stale}/>
+  <details><summary>Illustrated project wiring</summary><StudioHardwareWiring board={board} connections={connections} stale={stale}/></details>
+  <details><summary>Detailed signal connections</summary><StudioConnectionDiagram board={board} connections={connections} output={simulation.supported?frame.output:{}} stale={stale}/></details>
+  {!simulation.supported?<div className="studio-preview-unsupported"><strong>Automatic sketch playback is not supported for this code yet.</strong><p>{simulation.reason}</p><p>Use Interactive concept demo above to explore sample inputs and outputs. It does not execute this sketch. The compiler and USB monitor remain available for real firmware.</p></div>:
   <>
    <p>{simulation.disclaimer}</p>
    <div className="studio-preview-board">

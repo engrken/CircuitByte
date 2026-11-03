@@ -256,8 +256,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const connectionPlan=useMemo(()=>prepareConnectionPlan(rawConnections,code,board),[rawConnections,code,board]);
   const connections=connectionPlan.connections;
   const electricalReview=useMemo(()=>{
-    const review=reviewElectricalDesign({board:project?.board||board,connections,components:[]});
-    if(connectionPlan.rejected.length){if(review.status!=='failed')review.status='incomplete';review.findings.push({severity:'unknown',code:'ALIAS_NOT_HARDWARE',message:connectionPlan.rejected.length+' code-alias connections were excluded. Regenerate the project with actual module terminals (for example ACS712 OUT), not variable names.'});}
+    const review=reviewElectricalDesign({board:project?.board||board,connections:[...connections,...connectionPlan.rejected],components:[]});
+    if(connectionPlan.rejected.length){review.status='failed';review.findings.push(...connectionPlan.issues.map(issue=>({severity:'error',code:issue.code,message:issue.message})));}
     if(!codeDirty)return review;
     return {...review,status:review.status==='failed'?'failed':'incomplete',findings:[...review.findings,{severity:'unknown',code:'SKETCH_EDITED',message:'The sketch changed after this wiring reference was prepared. Recheck every connection and GPIO assignment.'}]};
   },[board,project?.board,project?.netlist,spec,codeDirty,connections,connectionPlan.rejected.length]);

@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {reviewElectricalDesign} from '../lib/studio-electrical-verification.mjs';
+test('ACS712 supply check catches reversed screenshot endpoints and their net label',()=>{
+ const result=reviewElectricalDesign({board:'esp32:esp32:esp32',connections:[{pin:'ACS712_MODULE_VCC',to:'ACS712 Hall Effect Current Sensor Module 30A',net:'3.3V',kind:'conditional'}]});
+ assert.equal(result.status,'failed');
+ assert.ok(result.findings.some(f=>f.code==='ACS712_SUPPLY'));
+ assert.ok(result.findings.some(f=>f.code==='SOURCE_NOT_BOARD_PIN'));
+});
 test('SIM900A screenshot power and raw RX wiring block progression',()=>{
  const result=reviewElectricalDesign({connections:[{pin:'5V',to:'SIM900A_VCC',net:'power',kind:'power'},{pin:'D11',to:'SIM900A_RXD',net:'rx',kind:'conditional'},{pin:'D10',to:'SIM900A_TXD',net:'tx',kind:'conditional'},{pin:'GND',to:'SIM900A_GND',net:'ground',kind:'ground'}]});
  assert.equal(result.status,'failed');

@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-terminal-validation-20261103",
+    "date": "2026-11-03",
+    "title": "Connection endpoint validation and sensor supply checks",
+    "type": "Studio",
+    "highlights": [
+      "Reject controller self-connections, module labels used as board pins and code aliases without physical terminal names.",
+      "Detect incorrect ACS712 3.3 V supply labels in reversed connection rows as well as normal wiring rows.",
+      "AI drafts and image requests share connection checks; rejected diagrams reserve no member credits.",
+      "Image denials distinguish free-tier model restrictions from generic account or region failures."
+    ]
+  },
+  {
     "id": "studio-module-preview-review-20261103",
     "date": "2026-11-03",
     "title": "Module previews and cellular wiring checks",

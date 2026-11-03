@@ -1,7 +1,7 @@
-// Explicit one-shot diagnostic, never part of the regular build. Run in a linked
-// environment to check image access without member accounts or quota changes.
+// Explicit one-shot diagnostic. Normal builds exit before making a request.
 import sharp from 'sharp';
 import {diagramProviderFailure} from '../lib/studio-diagram-errors.mjs';
+if(process.env.STUDIO_DIAGRAM_VERIFY_ON_BUILD!=='true')process.exit(0);
 const credential=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
 if(!credential){console.log('STUDIO_DIAGRAM_CHECK: credential unavailable');process.exit(0);}
 try{

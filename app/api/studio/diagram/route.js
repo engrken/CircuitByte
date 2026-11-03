@@ -5,6 +5,7 @@ import {reserveStudentQuota,settleStudentQuota} from '../../../../lib/studio-usa
 import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
 import {diagramProviderFailure} from '../../../../lib/studio-diagram-errors.mjs';
+import {prepareConnectionPlan} from '../../../../lib/studio-connection-plan.mjs';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export const maxDuration=180;
@@ -27,8 +28,9 @@ export async function POST(request){
  }
  const serialized=JSON.stringify({title,connections});
  if(/\b(password|passwd|api[_-]?key|bearer|secret|access[_-]?token)\b/i.test(serialized))return reply({error:'Remove credentials or secrets from diagram labels.'},400);
+ const plan=prepareConnectionPlan(connections,'',board.id);
  const review=reviewElectricalDesign({board:board.id,connections});
- if(review.status==='failed')return reply({error:'Resolve electrical review errors before generating an illustrated guide.',findings:review.findings},422);
+ if(plan.rejected.length||review.status==='failed')return reply({error:'Resolve connection and electrical review errors before generating an illustrated guide.',findings:[...plan.issues,...review.findings]},422);
  let quota;try{quota=await reserveStudentQuota(user.id,'ai');}catch{return reply({error:'AI usage ledger unavailable. Please try later.'},503);}
  if(!quota.allowed)return reply({error:'Your shared monthly AI allowance is exhausted. The free wiring guide remains available.'},429);
  try{

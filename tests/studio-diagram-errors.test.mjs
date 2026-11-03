@@ -1,6 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {diagramProviderFailure} from '../lib/studio-diagram-errors.mjs';
+test('Free-tier model denial is distinguished from permissions without disclosing provider message',async()=>{
+ const result=await diagramProviderFailure(Response.json({error:{message:'Model not available on the free tier for private-account@example.com'}},{status:403}));
+ assert.equal(result.providerCode,'free_tier_model_restricted');assert.equal(result.code,'IMAGE_MODEL_TIER_RESTRICTED');
+ assert.doesNotMatch(JSON.stringify(result),/private-account/);
+});
 test('Gateway failures classify account verification without exposing upstream data',async()=>{
  const result=await diagramProviderFailure(Response.json({error:{type:'customer_verification_required',message:'private provider detail',url:'https://private.invalid'}},{status:403}));
  assert.equal(result.code,'IMAGE_ACCESS_DENIED');assert.equal(result.providerCode,'customer_verification_required');

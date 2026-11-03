@@ -7,6 +7,7 @@ import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {reserveStudentQuota,settleStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
 import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
+import {prepareConnectionPlan} from '../../../../lib/studio-connection-plan.mjs';
 import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
 import {selectKnownModules,COMMON_MODULES} from '../../../../lib/studio-modules.mjs';
 import {readReviewedKnowledge} from '../../../../lib/studio-knowledge-store.mjs';
@@ -97,12 +98,13 @@ export async function POST(request){
     const warnings=Array.isArray(result.warnings)?result.warnings.slice(0,8).map(x=>String(x).slice(0,250)):[];
     const allowedKinds=new Set(['digital-input','digital-output','analog-input','i2c','spi','power','ground','conditional']);
     const netlist=Array.isArray(result.netlist)?result.netlist.slice(0,24).filter(x=>x&&typeof x==='object'&&!Array.isArray(x)).map(x=>({pin:String(x.pin||'').slice(0,32),to:String(x.to||'').slice(0,120),net:String(x.net||'').slice(0,60),kind:allowedKinds.has(x.kind)?x.kind:'conditional',...(Number.isFinite(x.signalVoltage)&&x.signalVoltage>=0&&x.signalVoltage<=24?{signalVoltage:x.signalVoltage}:{})})):[];
-    const electricalReview=reviewElectricalDesign({board:String(input?.board||'arduino:avr:uno'),connections:netlist,components:[]});
-    if(electricalReview.status==='failed')return Response.json({error:'The generated wiring failed electrical checks. No AI credit was deducted. Specify the exact module variant, separate supply and signal-level interface, then generate again.',findings:electricalReview.findings},{status:422});
+    const plan=prepareConnectionPlan(netlist,code,requestedBoard);
+    const electricalReview=reviewElectricalDesign({board:requestedBoard,connections:[...plan.connections,...plan.rejected],components:[]});
+    if(plan.rejected.length||electricalReview.status==='failed')return Response.json({error:'The generated wiring failed connection or electrical checks. No AI credit was deducted. Name the exact modules, physical terminals, supplies and any required signal conditioning, then generate again.',findings:[...plan.issues,...electricalReview.findings]},{status:422});
     await settleStudentQuota(quota,true);
     return Response.json({
       board:String(input?.board||'arduino:avr:uno'),title:String(result.title||'AI-generated Arduino sketch').slice(0,100),summary:String(result.summary||'AI-generated draft for review.').slice(0,350),
-      slug:'studio-generated',parts:parts.map(x=>x.id),code,wires,netlist,electricalReview,
+      slug:'studio-generated',parts:parts.map(x=>x.id),code,wires:plan.connections.map(row=>[row.pin,row.to]),netlist:plan.connections,electricalReview,
       warnings:[...warnings,...(repairAttempt?['AI suggested repair: recompile and physically verify all hardware before use.']:[]),...(referenceModules.length?['Reference-only modules are not necessarily stocked or pinout-verified. Check manufacturer datasheets and voltage levels.']:[]),board.voltage+' logic: '+board.notes,'Unverified AI draft. Review wiring, exact module ratings, and compile output before attempting a physical build.']
     },{headers:{'Cache-Control':'no-store'}});
   }catch{return Response.json({error:'AI generation timed out or could not be completed. No project was saved.'},{status:503});}

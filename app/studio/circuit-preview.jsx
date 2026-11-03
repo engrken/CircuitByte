@@ -28,7 +28,7 @@ export function StudioCircuitPreview({code='',board='arduino:avr:uno',connection
   <StudioProjectScene key={board+code} board={board} connections={connections} output={simulation.supported?frame.output:{}} supported={simulation.supported} stale={stale}/>
   <details><summary>Illustrated project wiring</summary><StudioHardwareWiring board={board} connections={connections} stale={stale}/></details>
   <details><summary>Detailed signal connections</summary><StudioConnectionDiagram board={board} connections={connections} output={simulation.supported?frame.output:{}} stale={stale}/></details>
-  {!simulation.supported?<div className="studio-preview-unsupported"><strong>Automatic sketch playback is not supported for this code yet.</strong><p>{simulation.reason}</p><p>Use Interactive concept demo above to explore sample inputs and outputs. It does not execute this sketch. The compiler and USB monitor remain available for real firmware.</p></div>:
+  {!simulation.supported?<div className="studio-preview-unsupported"><strong>This sketch needs hardware testing.</strong><p>{simulation.reason}</p><p>UART modules, network services and sensor protocols are not emulated here. Download the .ino sketch or use cloud compilation, then test the connected board with the USB serial monitor. Any available concept demo uses sample values and does not execute your sketch.</p></div>:
   <>
    <p>{simulation.disclaimer}</p>
    <div className="studio-preview-board">

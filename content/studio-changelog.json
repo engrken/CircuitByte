@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-module-preview-review-20261103",
+    "date": "2026-11-03",
+    "title": "Module previews and cellular wiring checks",
+    "type": "Studio",
+    "highlights": [
+      "SIM900A and other recognized module terminals share one device card, with every original pin connection preserved.",
+      "UART peripherals remain explicitly unmodeled; concept controls no longer assign HIGH/LOW states to GSM terminals.",
+      "Unverified cellular modem power and direct 5 V UART RX wiring block approval; electrical draft failures and image-service failures do not consume member credits.",
+      "Image-service failures now report access, authentication, budget or rate-limit categories without exposing provider details."
+    ]
+  },
+  {
     "id": "catalog-pagination-20261103",
     "date": "2026-11-03",
     "title": "Dedicated paginated component catalog",

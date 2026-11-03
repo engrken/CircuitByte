@@ -1,13 +1,9 @@
 'use client';
 import {useRef,useState} from 'react';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
+import {groupHardwareDevices} from '../../lib/studio-hardware-devices.mjs';
 const colors={power:'#e53935',ground:'#263238',i2c:'#008b8b',spi:'#e69500','digital-input':'#168be0','digital-output':'#21a653','analog-input':'#9c48cc',conditional:'#778899'};
 // Group only recognizable destination names; keep every original terminal label intact.
-function identity(to){
- const match=/^(HC-SR04|I[²2]C LCD|LCD1602|LCD|DHT(?:11|22)|ACS712|DS3231|DS1302|NEO-6M|SIM900A|HC-05|OLED|SSD1306|SG90|MG90S|MG996R|Servo|MQ-?\d+|LED(?: \d+)?)(?=\s|$)/i.exec(to);
- if(match)return match[1].toUpperCase();
- return to; // Never merge ambiguous modules or infer a missing series component.
-}
 function artwork(name){
  if(/ACS712/.test(name))return <g><rect width="170" height="78" rx="7" fill="#166c9d"/>{[14,48].map(x=><g key={x}><rect x={x} y="12" width="30" height="45" rx="3" fill="#53a45c"/><circle cx={x+15} cy="32" r="9" fill="#c5d0d0"/><path d={'M'+(x+9)+' 32h12'} stroke="#405756" strokeWidth="2"/></g>)}<rect x="98" y="22" width="35" height="30" fill="#18242d"/><text x="85" y="70" textAnchor="middle" fontSize="10" fill="white">ACS712 · CURRENT SENSOR</text></g>;
  if(/^LED/.test(name))return <g><path d="M73 48v30 M98 48v30" stroke="#a3b0b6" strokeWidth="4"/><path d="M62 47V28a24 24 0 0 1 48 0v19z" fill="#ec5151" stroke="#a82737" strokeWidth="3"/><path d="M72 28v-8" stroke="#ffc3bd" strokeWidth="6" strokeLinecap="round"/><text x="126" y="65" fontSize="10" fill="#526b75">LED</text></g>;
@@ -22,7 +18,7 @@ function artwork(name){
 export function StudioHardwareWiring({board,connections=[],stale=false}){
  const drawing=useRef(null),[zoom,setZoom]=useState(false),[active,setActive]=useState(null);
  const rows=connections.filter(r=>r&&typeof r.pin==='string'&&typeof r.to==='string');
- const groups=[];for(const [index,row] of rows.entries()){const name=identity(row.to);let group=groups.find(g=>g.name===name);if(!group){group={name,rows:[]};groups.push(group);}group.rows.push({...row,index});}
+ const groups=groupHardwareDevices(rows);
  let cursor=80;for(const group of groups){group.y=cursor;group.height=Math.max(170,90+group.rows.length*30);cursor+=group.height+24;}
  const height=Math.max(460,cursor+45),boardTop=Math.max(85,(height-340)/2),boardHeight=340,esp=/^esp/.test(board);
  function save(){if(!drawing.current)return;const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(drawing.current)],{type:'image/svg+xml'}));const a=document.createElement('a');a.href=url;a.download='CircuitByte-hardware-wiring.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}

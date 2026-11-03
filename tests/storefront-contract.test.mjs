@@ -3,15 +3,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+const catalog = readFileSync(new URL('../public/catalog.html', import.meta.url), 'utf8');
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
-test('public storefront keeps accessible search, filters and cart hooks', () => {
+test('dedicated catalog keeps accessible search, filters and cart hooks', () => {
   for (const id of ['search', 'categories', 'sort', 'products', 'empty', 'reset', 'cart-open', 'cart-dialog', 'cart-lines', 'cart-count', 'checkout', 'order-result']) {
-    assert.match(html, new RegExp('id="' + id + '"'), 'Missing storefront hook: ' + id);
+    assert.match(catalog, new RegExp('id="' + id + '"'), 'Missing catalog hook: ' + id);
   }
-  assert.match(html, /<label[^>]*for="search"/);
-  assert.match(html, /type="search"/);
-  assert.match(html, /<script src="app\.js" defer><\/script>/);
+  assert.match(catalog, /<label[^>]*for="search"/);
+  assert.match(catalog, /type="search"/);
+  assert.match(catalog, /<script src="\/app\.js" defer><\/script>/);
+  assert.match(html, /href="\/catalog"/);
 });
 
 test('checkout preserves guest ordering and optional Studio consent', () => {

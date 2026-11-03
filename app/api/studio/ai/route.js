@@ -19,7 +19,7 @@ const BOARDS=Object.fromEntries(BOARD_OPTIONS.map(({id,name,catalogId,voltage,no
 const dangerous=/\b(mains|wall outlet|220\s*v|230\s*v|110\s*v|life support|medical device|high voltage)\b/i;
 const components=new Map(catalog.map(item=>[item.id,{id:item.id,name:item.name,details:String(item.description||'').slice(0,300)}]));
 const MODULE_GUIDANCE={
- 'cb-061':'SIM900A is a 2G GSM modem. Require suitable modem power, antenna, active SIM, local 2G coverage and verified UART voltage levels. Never power from MCU GPIO or assume SMS/mobile service.',
+ 'cb-061':'SIM900A is a 2G GSM modem. Require separate suitable modem power, antenna, active SIM, local 2G coverage and verified UART voltage levels. Never connect board 5V/3V3/GPIO to generic VCC or raw VBAT. VCC5 is a breakout-specific regulated input, not raw modem VBAT. Omit supply wiring until the exact input and transmit-burst current capacity are documented. Omit direct MCU-to-modem UART wiring until exact interface levels and required level translator are identified. Never assume SMS/mobile service.',
  'cb-030':'NEO-6M GPS sends NMEA serial data (often 9600 baud). Verify breakout supply and UART logic levels; a satellite fix needs sky visibility.',
  'cb-083':'NEO-6M GPS sends NMEA serial data (often 9600 baud). Verify breakout supply, antenna and UART logic levels; no instant indoor fix.'
 };
@@ -98,6 +98,7 @@ export async function POST(request){
     const allowedKinds=new Set(['digital-input','digital-output','analog-input','i2c','spi','power','ground','conditional']);
     const netlist=Array.isArray(result.netlist)?result.netlist.slice(0,24).filter(x=>x&&typeof x==='object'&&!Array.isArray(x)).map(x=>({pin:String(x.pin||'').slice(0,32),to:String(x.to||'').slice(0,120),net:String(x.net||'').slice(0,60),kind:allowedKinds.has(x.kind)?x.kind:'conditional',...(Number.isFinite(x.signalVoltage)&&x.signalVoltage>=0&&x.signalVoltage<=24?{signalVoltage:x.signalVoltage}:{})})):[];
     const electricalReview=reviewElectricalDesign({board:String(input?.board||'arduino:avr:uno'),connections:netlist,components:[]});
+    if(electricalReview.status==='failed')return Response.json({error:'The generated wiring failed electrical checks. No AI credit was deducted. Specify the exact module variant, separate supply and signal-level interface, then generate again.',findings:electricalReview.findings},{status:422});
     await settleStudentQuota(quota,true);
     return Response.json({
       board:String(input?.board||'arduino:avr:uno'),title:String(result.title||'AI-generated Arduino sketch').slice(0,100),summary:String(result.summary||'AI-generated draft for review.').slice(0,350),

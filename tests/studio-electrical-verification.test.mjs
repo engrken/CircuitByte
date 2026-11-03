@@ -1,6 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {reviewElectricalDesign} from '../lib/studio-electrical-verification.mjs';
+test('SIM900A screenshot power and raw RX wiring block progression',()=>{
+ const result=reviewElectricalDesign({connections:[{pin:'5V',to:'SIM900A_VCC',net:'power',kind:'power'},{pin:'D11',to:'SIM900A_RXD',net:'rx',kind:'conditional'},{pin:'D10',to:'SIM900A_TXD',net:'tx',kind:'conditional'},{pin:'GND',to:'SIM900A_GND',net:'ground',kind:'ground'}]});
+ assert.equal(result.status,'failed');
+ for(const code of ['MODEM_SUPPLY_UNVERIFIED','MODEM_RX_LEVEL_SHIFT','MODEM_UART_LEVELS'])assert.ok(result.findings.some(f=>f.code===code));
+});
+test('Modem starter with documented level translation still needs an independent supply review',()=>{
+ const result=reviewElectricalDesign({connections:[{pin:'D11',to:'SIM900A RXD via level translator',net:'rx',kind:'digital-output'},{pin:'GND',to:'SIM900A GND',net:'ground',kind:'ground'}]});
+ assert.equal(result.status,'incomplete');assert.ok(result.findings.some(f=>f.code==='MODEM_UART_LEVELS'));
+ assert.ok(!result.findings.some(f=>f.severity==='error'));
+});
 test('missing netlist and component ratings cannot pass',()=>{
  const result=reviewElectricalDesign();
  assert.equal(result.status,'incomplete');

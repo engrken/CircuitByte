@@ -1,5 +1,16 @@
 [
   {
+    "id": "bootstrap-20261103",
+    "date": "2026-11-03",
+    "title": "Bootstrap styling foundation",
+    "type": "Studio",
+    "highlights": [
+      "Locally hosted Bootstrap 5.3.8 styles are shared across CircuitByte application pages, storefront and order tracking.",
+      "Studio uses Bootstrap form, navigation and button classes while retaining its branding and gated workflow.",
+      "Existing React/native interactions remain in control; no extra JavaScript framework or runtime CDN is required."
+    ]
+  },
+  {
     "id": "studio-gated-workflow-20261103",
     "date": "2026-11-03",
     "title": "Guided build tabs with progression checks",

@@ -1,0 +1,6 @@
+/* Keep framework styles below CircuitByte's existing unlayered styles. */
+@import url('/vendor/bootstrap/bootstrap-5.3.8.min.css') layer(bootstrap);
+:root{--bs-primary:#173f43;--bs-primary-rgb:23,63,67;--bs-link-color:#1b6359;--bs-link-hover-color:#123e39;--bs-border-radius:.5rem;}
+.btn-primary{--bs-btn-bg:#173f43;--bs-btn-border-color:#173f43;--bs-btn-hover-bg:#215b55;--bs-btn-hover-border-color:#215b55;--bs-btn-active-bg:#12332e;--bs-btn-active-border-color:#12332e;--bs-btn-disabled-bg:#173f43;--bs-btn-disabled-border-color:#173f43;--bs-btn-focus-shadow-rgb:35,109,91;}
+.form-control:focus,.form-select:focus{border-color:#5f9e8b;box-shadow:0 0 0 .2rem rgba(35,109,91,.16);}
+[hidden]{display:none!important;}

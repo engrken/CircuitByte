@@ -1,7 +1,7 @@
 import {expandIndexedLibraries} from '../../../../lib/studio-library-index.mjs';
 import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth.js';
-import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
+import {reserveStudentQuota,settleStudentQuota} from '../../../../lib/studio-usage.mjs';
 import {resolveStudioLibraries,STUDIO_LIBRARY_REGISTRY} from '../../../../lib/studio-libraries.mjs';
 import {BOARD_PROFILES,compileStudioSketch} from '../../../../lib/studio-compiler.mjs';
 
@@ -42,8 +42,14 @@ export async function POST(request) {
     return Response.json({error:'The legacy M5Stack.h library does not support the installed ESP32 3.3.12 core. Use M5Unified.h from Library Manager, or compile with a matching legacy core in Arduino IDE.'},{status:422});
   }
   try{dependencies=await expandIndexedLibraries(customLibrary?{...dependencies,unknownIncludes:[]}:dependencies,manualLibraries,profile.fqbn);}catch(error){return Response.json({error:error.message},{status:422});}
-  let quota;try{quota=await consumeStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
-  if(!quota.allowed)return Response.json({error:'Student monthly compile allowance reached (50 runs).',quota},{status:429});
-  const result=await compileStudioSketch({code,profile,dependencies,customLibrary});
-  return Response.json({...result,board:String(payload.board),fqbn:profile.fqbn},{status:result.stage==='service'?503:200,headers:{'Cache-Control':'no-store'}});
+  let quota;try{quota=await reserveStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
+  if(!quota.allowed)return Response.json({error:'Monthly compilation capacity is full (50 successful builds, including pending reservations).',quota},{status:429});
+  let result;
+  try{result=await compileStudioSketch({code,profile,dependencies,customLibrary});}
+  catch{result={ok:false,stage:'service',error:'Compilation could not complete. No build credit was deducted.'};}
+  let creditCharged=false;
+  try{creditCharged=await settleStudentQuota(quota,result.ok===true);}
+  catch{ /* A pending reservation expires without consuming credit. Preserve the build result. */ }
+
+  return Response.json({...result,creditCharged,board:String(payload.board),fqbn:profile.fqbn},{status:result.stage==='service'?503:200,headers:{'Cache-Control':'no-store'}});
 }

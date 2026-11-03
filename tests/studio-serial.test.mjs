@@ -66,7 +66,7 @@ test('Intel HEX refuses invalid checksum, missing EOF and bootloader overwrites'
  const valid=line(0,0,[0,1,2]);
  assert.throws(()=>parseIntelHex(valid.replace(/.$/,'F')+'\n'+line(1,0)),/checksum/i);
  assert.throws(()=>parseIntelHex(valid),/end-of-file/);
- assert.throws(()=>parseIntelHex(hex(line(0,UNO_MAX_FLASH,[0x99]))),/exceeds UNO/);
+ assert.throws(()=>parseIntelHex(hex(line(0,UNO_MAX_FLASH,[0x99]))),/exceeds the selected board application flash/);
  assert.throws(()=>parseIntelHex(hex(line(6,0,[]))),/Unsupported/);
  assert.throws(()=>parseIntelHex(hex(line(0,0,[255]),line(0,0,[1]))),/overlapping/);
 });

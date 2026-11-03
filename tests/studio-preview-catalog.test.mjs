@@ -18,7 +18,7 @@ test('Blink preview responds to changed delays',()=>{
  assert.equal(result.duration,500);
 });
 test('Preview handles two independently toggled LED pins',()=>{
- const code='void loop(){digitalWrite(8,HIGH); digitalWrite(9,LOW);delay(200);digitalWrite(8,LOW);digitalWrite(9,HIGH);delay(300);}';
+ const code='void setup(){pinMode(8,OUTPUT);pinMode(9,OUTPUT);} void loop(){digitalWrite(8,HIGH); digitalWrite(9,LOW);delay(200);digitalWrite(8,LOW);digitalWrite(9,HIGH);delay(300);}';
  const result=previewArduinoSketch(code);
  assert.equal(result.supported,true);
  assert.deepEqual(result.pins,[8,9]);
@@ -40,7 +40,7 @@ test('All CircuitByte catalog entries get an explicit library or hardware capabi
  assert.ok(audit.items.every(x=>x.status&&x.note));
  assert.equal(audit.items.find(x=>x.id==='cb-062').status,'different-board');
  assert.equal(audit.items.find(x=>x.id==='cb-066').status,'managed-library');
- assert.equal(audit.items.find(x=>x.id==='cb-009').status,'standard-arduino');
+ assert.equal(audit.items.find(x=>x.id==='cb-009').status,'core-io');
 });
 test('Manual trusted libraries merge with automatic parts and code headers',()=>{
  const d=resolveStudioLibraries({parts:['cb-066'],manualLibraries:['rtc1302','encoder']});
@@ -65,4 +65,10 @@ test('Interactive Studio library manager passes the selected target board to res
  const source=await readFile(new URL('../app/studio/library-tools.jsx',import.meta.url),'utf8');
  assert.match(source,/resolveStudioLibraries\(\{parts,code,manualLibraries,board\}\)/);
  assert.match(source,/insertSuggestedIncludes\(code,parts,manualLibraries,board\)/);
+});
+
+test('Preview refuses missing OUTPUT configuration and setup behavior it cannot execute',()=>{
+ for(const setup of ['', 'void setup(){}', 'void setup(){pinMode(4,INPUT);}', 'void setup(){pinMode(4,OUTPUT);while(true){}}']){
+  assert.equal(previewArduinoSketch(setup+'void loop(){digitalWrite(4,HIGH);delay(100);}').supported,false);
+ }
 });

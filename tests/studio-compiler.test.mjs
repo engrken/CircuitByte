@@ -26,7 +26,7 @@ test('Compiler isolates every board before writing code and returns the matching
   const result=await compileStudioSketch({profile,code:'void setup(){} void loop(){}',dependencies,createSandbox:async options=>{assert.equal(options.persistent,false);assert.equal(options.timeout,240000);return sandbox;}});
   assert.equal(result.ok,true);assert.equal(result.board,profile.fqbn);
   assert.equal(Boolean(result.firmwareHex),profile.core==='arduino:avr');
-  assert.equal(Boolean(result.firmwareBin),profile.core!=='arduino:avr');
+  assert.equal(Boolean(result.firmwareBin||result.firmwareImages?.length),profile.core!=='arduino:avr');
   assert.equal(events.at(-1).stage,'stop');
   if(profile.version)assert.ok(events[0].args[1].includes(profile.core+'@'+profile.version));
  }

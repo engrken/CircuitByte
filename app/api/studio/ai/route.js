@@ -4,7 +4,7 @@ import {copilotConfigured,copilotIdentity,copilotCompletion} from '../../../../l
 import {studentUatRejection} from '../../../../lib/studio-uat.mjs';
 import {prepareStudioRepair} from '../../../../lib/studio-repair.mjs';
 import {requireUser,sameOrigin} from '../../../../lib/auth';
-import {consumeStudentQuota} from '../../../../lib/studio-usage.mjs';
+import {reserveStudentQuota,settleStudentQuota} from '../../../../lib/studio-usage.mjs';
 import catalog from '../../../../scripts/catalog.json';
 import {reviewElectricalDesign} from '../../../../lib/studio-electrical-verification.mjs';
 import {BOARD_OPTIONS} from '../../../../lib/studio-boards.mjs';
@@ -57,7 +57,7 @@ export async function POST(request){
   if(board.catalogId&&!parts.some(part=>part.id===board.catalogId))return Response.json({error:'Add the selected '+board.name+' board from the CircuitByte catalog before generating.'},{status:400});
   let reviewedKnowledge=[];
   try{reviewedKnowledge=await readReviewedKnowledge(prompt,4);}catch{/* Research memory remains optional if DB unavailable. */}
-  let quota;try{quota=await consumeStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
+  let quota;try{quota=await reserveStudentQuota(user.id,'ai');}catch{return Response.json({error:'AI usage ledger unavailable; generation is temporarily disabled.'},{status:503});}
   if(!quota.allowed)return Response.json({error:'Student monthly AI request allowance reached.',quota},{status:429});
   // The Studio request cap applies to either provider before inference.
   const controller=new AbortController();
@@ -98,11 +98,12 @@ export async function POST(request){
     const allowedKinds=new Set(['digital-input','digital-output','analog-input','i2c','spi','power','ground','conditional']);
     const netlist=Array.isArray(result.netlist)?result.netlist.slice(0,24).filter(x=>x&&typeof x==='object'&&!Array.isArray(x)).map(x=>({pin:String(x.pin||'').slice(0,32),to:String(x.to||'').slice(0,120),net:String(x.net||'').slice(0,60),kind:allowedKinds.has(x.kind)?x.kind:'conditional',...(Number.isFinite(x.signalVoltage)&&x.signalVoltage>=0&&x.signalVoltage<=24?{signalVoltage:x.signalVoltage}:{})})):[];
     const electricalReview=reviewElectricalDesign({board:String(input?.board||'arduino:avr:uno'),connections:netlist,components:[]});
+    await settleStudentQuota(quota,true);
     return Response.json({
       board:String(input?.board||'arduino:avr:uno'),title:String(result.title||'AI-generated Arduino sketch').slice(0,100),summary:String(result.summary||'AI-generated draft for review.').slice(0,350),
       slug:'studio-generated',parts:parts.map(x=>x.id),code,wires,netlist,electricalReview,
       warnings:[...warnings,...(repairAttempt?['AI suggested repair: recompile and physically verify all hardware before use.']:[]),...(referenceModules.length?['Reference-only modules are not necessarily stocked or pinout-verified. Check manufacturer datasheets and voltage levels.']:[]),board.voltage+' logic: '+board.notes,'Unverified AI draft. Review wiring, exact module ratings, and compile output before attempting a physical build.']
     },{headers:{'Cache-Control':'no-store'}});
   }catch{return Response.json({error:'AI generation timed out or could not be completed. No project was saved.'},{status:503});}
-  finally{clearTimeout(timeout);}
+  finally{clearTimeout(timeout);try{await settleStudentQuota(quota,false);}catch{}}
 }

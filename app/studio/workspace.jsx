@@ -329,7 +329,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     <section className="studio-service-strip" aria-label="Studio service availability">
       <div><strong>{services?.authenticated?'Verified account':'Visitor workspace'}</strong><span>Guided projects, starters and browser drafts are free to use.</span><a href="/dashboard">{services?.authenticated?'My dashboard →':'Sign in / create account →'}</a></div>
       <div><strong>AI generation</strong><span>{!services?'Checking availability…':!services.aiEnabled?'Currently unavailable':services.usage?services.usage.ai.remaining+' of '+services.usage.ai.limit+' AI credits remaining (drafts + diagrams)':'Available with verified sign-in'}</span></div>
-      <div><strong>Cloud compilation</strong><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' runs remaining':'Available with verified sign-in'}</span></div>
+      <div><strong>Cloud compilation</strong><small>Only successful builds consume credits. Code, library, toolchain and service failures do not.</small><span>{!services?'Checking availability…':!services.compilerEnabled?'Currently unavailable':services.usage?services.usage.compile.remaining+' of '+services.usage.compile.limit+' successful builds remaining':'Available with verified sign-in'}</span></div>
       <button type="button" disabled={working} onClick={refreshServices}>Refresh status</button>
       {serviceError&&<p role="status">Service status could not be loaded. Browser projects remain available.</p>}
       {services?.usage&&<small>Usage period: {services.usage.period} ({services.usage.timeZone||'Asia/Manila'})</small>}

@@ -46,5 +46,5 @@ test('Studio editor conservatively invalidates an earlier wiring review after so
  const source=await readFile(new URL('../app/studio/workspace.jsx',import.meta.url),'utf8');
  assert.match(source,/status:review.status==='failed'\?'failed':'incomplete'/);
  assert.match(source,/code:'SKETCH_EDITED'/);
- assert.match(source,/\[board,project\?\.board,project\?\.netlist,spec,codeDirty\]/);
+ assert.match(source,/\[board,project\?\.board,project\?\.netlist,spec,codeDirty,connections,connectionPlan.rejected.length\]/);
 });

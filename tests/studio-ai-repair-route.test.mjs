@@ -7,7 +7,7 @@ const workspace=readFileSync(new URL('../app/studio/workspace.jsx',import.meta.u
 
 test('Studio repair rejects invalid source before consuming the paid AI quota',()=>{
  const validation=route.indexOf('if(repairAttempt?.error)');
- const quota=route.indexOf("consumeStudentQuota(user.id,'ai')");
+ const quota=route.indexOf("reserveStudentQuota(user.id,'ai')");
  assert.ok(validation>0 && quota>validation);
  assert.match(route,/prepareStudioRepair\(input\?\.repairCode,input\?\.compilerFeedback\)/);
 });

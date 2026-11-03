@@ -1,3 +1,4 @@
+import {UPLOAD_PROFILES} from '../lib/studio-upload-profiles.mjs';
 import {test,mock,after} from 'node:test';
 import assert from 'node:assert/strict';
 mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-15T12:00:00+08:00')});
@@ -13,7 +14,7 @@ test('Public availability does not leak member data or read the private ledger',
  process.env.STUDIO_AI_ENABLED='true';process.env.STUDIO_COMPILER_ENABLED='true';process.env.AI_GATEWAY_API_KEY='test-only-key';
  const response=await GET(),body=await response.json();
  assert.equal(body.authenticated,false);assert.equal(body.usage,null);assert.equal(reads,0);
- assert.equal(body.aiEnabled,true);assert.equal(body.compileBoards.length,10);assert.deepEqual(body.uploadBoards,['arduino:avr:uno']);
+ assert.equal(body.aiEnabled,true);assert.equal(body.compileBoards.length,10);assert.deepEqual(body.uploadBoards,Object.keys(UPLOAD_PROFILES));
  assert.match(response.headers.get('cache-control'),/no-store/);
  assert.doesNotMatch(JSON.stringify(body),/test-only-key|private-member|private@example/);
 });

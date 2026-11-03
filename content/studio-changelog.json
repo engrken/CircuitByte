@@ -1,5 +1,16 @@
 [
   {
+    "id": "catalog-pagination-20261103",
+    "date": "2026-11-03",
+    "title": "Dedicated paginated component catalog",
+    "type": "Store",
+    "highlights": [
+      "The component catalog now has its own /catalog page, linked from the home page and Studio product links.",
+      "Search, category, sort, page size and pagination share URL state, with 12, 24 or 48 products per page.",
+      "More visible Bootstrap cards, grid, filters, breadcrumbs, buttons and pagination, with the existing cart and checkout flow retained."
+    ]
+  },
+  {
     "id": "bootstrap-20261103",
     "date": "2026-11-03",
     "title": "Bootstrap styling foundation",

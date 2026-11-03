@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-guided-build-20261103",
+    "date": "2026-11-03",
+    "title": "A clearer guided build and better wiring diagrams",
+    "type": "Studio",
+    "highlights": [
+      "Select, analyze and build steps now show the next actions and component-specific questions, with Arduino IDE download guidance.",
+      "Code aliases are no longer drawn as physical modules; invalid alias destinations are excluded with a regeneration notice. Repeated same-direction connections are deduplicated.",
+      "Compact board proportions, grouped module cards, richer ACS712/LED artwork and a gridded wiring canvas. Detailed and optional AI views are collapsed.",
+      "ACS712 3.3 V supply plans are flagged, with ADC protection and voltage-measurement guidance for power-meter projects."
+    ]
+  },
+  {
     "id": "studio-interactive-scene-20261103",
     "date": "2026-11-03",
     "title": "Interactive project preview and clearer electrical findings",

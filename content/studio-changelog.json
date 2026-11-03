@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-gated-workflow-20261103",
+    "date": "2026-11-03",
+    "title": "Guided build tabs with progression checks",
+    "type": "Studio",
+    "highlights": [
+      "Idea, Materials, Board, Diagram, Code, Compile and Upload are now sequential tabs. Each step explains its requirements and locks later steps until they are met.",
+      "Materials and board suggestions follow the idea. Users can list their own exact materials when suggestions do not fit; custom details are included in AI requests and browser/JSON drafts.",
+      "Earlier changes invalidate later confirmations. Upload requires a matching successful Studio compile or explicit self-reported Arduino IDE verification. Hardware reviews remain user-confirmed, not certifications."
+    ]
+  },
+  {
     "id": "studio-guided-build-20261103",
     "date": "2026-11-03",
     "title": "A clearer guided build and better wiring diagrams",

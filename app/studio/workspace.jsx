@@ -1,4 +1,5 @@
 'use client';
+import {STUDIO_STEPS,suggestStudioSetup} from '../../lib/studio-workflow.mjs';
 import {prepareConnectionPlan} from '../../lib/studio-connection-plan.mjs';
 import {StudioHardwareWiring} from './hardware-wiring';
 import {useState,useMemo,useEffect,useRef} from 'react';
@@ -37,6 +38,7 @@ function downloadText(name,text,type='text/plain') {
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
+  const [step,setStep]=useState(0),[approvals,setApprovals]=useState({}),[ownMaterials,setOwnMaterials]=useState(''),[compiledKey,setCompiledKey]=useState(''),[ideVerified,setIdeVerified]=useState(''),[projectSetupKey,setProjectSetupKey]=useState('');
   const [selected,setSelected]=useState(INITIAL_PARTS);
   const [extraModules,setExtraModules]=useState([]);
   const [board,setBoard]=useState('arduino:avr:uno');
@@ -78,18 +80,18 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   useEffect(()=>{
     if(!project||!code.trim())return;
     const timer=setTimeout(()=>{
-      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
+      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
       catch{setDraftStatus('Autosave unavailable. Download your sketch or export project JSON to keep your changes.');}
     },700);
     return()=>clearTimeout(timer);
-  },[project,code,prompt,selected,board,mode,codeDirty,extraModules]);
+  },[project,code,prompt,selected,board,mode,codeDirty,extraModules,ownMaterials]);
   function checkpoint(){
     if(!project||!code.trim())return;
-    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
+    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
     catch{setDraftStatus('Draft recovery could not be updated. Export project JSON to keep your changes.');}
   }
   function restoreDraft(saved){
-    setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setExtraModules(saved.moduleIds||[]);
+    setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setOwnMaterials(saved.ownMaterials||'');setApprovals({});setStep(0);setExtraModules(saved.moduleIds||[]);
     setBoard(saved.board);setMode(saved.mode);setCodeDirty(true);setCompile(null);setError('');
     setManualLibraries([]);setCustomLibrary(null);setRecovery(null);setTab('code');
     setNotice('Project restored. Reattach any custom ZIP library before compilation.');
@@ -100,7 +102,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     catch(e){setError(e.message||'Could not import project.');}
   }
   function exportDraft(){
-    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}),'application/json');}
+    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}),'application/json');}
     catch(e){setError(e.message);}
   }
   function serviceReason(operation){
@@ -157,30 +159,32 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const selectedModuleGuides=useMemo(()=>COMMON_MODULES.filter(module=>module.catalogIds.some(id=>selected.includes(id))),[selected]);
   function toggle(id){setSelected(current=>current.includes(id)?current.filter(x=>x!==id):current.length<16?[...current,id]:current);}
   async function generate(){
+    if(!passed[0]||!passed[1]||approvals.board!==setupKey){setError('Complete Idea, Materials and Board confirmations first.');return;}
     checkpoint();
     setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
     try {
       if(mode==='guide'){
+        if(ownMaterials.trim())throw Error('Select AI draft to include your own unlisted materials.');
         if(board!=='arduino:avr:uno')throw Error('Guided curriculum templates are currently Arduino UNO-only. Switch to AI generation for the selected board.');
         const result=prepareStudioProject({prompt,parts:selected});
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
         setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
-        setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
+        setStep(3);setTab('schematic');setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
-        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
+        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
         setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
-        setCode(result.code);setCodeDirty(false);setTab('code');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
+        setCode(result.code);setCodeDirty(false);setTab('code');setStep(3);setTab('schematic');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
     finally{setLoading(false);refreshServices();}
   }
   async function runCompile(){
-    if(!code.trim())return;setError('');setCompile(null);setBusy(true);
+    if(!passed.slice(0,5).every(Boolean))return;setError('');setCompile(null);setBusy(true);
     try{
       const result=await studioRequest('/api/studio/compile',{code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries},{timeoutMs:280000});
-      setCompile(result);
+      setCompile(result);setCompiledKey(buildKey);
     }catch(e){setError(e.message||'Compilation unavailable.');}
     finally{setBusy(false);refreshServices();}
   }
@@ -188,7 +192,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!compile||compile.ok||!code.trim()||aiReason)return;
     checkpoint();setError('');setLoading(true);
     try{
-      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400),provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
+      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400),provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
       setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
       setCode(result.code);setCodeDirty(true);setCompile(null);setTab('code');
       setNotice('AI suggested a repair. Your previous sketch is in browser recovery. Review wiring, then recompile.');
@@ -197,7 +201,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   }
   function saveDraft(){
     if(!project)return;
-    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules}));setNotice('Saved to this browser only. Not synced to a user account.');}
+    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}));setNotice('Saved to this browser only. Not synced to a user account.');}
     catch{setError('Browser storage is unavailable. Download the sketch instead.');}
   }
   function openDraft(){
@@ -210,7 +214,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!project||!code.trim())return;
     setError('');setSavingCloud(true);
     try{
-      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules})});
+      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules,ownMaterials})});
       const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
       setNotice('Project saved to your private dashboard.');
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
@@ -261,11 +265,39 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const diagramReady=Boolean(spec&&docProblems.length===0);
   const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems]);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
+  const suggestions=useMemo(()=>suggestStudioSetup(prompt),[prompt]);
+  const ideaKey=prompt.trim();
+  const materialsKey=JSON.stringify([ideaKey,selected.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id)).sort(),extraModules,ownMaterials]);
+  const setupKey=JSON.stringify([materialsKey,board]);
+  const wiringKey=JSON.stringify([setupKey,project?.title,connections]);
+  useEffect(()=>{setProjectSetupKey(project?setupKey:'');},[project]);
+  const buildKey=JSON.stringify([setupKey,code,manualLibraries,customLibrary?.base64||'']);
+  const nonBoardParts=selected.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id));
+  const passed=[ideaKey.length>=12&&approvals.idea===ideaKey,
+    Boolean((nonBoardParts.length||extraModules.length||ownMaterials.trim().length>=10)&&approvals.materials===materialsKey),
+    Boolean(approvals.board===setupKey&&projectSetupKey===setupKey&&project&&(!project.board||project.board===board)),
+    Boolean(project&&!missing.length&&!connectionPlan.rejected.length&&electricalReview.status!=='failed'&&approvals.wiring===wiringKey),
+    Boolean(code.trim()&&/\bvoid\s+setup\s*\(/.test(code)&&/\bvoid\s+loop\s*\(/.test(code)&&approvals.code===buildKey),
+    Boolean((compile?.ok&&compiledKey===buildKey)||ideVerified===buildKey),false];
+  const firstUnmet=passed.findIndex(value=>!value);
+  const visibleStep=Math.min(step,firstUnmet);
+  useEffect(()=>{if(visibleStep===3)setTab('schematic');if(visibleStep===4)setTab('code');},[visibleStep]);
+  const requirements=[
+   'Describe the input, expected output and success condition (at least 12 characters), then confirm the idea.',
+   'Select your actual components or list your own exact models, then confirm the materials.',
+   'Confirm the board and generate a project for the selected setup.',
+   'Resolve electrical errors, missing materials and invalid connections. Check every pin, supply and unresolved finding against your actual hardware, then confirm.',
+   'Review setup(), loop(), libraries and pin assignments, then confirm this version of the code.',
+   'Compile this exact version successfully here, or verify it in Arduino IDE and confirm the result.',
+   'Select the correct physical board and port. Upload only after the hardware checks; observe real behavior afterward.'
+  ];
+  function goStep(next){if(next<0||next>firstUnmet||working)return;setStep(next);if(next===3)setTab('schematic');if(next===4)setTab('code');}
+  function confirmStep(key,value,checked){setApprovals(old=>({...old,[key]:checked?value:''}));}
   return <section className="studio-workspace" id="workspace">
     <header className="studio-workbench-header"><div><h2>Your workspace</h2><p>Desktop or laptop recommended for editing and USB flashing. Planning and diagrams work on mobile and tablet.</p></div><a href="#studio-workbench">Go to workbench ↓</a></header>
-    <nav className="studio-build-journey" aria-label="Build your project"><div><b>01 · Select</b><span>Choose your board and components</span></div><div><b>02 · Analyze &amp; create</b><span>Review setup guidance, generate code and wiring</span></div><div><b>03 · Build</b><span>Download to Arduino IDE, upload and observe</span></div></nav>
-    <section className="studio-next-step"><span className="edu-kicker">YOUR BUILD ASSISTANT</span><h3>{coachReport.phase}</h3>{coachReport.actions.slice(0,3).map((a,i)=><p key={i}>{a.message}</p>)}{coachReport.questions.slice(0,2).map((q,i)=><p key={'q'+i}><strong>Confirm:</strong> {q}</p>)}{project&&<button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code)}>Download sketch for Arduino IDE</button>}<small>In Arduino IDE: install the selected board package and libraries, choose your board and port, Verify, then Upload.</small></section>
-    <div className="studio-quick-access">
+    <nav className="studio-wizard-tabs" role="tablist" aria-label="Project build steps">{STUDIO_STEPS.map((label,i)=><button type="button" role="tab" key={label} id={'studio-step-'+i} aria-selected={visibleStep===i} aria-controls="studio-step-content" disabled={i>firstUnmet||working} onClick={()=>goStep(i)}>{passed[i]?'✓':i+1} · {label}{i>firstUnmet?' · Locked':''}</button>)}</nav>
+    <div className="studio-wizard-status" role="status"><strong>Step {visibleStep+1}: {STUDIO_STEPS[visibleStep]}</strong><p>{requirements[visibleStep]}</p><small>Changing earlier inputs requires their checks again. Completion records your review; it does not certify physical hardware.</small></div>
+    <details className="studio-workspace-tools"><summary>Examples, saved drafts &amp; account settings</summary><div className="studio-quick-access">
       <details className="studio-disclosure" id="studio-examples"><summary>Examples &amp; modules <span>Start with a ready-made project</span></summary><div className="studio-disclosure-body">
     <section className="studio-starters" aria-label="Project starters">
       <div><span className="edu-kicker">START WITH A COMPLETE EXAMPLE</span><h3>Choose a project. We’ll load its parts and sketch.</h3></div>
@@ -305,19 +337,31 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       <StudioCopilot services={services} provider={aiProvider} onProvider={setAiProvider} refresh={refreshServices} disabled={working}/>
       </div></details>
     </div>
+    </details>
+    {error&&<p role="alert" className="studio-error">{error}</p>}{notice&&<p role="status" className="studio-notice">{notice}</p>}
     {serviceError&&<p role="status" className="studio-error">Service status unavailable. Open Account &amp; AI settings to refresh.</p>}
-    <div className="studio-grid">
-      <div className="studio-controls">
-        <section className="studio-panel">
-          <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Choose your board</h3></div><label className="studio-label" htmlFor="studio-board-choice">Development board</label>
+    <div id="studio-step-content" role="tabpanel" aria-labelledby={'studio-step-'+visibleStep} className="studio-grid studio-wizard-grid">
+      <div className="studio-controls" hidden={visibleStep>2}>
+        <section className="studio-panel" hidden={visibleStep!==2}>
+          <div className="studio-panel-heading"><span className="studio-step">03</span><h3>Choose your board</h3></div><label className="studio-label" htmlFor="studio-board-choice">Development board</label>
           <select id="studio-board-choice" disabled={working} value={board} onChange={e=>{const next=e.target.value;checkpoint();setBoard(next);setCompile(null);setProject(null);setCode('');setError('');setNotice('');setManualLibraries([]);setCustomLibrary(null);const item=BOARD_OPTIONS.find(x=>x.id===next);setSelected(current=>[...(item?.catalogId?[item.catalogId]:[]),...current.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id))].slice(0,16));setMode(next==='arduino:avr:uno'?'guide':'ai');}}>
             {BOARD_OPTIONS.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}
           </select>
           <button type="button" className="studio-secondary" disabled={working} onClick={startBoardProject}>Load {studioBoardName(board)} serial starter</button>
-<details className="studio-capability-matrix"><summary>Board support: code, diagrams and flashing</summary>          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing: Uno, classic Nano (both bootloaders), ESP8266, ESP32/S3/C3 and M5Stack Core. Mega and Leonardo currently use Arduino IDE for flashing. Hardware UAT is pending; compilation, visualization and USB flashing are separate capabilities.</p><div className="studio-table"><table><thead><tr><th>Board</th><th>Code / compile target</th><th>Diagrams</th><th>Upload method</th></tr></thead><tbody>{BOARD_OPTIONS.map(item=><tr key={item.id}><td>{item.name}</td><td>Available</td><td>Wiring + AI illustration</td><td>{UPLOAD_PROFILES[item.id]?'Browser USB · hardware UAT pending':'Arduino IDE · browser protocol pending'}</td></tr>)}</tbody></table></div><p>Live animation supports simple GPIO sequences, not arbitrary firmware or full sensor simulation. Serial monitoring requires a compatible browser and permitted port.</p></details>
+<details className="studio-capability-matrix"><summary>Board support: code, diagrams and flashing</summary>          <p className="studio-help">ESP8266, ESP32 and M5Stack AI drafts use 3.3V GPIO. M5Stack Core is a reference target, not a stocked CircuitByte product. Guided examples use the Arduino Uno. Cloud compilation offers all {BOARD_OPTIONS.length} listed board targets when enabled; actual toolchain support must be verified per target. Browser flashing: Uno, classic Nano (both bootloaders), ESP8266, ESP32/S3/C3 and M5Stack Core. Mega and Leonardo currently use Arduino IDE for flashing. Hardware UAT is pending; compilation, visualization and USB flashing are separate capabilities.</p><div className="studio-table"><table><thead><tr><th>Board</th><th>Code / compile target</th><th>Diagrams</th><th>Upload method</th></tr></thead><tbody>{BOARD_OPTIONS.map(item=><tr key={item.id}><td>{item.name}</td><td>Available</td><td>Wiring + AI illustration</td><td>{UPLOAD_PROFILES[item.id]?'Browser USB · hardware UAT pending':'Arduino IDE · browser protocol pending'}</td></tr>)}</tbody></table></div><p>Live animation supports simple GPIO sequences, not arbitrary firmware or full sensor simulation. Serial monitoring requires a compatible browser and permitted port.</p></details><p className="studio-note">Suggested: {studioBoardName(suggestions.board)}. {suggestions.reason}</p><label><input type="checkbox" checked={approvals.board===setupKey} onChange={e=>{confirmStep('board',setupKey,e.target.checked);const id=BOARD_OPTIONS.find(b=>b.id===board)?.catalogId;if(e.target.checked&&id&&!selected.includes(id))setSelected(current=>[id,...current.filter(p=>!BOARD_OPTIONS.some(b=>b.catalogId===p))].slice(0,16));}}/> I confirmed the exact board model and compatibility with my materials.</label>          <fieldset className="studio-modes" disabled={working}><legend>Generation mode</legend>
+            <label><input type="radio" name="studio-mode" disabled={board!=='arduino:avr:uno'||Boolean(ownMaterials.trim())} checked={mode==='guide'} onChange={()=>setMode('guide')}/> Guided example <small>Free · reliable templates</small></label>
+            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Verified Student account · 30 drafts/month</small></label>
+          </fieldset>
+          <button type="button" className="studio-primary" disabled={working||!passed[0]||!passed[1]||approvals.board!==setupKey||(mode==='ai'&&Boolean(aiReason))} onClick={generate}>{loading?'Preparing project…':mode==='ai'?'Generate AI draft →':'Find a matching project →'}</button>
+          {mode==='ai'&&aiReason&&<p className="studio-help">{aiReason} <a href="/dashboard">Open dashboard →</a></p>}
+
         </section>
-        <section className="studio-panel">
+        <section className="studio-panel" hidden={visibleStep!==1}>
           <div className="studio-panel-heading"><span className="studio-step">02</span><h3>Your materials</h3><small>{selected.length} selected</small></div>
+          <p>If suggestions do not match what you own, remove them and select your actual materials. For unlisted parts, enter the exact model, quantity, voltage and interface below.</p>
+          <div className="studio-material-suggestions"><strong>Ideas based on your description</strong>{suggestions.parts.filter(id=>index[id]).map(id=><button type="button" key={id} disabled={working||selected.includes(id)||selected.length>=16} onClick={()=>toggle(id)}>+ {index[id].name}</button>)}</div>
+          <label className="studio-label" htmlFor="studio-own-materials">Other materials you will actually use</label><textarea id="studio-own-materials" maxLength={600} rows={3} value={ownMaterials} onChange={e=>{setOwnMaterials(e.target.value);setMode('ai');}} placeholder="Example: 1 × sensor model, supply voltage, interface, library if known"/><small>Unlisted parts are supplied to AI drafting as unverified user specifications; guided examples cannot adapt to them.</small>
+          <label><input type="checkbox" disabled={!nonBoardParts.length&&!extraModules.length&&ownMaterials.trim().length<10} checked={approvals.materials===materialsKey} onChange={e=>confirmStep('materials',materialsKey,e.target.checked)}/> This list matches the materials I will use.</label>
           <div className="studio-selected">{selected.map(id=><button type="button" key={id} disabled={working} onClick={()=>toggle(id)} title="Remove component">{index[id]?.name||id} ×</button>)}</div>
           <details className="studio-catalog-picker"><summary>Add or browse parts <span>{selected.length}/16 selected</span></summary>
           <label className="studio-label" htmlFor="studio-parts-search">Find a product in the CircuitByte catalog</label>
@@ -346,10 +390,11 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             </details>)}
           </div>}
         </section>
-        <section className="studio-panel">
-          <div className="studio-panel-heading"><span className="studio-step">03</span><h3>Describe your idea</h3></div>
+        <section className="studio-panel" hidden={visibleStep!==0}>
+          <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Describe your idea</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
           <textarea id="studio-idea" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
+          <label><input type="checkbox" disabled={ideaKey.length<12} checked={approvals.idea===ideaKey} onChange={e=>confirmStep('idea',ideaKey,e.target.checked)}/> My idea states the input, expected output and success condition.</label>
           <div className="studio-examples"><button type="button" disabled={working} onClick={startBlinkDemo}>Try live Blink LED preview</button>
             {[
               ['Distance alarm','Make an ultrasonic distance alarm that beeps near obstacles.'],
@@ -358,17 +403,11 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
               ['Light logger','Log light sensor readings onto a microSD card as CSV.']
             ].map(([label,idea])=><button type="button" key={label} disabled={working} onClick={()=>setPrompt(idea)}>{label}</button>)}
           </div>
-          <fieldset className="studio-modes" disabled={working}><legend>Generation mode</legend>
-            <label><input type="radio" name="studio-mode" disabled={board!=='arduino:avr:uno'} checked={mode==='guide'} onChange={()=>setMode('guide')}/> Guided example <small>Free · reliable templates</small></label>
-            <label><input type="radio" name="studio-mode" checked={mode==='ai'} onChange={()=>setMode('ai')}/> AI draft <small>Verified Student account · 30 drafts/month</small></label>
-          </fieldset>
-          <button type="button" className="studio-primary" disabled={working||prompt.trim().length<12||(mode==='ai'&&Boolean(aiReason))} onClick={generate}>{loading?'Preparing project…':mode==='ai'?'Generate AI draft →':'Find a matching project →'}</button>
-          {mode==='ai'&&aiReason&&<p className="studio-help">{aiReason} <a href="/dashboard">Open dashboard →</a></p>}
           {error&&<p role="alert" className="studio-error">{error}</p>}
           {notice&&<p role="status" className="studio-notice">{notice}</p>}
         </section>
       </div>
-      <div className="studio-results" id="studio-workbench" tabIndex={-1}>
+      <div className="studio-results" hidden={visibleStep<3} id="studio-workbench" tabIndex={-1}>
 
         {!project ? <div className="studio-empty"><span>⌘</span><h3>Build something useful.</h3><p>Complete the three setup steps, or open Examples &amp; modules to load a starter. Your sketch, preview and wiring will appear here.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
@@ -376,8 +415,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {project.note&&<p className="studio-note">{project.note}</p>}
           <details className="studio-warning studio-review" open={electricalReview.status==='failed'?true:undefined}><summary><strong>Electrical review: {electricalReview.status==='failed'?'Failed':electricalReview.status==='incomplete'?'Incomplete':'Static checks passed'}</strong><span>{codeDirty?' · Sketch changed — recheck wiring':' · View findings before wiring'}</span></summary><p>{electricalReview.notice} {codeDirty?'The sketch was edited after its reference diagram was prepared.':''}</p><ul>{electricalReview.findings.map((finding,i)=><li key={i}><strong>{finding.severity==='unknown'?'NEEDS VERIFICATION':finding.severity.toUpperCase()}:</strong> {finding.message}</li>)}</ul>{docProblems.length>0&&<p>Template specification issues: {docProblems.join('; ')}</p>}</details>
           {missing.length>0&&<div className="studio-warning"><strong>Missing from your selection</strong><p>This example requires additional catalog components:</p><ul>{missing.map(id=><li key={id}>{index[id]?.name||id} ({id})</li>)}</ul></div>}
-          <div className="studio-tabs" role="tablist" aria-label="Studio results">{['code','preview','wiring','schematic','bom','safety'].map(item=><button type="button" key={item} role="tab" id={'studio-tab-'+item} aria-controls="studio-result-panel" tabIndex={tab===item?0:-1} aria-selected={tab===item} onKeyDown={e=>{const tabs=['code','preview','wiring','schematic','bom','safety'];const i=tabs.indexOf(item);const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:null;if(next!==null){e.preventDefault();setTab(tabs[next]);e.currentTarget.parentElement.querySelectorAll('[role=tab]')[next].focus();}}} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
-          <div id="studio-result-panel" role="tabpanel" aria-labelledby={'studio-tab-'+tab} tabIndex={0}>
+          <div className="studio-tabs" role="tablist" aria-label="Studio results">{(visibleStep===3?['schematic','wiring','bom','safety']:visibleStep===4?['code','preview','safety']:[]).map(item=><button type="button" key={item} role="tab" id={'studio-tab-'+item} aria-controls="studio-result-panel" tabIndex={tab===item?0:-1} aria-selected={tab===item} onKeyDown={e=>{const tabs=visibleStep===3?['schematic','wiring','bom','safety']:['code','preview','safety'];const i=tabs.indexOf(item);const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:null;if(next!==null){e.preventDefault();setTab(tabs[next]);e.currentTarget.parentElement.querySelectorAll('[role=tab]')[next].focus();}}} onClick={()=>setTab(item)} className={tab===item?'active':''}>{item==='code'?'Sketch':item==='preview'?'Live preview':item==='wiring'?'Connections':item==='schematic'?'Diagrams':item==='bom'?'Parts / BOM':'Safety notes'}</button>)}</div>
+          <div hidden={visibleStep>4} id="studio-result-panel" role="tabpanel" aria-labelledby={'studio-tab-'+tab} tabIndex={0}>
           {tab==='preview'&&<StudioCircuitPreview code={code} board={board} connections={connections} stale={codeDirty}/>}
           {tab==='code'&&<div><label className="studio-label" htmlFor="studio-code">Arduino sketch (.ino) — editable</label><textarea id="studio-code" className="studio-code" readOnly={working} spellCheck="false" value={code} onChange={e=>{setCode(e.target.value);setCodeDirty(true);setCompile(null);}} rows={24}/></div>}
           {tab==='wiring'&&<div><p>Low-voltage connection reference. Verify the actual module pin labels, operating voltage and logic compatibility before assembly.</p><div className="studio-table"><table><thead><tr><th>Board pin / source</th><th>Connect to</th><th>Signal / net</th></tr></thead><tbody>{connections.map(({pin,to,net},i)=><tr key={i}><td>{pin}</td><td>{to}</td><td>{net}</td></tr>)}</tbody></table></div>{codeDirty&&<p className="studio-warning">This wiring reference may be outdated because the sketch was edited. Verify each GPIO, signal and connection again.</p>}{!diagramReady&&<p className="studio-warning">No reviewed circuit netlist is associated with this sketch. Any listed connections need independent review.</p>}</div>}
@@ -385,7 +424,9 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {tab==='bom'&&<div><StudioPartsShop spec={spec} selected={selected} board={board}/><p>Estimated materials for the <strong>published guided template</strong>. Prices are indicative only and are NOT a checkout quotation.</p>{spec?<><div className="studio-table"><table><thead><tr><th>Part</th><th>Qty</th><th>Unit (snapshot)</th><th>Est. subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td><strong>{line.name}</strong><small className="studio-bom-detail">{line.id} · {line.detail}{line.optional?' · optional':''}</small></td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table></div><p className="studio-bom-total"><strong>Listed required parts: {peso(bom.requiredTotal)}</strong><small>Optional variants: {peso(bom.optionalTotal)} extra</small></p>{bom.excluded.length>0&&<div className="studio-warning"><strong>Additional items excluded from the total</strong><ul>{bom.excluded.map((e,i)=><li key={i}><b>{e.qty} × {e.name}:</b> {e.reason}</li>)}</ul></div>}<p className="studio-help">{bom.pricingNotice}</p></>:<div className="studio-warning">This sketch has no reviewed materials list or cost estimate.</div>}</div>}
           {tab==='safety'&&<div className="studio-warning"><ul>{[...(project.warnings||[]),...(spec?.cautions||[])].map((item,i)=><li key={i}>{item}</li>)}</ul></div>}
           </div>
-          <details className="studio-export-tools"><summary>Save, download &amp; export</summary><div className="studio-buttons">
+          {visibleStep===3&&<label className="studio-gate-check"><input type="checkbox" disabled={electricalReview.status==='failed'||missing.length>0||connectionPlan.rejected.length>0} checked={approvals.wiring===wiringKey} onChange={e=>confirmStep('wiring',wiringKey,e.target.checked)}/> I checked the actual pin labels, supply/logic voltages, ground and all unresolved findings against my hardware documentation.</label>}
+          {visibleStep===4&&<label className="studio-gate-check"><input type="checkbox" checked={approvals.code===buildKey} onChange={e=>confirmStep('code',buildKey,e.target.checked)}/> I reviewed this code, its libraries and pin assignments; edited pins still match my wiring.</label>}
+          <details hidden={visibleStep<4} className="studio-export-tools"><summary>Save, download &amp; export</summary><div className="studio-buttons">
             <button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(code);setNotice('Sketch copied. Paste it into Arduino IDE.');}catch{setError('Clipboard access is unavailable. Select the sketch text or download the .ino file.');}}}>Copy sketch</button>
             <button type="button" onClick={exportDraft}>Export project JSON</button>
             <button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code,'text/plain')}>Download .ino</button>
@@ -395,21 +436,24 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             <button type="button" disabled={working} onClick={openDraft}>Load draft</button>
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div></details>
-          <div className="studio-compile">
+          <div hidden={visibleStep!==5} className="studio-compile">
             <div><h4>Compile your sketch</h4><p>Check the sketch for your selected board. Compilation does not verify physical wiring.</p></div>
-            <button type="button" disabled={working||!code.trim()||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':'Compile for '+studioBoardName(board)}</button>
+            <button type="button" disabled={working||!passed.slice(0,5).every(Boolean)||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':'Compile for '+studioBoardName(board)}</button>
           </div>
-          {compileReason&&<p className="studio-help">{compileReason}</p>}
-          {compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><p>Build target: {compile.fqbn||compile.board}</p><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled .hex</button>}{compile.ok&&compile.firmwareImages?.map((file,i)=><button type="button" key={i} onClick={async()=>{try{downloadText(file.name,await decodeEspImage(file),'application/octet-stream');}catch(e){setError(e.message);}}}>Download flash package · {file.name}</button>)}{compile.ok&&compile.firmwareBin&&<><button type="button" onClick={()=>{const bytes=Uint8Array.from(atob(compile.firmwareBin),char=>char.charCodeAt(0));downloadText('CircuitByteSketch.application.bin',bytes,'application/octet-stream');}}>Download application .bin</button><p>ESP application image only. Use the matching board's bootloader, partition layout and vendor upload tools; this is not a complete merged flash image.</p></>}{compile.ok&&!compile.artifactAvailable&&<p>Build completed, but no firmware artifact is available for download.</p>}</div>}
+          {visibleStep===5&&compileReason&&<p className="studio-help">{compileReason}</p>}
+          {visibleStep===5&&compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><p>Build target: {compile.fqbn||compile.board}</p><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled .hex</button>}{compile.ok&&compile.firmwareImages?.map((file,i)=><button type="button" key={i} onClick={async()=>{try{downloadText(file.name,await decodeEspImage(file),'application/octet-stream');}catch(e){setError(e.message);}}}>Download flash package · {file.name}</button>)}{compile.ok&&compile.firmwareBin&&<><button type="button" onClick={()=>{const bytes=Uint8Array.from(atob(compile.firmwareBin),char=>char.charCodeAt(0));downloadText('CircuitByteSketch.application.bin',bytes,'application/octet-stream');}}>Download application .bin</button><p>ESP application image only. Use the matching board's bootloader, partition layout and vendor upload tools; this is not a complete merged flash image.</p></>}{compile.ok&&!compile.artifactAvailable&&<p>Build completed, but no firmware artifact is available for download.</p>}</div>}
+          {visibleStep===5&&<section className="studio-ide-verify"><h4>Or compile in Arduino IDE</h4><button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code)}>Download this sketch</button><p>Install the board package and required libraries, select {studioBoardName(board)}, then click Verify. Fix every error before confirming.</p><label><input type="checkbox" checked={ideVerified===buildKey} onChange={e=>setIdeVerified(e.target.checked?buildKey:'')}/> Arduino IDE successfully verified this exact sketch for my selected board (self-reported).</label></section>}
           <p className="studio-help">Use the USB hardware tools below for your selected board’s upload method or serial monitoring. Cloud compilation requires verified sign-in and a remaining monthly allowance. Printable sheets use the browser's Save as PDF option.</p>
         </section>}
         {project&&<details className="studio-disclosure studio-coach-disclosure" open={compile&&!compile.ok?true:undefined}><summary>Project coach &amp; checks <span>{coachReport.phase}</span></summary><StudioProjectCoach report={coachReport} checks={benchChecks} onCheck={(id,checked)=>setBenchChecks(old=>({...old,[id]:checked}))} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/></details>}
       </div>
     </div>
-    {services?.usbUploadEnabled&&<details className="studio-disclosure studio-hardware-tools" open={usbBusy?true:undefined}><summary>USB upload &amp; serial monitor <span>Connect your physical board</span></summary><StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/></details>}
-    <details className="studio-advanced"><summary>Libraries &amp; build settings · search Arduino Library Manager</summary>
+    {visibleStep===6&&passed.slice(0,6).every(Boolean)&&services?.usbUploadEnabled&&<details className="studio-disclosure studio-hardware-tools" open={usbBusy?true:undefined}><summary>USB upload &amp; serial monitor <span>Connect your physical board</span></summary><StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/></details>}
+    <details hidden={visibleStep!==4&&visibleStep!==5} className="studio-advanced"><summary>Libraries &amp; build settings · search Arduino Library Manager</summary>
       <StudioLibraryTools board={board} readOnly={working} parts={selected} catalog={parts} manualLibraries={manualLibraries} setManualLibraries={setManualLibraries} code={code} setCode={value=>{setCode(value);setCodeDirty(true);setCompile(null);}} customLibrary={customLibrary} setCustomLibrary={setCustomLibrary}/>
     </details>
+    {visibleStep===6&&<p className="studio-note">Arduino IDE upload: connect a USB data cable, select the correct board and port, and click Upload. Check the serial monitor and actual input/output behavior. Browser flashing is available below only for supported targets.</p>}
+    <div className="studio-wizard-navigation"><button type="button" disabled={visibleStep===0||working} onClick={()=>goStep(visibleStep-1)}>← Back</button>{visibleStep<6&&<button type="button" disabled={!passed[visibleStep]||working} onClick={()=>goStep(visibleStep+1)}>Continue to {STUDIO_STEPS[visibleStep+1]} →</button>}</div>
     <details className="studio-disclosure studio-release-notes"><summary>What’s new <span>Studio updates and release history</span></summary><StudioUpdates revision={releaseRevision}/></details>
     {project&&<section id="studio-print-sheet" className="studio-print-sheet" aria-label="Printable Arduino project sheet">
       <header><strong>CIRCUITBYTE / ARDUINO PROJECT SHEET</strong><p>Educational low-voltage prototype · {studioBoardName(project.board||board)} · {new Date().toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</p><h1>{project.title}</h1><p>{project.summary}</p></header>

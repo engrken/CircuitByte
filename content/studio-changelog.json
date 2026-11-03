@@ -1,5 +1,16 @@
 [
   {
+    "id": "studio-product-libraries-20261103",
+    "date": "2026-11-03",
+    "title": "Library guidance for every store product",
+    "type": "Studio",
+    "highlights": [
+      "Library coverage now follows all 101 current store products, with recommendations beside selected materials and a searchable product coverage list.",
+      "Added product mappings for ACS712, DS1302 and rotary encoders, plus optional ultrasonic, gas sensor, switch, modem, OLED and motor-control libraries.",
+      "AI drafts receive product-specific library guidance. Generic sensor models require identification; passive parts and basic GPIO modules are marked as needing no dedicated library."
+    ]
+  },
+  {
     "id": "studio-library-manager-20261103",
     "date": "2026-11-03",
     "title": "Arduino Library Manager catalog in Studio",

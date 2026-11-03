@@ -5,6 +5,7 @@ import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {auditStudioCatalog} from '../../lib/studio-part-capabilities.mjs';
 export function StudioLibraryTools({parts=[],catalog=[],code='',setCode,customLibrary,setCustomLibrary,manualLibraries=[],setManualLibraries=()=>{},readOnly=false,board='arduino:avr:uno'}){
  const [status,setStatus]=useState('');
+ const [productSearch,setProductSearch]=useState('');
  const [search,setSearch]=useState(''),[searching,setSearching]=useState(false),[catalogResult,setCatalogResult]=useState(null),[searchError,setSearchError]=useState('');
  async function searchLibraries(event){
   event.preventDefault();if(search.trim().length<2||searching)return;
@@ -15,6 +16,7 @@ export function StudioLibraryTools({parts=[],catalog=[],code='',setCode,customLi
  const resolution=useMemo(()=>resolveStudioLibraries({parts,code,manualLibraries,board}),[parts,code,manualLibraries,board]);
  const catalogAudit=useMemo(()=>auditStudioCatalog(catalog,STUDIO_LIBRARY_REGISTRY),[catalog]);
  const selectedCapabilities=catalogAudit.items.filter(p=>parts.includes(p.id));
+ const visibleProducts=catalogAudit.items.filter(p=>(p.name+' '+p.id).toLowerCase().includes(productSearch.trim().toLowerCase()));
  const libraryOptions=Object.entries(STUDIO_LIBRARY_REGISTRY).filter(([,lib])=>Boolean(lib.name));
  async function importZip(event){
   const file=event.target.files?.[0];event.target.value='';
@@ -44,11 +46,16 @@ export function StudioLibraryTools({parts=[],catalog=[],code='',setCode,customLi
   <p>These suggestions use the selected parts and your sketch's <code>#include</code> headers. I²C LCD sketches can use <strong>hd44780</strong> or <strong>LiquidCrystal I2C</strong>, matching the header and API in your code; DHT22 uses <strong>DHT sensor library + Adafruit Unified Sensor</strong>; microSD uses <strong>SD + SPI</strong>.</p>
   {resolution.details.length?<ul className="studio-library-list">{resolution.details.map(item=><li key={item.id}><strong>{item.name}</strong><small>{item.reason}</small><span>{board!=='arduino:avr:uno'?'Check this library against your selected board core':item.mode==='managed'?'Installed automatically when compiling':'Included with Arduino AVR core'}</span></li>)}</ul>:<p className="studio-help">No external libraries were detected for this selection. Basic GPIO and Serial functions come from the selected Arduino board core.</p>}
   <div className="studio-library-coverage">
-    <strong>{catalogAudit.total} products classified for Studio</strong>
-    <span>{catalogAudit.mapped} have a known external library mapping · {catalogAudit.special} need board/variant review · the rest use general Arduino functionality or optional libraries.</span>
-    {selectedCapabilities.length>0&&<details><summary>Hardware capability for selected items</summary>
-      <ul>{selectedCapabilities.map(p=><li key={p.id}><b>{p.name}</b> — {p.status.replaceAll('-',' ')}. {p.note}</li>)}</ul>
+    <strong>{catalogAudit.total} products in the live catalog</strong>
+    <span>{catalogAudit.mapped} have library recommendations · {catalogAudit.special} need board/model review. Other products use core functions or need no software library.</span>
+    {selectedCapabilities.length>0&&<details open><summary>Libraries for your selected materials</summary>
+      <ul>{selectedCapabilities.map(p=><li key={p.id}><b>{p.name}</b> — {p.note}<ul>{p.recommendations.map(lib=><li key={lib.id}><strong>{lib.name}</strong> · {lib.optional?'Optional / verify model':'Suggested driver'}<small>{lib.reason}</small><button type="button" disabled={readOnly||(!manualLibraries.includes(lib.id)&&manualLibraries.length>=15)} onClick={()=>setManualLibraries(current=>current.includes(lib.id)?current.filter(x=>x!==lib.id):current.length<15?[...current,lib.id]:current)}>{manualLibraries.includes(lib.id)?'Remove explicit choice':'Choose library'}</button></li>)}</ul></li>)}</ul>
     </details>}
+    <details><summary>Browse library coverage for all store products</summary>
+     <label className="studio-label" htmlFor="studio-product-library-search">Find a store product</label><input id="studio-product-library-search" value={productSearch} onChange={e=>setProductSearch(e.target.value)} placeholder="MQ135, LCD, relay…"/>
+     <ul>{visibleProducts.map(p=><li key={p.id}><b>{p.name}</b><small>{p.note}</small>{p.recommendations.length>0&&<ul>{p.recommendations.map(lib=><li key={lib.id}><strong>{lib.name}</strong> · {lib.optional?'Optional / verify model':'Suggested driver'}<small>{lib.reason}</small><button type="button" disabled={readOnly||(!manualLibraries.includes(lib.id)&&manualLibraries.length>=15)} onClick={()=>setManualLibraries(current=>current.includes(lib.id)?current.filter(x=>x!==lib.id):current.length<15?[...current,lib.id]:current)}>{manualLibraries.includes(lib.id)?'Remove explicit choice':'Choose library'}</button></li>)}</ul>}</li>)}</ul>
+     {!visibleProducts.length&&<p>No matching products in the loaded catalog.</p>}
+    </details>
   </div>
   <details className="studio-library-manual"><summary>Choose additional Arduino libraries manually</summary>
     <p>Common library shortcuts. For other packages, search Arduino Library Manager below. Choose the library API that matches your sketch and selected board.</p>

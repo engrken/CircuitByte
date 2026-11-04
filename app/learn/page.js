@@ -15,7 +15,7 @@ export default function Learn(){
       <div><p className="edu-kicker">THE CIRCUITBYTE LEARNING LAB</p>
         <h1>Learn the basics.<br/><em>Build with confidence.</em></h1>
         <p className="edu-lead">Start from zero with circuits and electronics, learn Arduino programming step by step, then discover what every component in the shop can do.</p>
-        <div className="edu-actions"><a className="edu-button" href="/learn/lab">Open Interactive 3D Lab ↗</a><a href="#learning-paths">Learning paths ↓</a><a href="/diy">Explore DIY projects ↗</a></div>
+        <div className="edu-actions"><a className="edu-button" href="/learn/lab">Open Interactive 3D Lab ↗</a><a href="/learn/lab/builder">Build a circuit ↗</a><a href="#learning-paths">Learning paths ↓</a><a href="/diy">Explore DIY projects ↗</a></div>
       </div>
       <aside className="edu-hero-note"><span>START WITH THE FUNDAMENTALS</span>
         <h2>Read → Connect<br/>→ Code → Test</h2>

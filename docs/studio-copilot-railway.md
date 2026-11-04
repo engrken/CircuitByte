@@ -10,7 +10,8 @@ The **main CircuitByte Studio AI Gateway stays the default**. This service is op
 - Port: `PORT` set by Railway; the process binds to `0.0.0.0`.
 - Healthcheck path: `/live` (public, minimal liveness only).
 - `GET /health` and `POST /completion` require `Authorization: Bearer <service secret>` and must not be open to browser clients.
-- Required secret: `COPILOT_SERVICE_SECRET` (at least 32 cryptographically random characters). Set the **same** value as the `circuitbyte` Vercel production project; do not commit or print it.
+- Required secret: `COPILOT_SERVICE_SECRET` (32–256 cryptographically random, whitespace-free characters). Set the **same** value as the `circuitbyte` Vercel production project; do not commit or print it.
+- The container can start in a deliberately locked state without this secret for low-cost deployment checks: `GET /live` returns 200 but `/health` and `/completion` return 503. This is **not** a functional Copilot deployment until the credential is configured and the container redeployed.
 - Optional: `COPILOT_MODEL` (defaults to `gpt-5.4` and must be enabled for each requesting GitHub user).
 - Runtime allowance: up to two simultaneous requests, no filesystem/shell/MCP tools, one fresh temporary directory and SDK session per user request, explicit per-session GitHub token. Do not bind a repository or cache user credentials.
 

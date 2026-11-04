@@ -4,15 +4,16 @@ import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {CopilotClient} from '@github/copilot-sdk';
-import {MAX_BODY_BYTES,validCopilotRequest,validCopilotOutput} from './guards.mjs';
+import {MAX_BODY_BYTES,validCopilotRequest,validCopilotOutput,validCopilotServiceSecret} from './guards.mjs';
 const secret=process.env.COPILOT_SERVICE_SECRET;
-if(!secret||secret.length<32)throw Error('COPILOT_SERVICE_SECRET must have at least 32 characters.');
-const expected=createHash('sha256').update('Bearer '+secret).digest();
+// Fail closed while missing secure Railway configuration: /live still permits deployment liveness checks.
+const expected=validCopilotServiceSecret(secret)?createHash('sha256').update('Bearer '+secret).digest():null;
 const active=new Set();
 function reply(res,status,body){if(!res.destroyed&&!res.writableEnded){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body));}}
 const server=http.createServer(async(req,res)=>{
  // Public liveness reveals no account or SDK state; /health and /completion require the service bearer.
  if(req.method==='GET'&&req.url==='/live')return reply(res,200,{alive:true});
+ if(!expected)return reply(res,503,{error:'Service is locked until private credentials are configured.'});
  const supplied=createHash('sha256').update(req.headers.authorization||'').digest();
  if(!timingSafeEqual(supplied,expected))return reply(res,401,{error:'Unauthorized'});
  if(req.method==='GET'&&req.url==='/health')return reply(res,200,{ready:true});

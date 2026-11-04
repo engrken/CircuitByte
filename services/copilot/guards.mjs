@@ -13,3 +13,8 @@ export function validCopilotRequest(body) {
 export function validCopilotOutput(value) {
   return typeof value === 'string' && value.length > 0 && value.length <= MAX_OUTPUT_CHARS;
 }
+
+// Railpack/container may start before administrators finish secret provisioning; only liveness is public.
+export function validCopilotServiceSecret(secret) {
+  return typeof secret === 'string' && secret.length >= 32 && secret.length <= 256 && !/\s/.test(secret);
+}

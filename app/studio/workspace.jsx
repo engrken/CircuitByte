@@ -1,5 +1,5 @@
 'use client';
-import {STUDIO_STEPS,suggestStudioSetup} from '../../lib/studio-workflow.mjs';
+import {STUDIO_STEPS,suggestStudioSetup,reuseSuccessfulCompilation} from '../../lib/studio-workflow.mjs';
 import {prepareConnectionPlan} from '../../lib/studio-connection-plan.mjs';
 import {StudioHardwareWiring} from './hardware-wiring';
 import {useState,useMemo,useEffect,useRef} from 'react';
@@ -183,7 +183,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     finally{setLoading(false);setAiProgress('');refreshServices();}
   }
   async function runCompile(){
-    if(!passed.slice(0,5).every(Boolean))return;setError('');setCompile(null);setBusy(true);
+    if(!passed.slice(0,5).every(Boolean))return;
+    if(reuseSuccessfulCompilation(compile,compiledKey,buildKey)){
+      setError('');
+      setNotice('This exact board, sketch and library configuration has already compiled. Reuse the existing firmware or edit the sketch before recompiling; no new Sandbox run or build credit was used.');
+      setStep(6);
+      return;
+    }
+    setError('');setCompile(null);setBusy(true);
     try{
       const result=await studioRequest('/api/studio/compile',{code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries},{timeoutMs:280000});
       setCompile(result);setCompiledKey(buildKey);

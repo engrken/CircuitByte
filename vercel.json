@@ -1,1 +1,15 @@
-{"framework":"nextjs","buildCommand":"npm run build:vercel","regions":["sin1"]}
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build:vercel",
+  "regions": [
+    "sin1"
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  },
+  "ignoreCommand": "node scripts/ci/ignore-vercel-build.mjs"
+}

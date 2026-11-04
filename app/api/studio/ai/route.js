@@ -62,6 +62,9 @@ export async function POST(request){
   if(!quota.allowed)return Response.json({error:'Student monthly AI request allowance reached.',quota},{status:429});
   // The Studio request cap applies to either provider before inference.
   const controller=new AbortController();
+  const onAbort=()=>controller.abort();
+  if(request.signal?.aborted)controller.abort();
+  else request.signal?.addEventListener('abort',onAbort,{once:true});
   const timeout=setTimeout(()=>controller.abort(),useCopilot?95000:30000);
   try{
     let response;let gatewayError;
@@ -101,6 +104,8 @@ export async function POST(request){
     const plan=prepareConnectionPlan(netlist,code,requestedBoard);
     const electricalReview=reviewElectricalDesign({board:requestedBoard,connections:[...plan.connections,...plan.rejected],components:[]});
     if(plan.rejected.length||electricalReview.status==='failed')return Response.json({error:'The generated wiring failed connection or electrical checks. No AI credit was deducted. Name the exact modules, physical terminals, supplies and any required signal conditioning, then generate again.',findings:[...plan.issues,...electricalReview.findings]},{status:422});
+    // Disconnects/timeouts are not successful deliveries and must not consume a Studio credit.
+    if(controller.signal.aborted)return Response.json({error:'AI generation was interrupted. No credit was deducted.'},{status:503});
     await settleStudentQuota(quota,true);
     return Response.json({
       board:String(input?.board||'arduino:avr:uno'),title:String(result.title||'AI-generated Arduino sketch').slice(0,100),summary:String(result.summary||'AI-generated draft for review.').slice(0,350),
@@ -108,5 +113,5 @@ export async function POST(request){
       warnings:[...warnings,...(repairAttempt?['AI suggested repair: recompile and physically verify all hardware before use.']:[]),...(referenceModules.length?['Reference-only modules are not necessarily stocked or pinout-verified. Check manufacturer datasheets and voltage levels.']:[]),board.voltage+' logic: '+board.notes,'Unverified AI draft. Review wiring, exact module ratings, and compile output before attempting a physical build.']
     },{headers:{'Cache-Control':'no-store'}});
   }catch{return Response.json({error:'AI generation timed out or could not be completed. No project was saved.'},{status:503});}
-  finally{clearTimeout(timeout);try{await settleStudentQuota(quota,false);}catch{}}
+  finally{clearTimeout(timeout);request.signal?.removeEventListener('abort',onAbort);try{await settleStudentQuota(quota,false);}catch{}}
 }

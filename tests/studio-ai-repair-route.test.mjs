@@ -23,7 +23,8 @@ test('Existing AI generation JSON behavior and standard response remain supporte
 });
 test('Repairing a failed compiler build is opt-in and preserves previous browser recovery',()=>{
  assert.match(workspace,/async function repairSketch\(\)/);
- assert.match(workspace,/checkpoint\(\);setError\(''\);setLoading\(true\)/);
+ assert.match(workspace,/checkpoint\(\);setError\(''\);setAiProgress\(''\);setLoading\(true\)/);
+ assert.match(workspace,/studioProgressRequest\('\/api\/studio\/ai\/progress'/);
  assert.match(workspace,/onRepair=\{repairSketch\}/);
  assert.match(workspace,/setCode\(result.code\);setCodeDirty\(true\);setCompile\(null\)/);
 });

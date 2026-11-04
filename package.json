@@ -9,7 +9,7 @@
     "start": "next start",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
     "build:vercel": "node --test tests/interactive-lab.test.mjs tests/studio-circuit-builder.test.mjs && node scripts/migrate.mjs && node scripts/verify-studio-compiler.mjs && node scripts/verify-student-uat.mjs && node scripts/verify-studio-diagram.mjs && next build",
-    "test": "node --experimental-test-module-mocks --test tests/*.test.mjs"
+    "test": "node --experimental-test-module-mocks --test tests/*.test.mjs services/copilot/tests/*.test.mjs"
   },
   "keywords": [],
   "author": "",

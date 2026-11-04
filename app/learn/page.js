@@ -15,12 +15,12 @@ export default function Learn(){
       <div><p className="edu-kicker">THE CIRCUITBYTE LEARNING LAB</p>
         <h1>Learn the basics.<br/><em>Build with confidence.</em></h1>
         <p className="edu-lead">Start from zero with circuits and electronics, learn Arduino programming step by step, then discover what every component in the shop can do.</p>
-        <div className="edu-actions"><a className="edu-button" href="#learning-paths">Start learning ↓</a><a href="/diy">Explore DIY projects ↗</a></div>
+        <div className="edu-actions"><a className="edu-button" href="/learn/lab">Open Interactive 3D Lab ↗</a><a href="#learning-paths">Learning paths ↓</a><a href="/diy">Explore DIY projects ↗</a></div>
       </div>
       <aside className="edu-hero-note"><span>START WITH THE FUNDAMENTALS</span>
         <h2>Read → Connect<br/>→ Code → Test</h2>
-        <p>Learn safely with guided low-voltage activities, connection maps, Arduino sketches, and simple check-your-understanding questions.</p>
-        <div>{lessons.length} beginner lessons · {Object.keys(profiles).length} part profiles · {projects.length} complete builds</div>
+        <p>Explore our independent 3D-style Uno teaching model, inspect pins, and complete 16 guided activities, or use our existing fundamentals and DIY projects.</p>
+        <div>{lessons.length} fundamentals · 16 interactive lab lessons · {Object.keys(profiles).length} part profiles · {projects.length} complete builds</div>
       </aside>
     </section>
     <section className="edu-principles" aria-label="Three rules for safer learning">

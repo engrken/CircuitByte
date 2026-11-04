@@ -14,7 +14,7 @@ export default function StudioPage() {
   return <EducationShell active="studio">
     <section className="studio-hero studio-hero-compact">
       <div><span className="edu-kicker">CIRCUITBYTE / STUDIO</span><h1>Your electronics workbench.</h1><p>Choose your board and parts, describe your idea, then review the code and wiring.</p></div>
-      <div className="studio-hero-links"><a href="/diy">Project guides ↗</a><a href="/dashboard">My projects ↗</a></div>
+      <div className="studio-hero-links"><a href="/learn/lab">Interactive Arduino Lab ↗</a><a href="/diy">Project guides ↗</a><a href="/dashboard">My projects ↗</a></div>
     </section>
     <StudioWorkspace parts={parts} specs={specs} releaseRevision={process.env.VERCEL_GIT_COMMIT_SHA||''}/>
   </EducationShell>;

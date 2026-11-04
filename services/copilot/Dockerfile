@@ -2,7 +2,7 @@ FROM node:24-bookworm-slim
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
-COPY server.mjs ./
+COPY server.mjs bridge.mjs ./
 USER node
 ENV PORT=8080
 EXPOSE 8080

@@ -16,10 +16,14 @@ Studio now implements optional per-user GitHub OAuth, an encrypted eight-hour br
 
 ## Billing and isolation
 
-Studio's existing monthly request cap still applies to drafts and repairs, including failed attempts. Copilot also charges the requesting user's own GitHub allowance. There is no automatic paid-provider fallback for a Copilot request. Image illustrations still use AI Gateway; Copilot is not substituted for that image API. The observed image-provider 403 remains unresolved by this integration.
+Studio's existing monthly request cap still applies to validated drafts and repairs. Failed attempts and electrically rejected AI drafts should not consume completed-operation Studio credits. Copilot also charges the requesting user's own GitHub allowance. There is no automatic paid-provider fallback for a Copilot request. Image illustrations still use AI Gateway; Copilot is not substituted for that image API. The observed image-provider 403 remains unresolved by this integration.
 
 Tokens are AES-GCM encrypted in Secure, HttpOnly, SameSite=Lax host-only cookies, bound to the current verified Studio user. OAuth state expires after ten minutes and includes PKCE. No token is returned to JavaScript or saved in localStorage. Disconnect clears this browser's connection; revoke the OAuth app in GitHub Settings > Applications to revoke authorization across devices.
 
 Each completion has a fresh SDK process and temporary directory, `mode: empty`, no tools, and an explicit user token. Environment inheritance excludes host credentials. The service limits input size, request duration and concurrency, authenticates the application with a separate service secret, suppresses provider logs, and removes request state after termination. HTTPS ingress is required; do not expose a raw Copilot headless port publicly.
 
 References: https://docs.github.com/en/copilot/how-tos/copilot-sdk/setup/github-oauth and https://docs.github.com/en/copilot/how-tos/copilot-sdk/setup/multi-tenancy .
+
+## Container-host preparation (November 2026)
+
+`services/copilot/README.md` now documents the isolated Docker service and deployment checklist for a dedicated container host such as Railway. The HTTP bridge protocol has standalone tests (`npm test` from `services/copilot`) that require no external GitHub credentials. It includes a public liveness endpoint `GET /healthz` for container health checks, but `/health` and `/completion` remain protected by a strong shared secret. Production Copilot stays disabled until hosting, OAuth authorization and credentialed end-to-end UAT succeed. The existing `copilot` Vercel project must stay Git-disabled; do not turn its Next.js deployment back on.

@@ -1,1 +1,12 @@
-{"name":"circuitbyte-copilot-service","private":true,"type":"module","scripts":{"start":"node server.mjs"},"dependencies":{"@github/copilot-sdk":"1.0.28"}}
+{
+  "name": "circuitbyte-copilot-service",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test bridge.test.mjs"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "1.0.28"
+  }
+}

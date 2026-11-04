@@ -29,3 +29,10 @@ CREATE TABLE IF NOT EXISTS studio_projects (
  updated_at timestamptz NOT NULL DEFAULT now(), created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS studio_projects_owner_idx ON studio_projects(user_id,updated_at DESC);
+
+-- Cloud project snapshot and optimistic concurrency; additive and idempotent for existing UAT users.
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS selected_modules jsonb NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS prompt text NOT NULL DEFAULT '';
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS own_materials text NOT NULL DEFAULT '';
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS acceptance_record jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1;

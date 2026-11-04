@@ -61,6 +61,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [customLibrary,setCustomLibrary]=useState(null);
   const [manualLibraries,setManualLibraries]=useState([]);
   const [savingCloud,setSavingCloud]=useState(false);
+  const [cloudProjectId,setCloudProjectId]=useState(''),[cloudRevision,setCloudRevision]=useState(0);
   const [services,setServices]=useState(null),[serviceError,setServiceError]=useState(false);
   const [recovery,setRecovery]=useState(null),[draftStatus,setDraftStatus]=useState('');
   const importRef=useRef(null);
@@ -93,6 +94,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     catch{setDraftStatus('Draft recovery could not be updated. Export project JSON to keep your changes.');}
   }
   function restoreDraft(saved){
+    setCloudProjectId('');setCloudRevision(0);
     setAcceptance(saved.acceptance||createAcceptanceRecord());
     setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setOwnMaterials(saved.ownMaterials||'');setApprovals({});setStep(0);setExtraModules(saved.moduleIds||[]);
     setBoard(saved.board);setMode(saved.mode);setCodeDirty(true);setCompile(null);setError('');
@@ -121,7 +123,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   }
   const aiReason=serviceReason('ai'),compileReason=services&&!services.compileBoards?.includes(board)?'Cloud compilation is unavailable for this board.':serviceReason('compile');
   async function chooseTemplate(build){
-    checkpoint();
+    checkpoint();setCloudProjectId('');setCloudRevision(0);
     setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
     try{
       const r=await fetch('/education/code/'+build.slug+'.ino',{cache:'no-store'});if(!r.ok)throw Error('The project sketch could not be loaded. Please retry.');
@@ -133,7 +135,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     }catch(e){setError(e.message);}finally{setLoading(false);}
   }
   function startBoardProject(){
-    checkpoint();
+    checkpoint();setCloudProjectId('');setCloudRevision(0);
     const starter=boardSerialStarter(board);setAcceptance(createAcceptanceRecord());setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
     setSelected(starter.parts);setExtraModules([]);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
@@ -142,6 +144,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     checkpoint();
     try{
       const starter=moduleSerialStarter(board,starterId,selected);
+      setCloudProjectId('');setCloudRevision(0);
       setAcceptance(createAcceptanceRecord());setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
       const moduleId={'gps-neo6m':'neo6m','gsm-sim900a':'sim900a','bluetooth-hc05':'hc05'}[starterId];setExtraModules(moduleId?[moduleId]:[]);
       setCodeDirty(false);setCompile(null);setError('');
@@ -225,10 +228,21 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!project||!code.trim())return;
     setError('');setSavingCloud(true);
     try{
-      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules,ownMaterials,acceptance})});
-      const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
-      setNotice('Project saved to your private dashboard.');
-    }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
+      const isUpdate=Boolean(cloudProjectId);
+      const body={
+        title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',
+        code,board,parts:selected,moduleIds:extraModules,prompt,ownMaterials,acceptance,
+        ...(isUpdate?{id:cloudProjectId,revision:cloudRevision}:{})
+      };
+      const r=await fetch('/api/studio/projects',{
+        method:isUpdate?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+      });
+      const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save this private project.');
+      setCloudProjectId(j.id);setCloudRevision(j.revision);
+      setNotice(isUpdate?'Existing private project updated without using another project slot.':'New private project saved. Later updates will reuse this slot.');
+    }catch(e){
+      setError((e.message||'Cloud save failed.')+' Your local browser draft remains available; export JSON before reloading if another device changed this project.');
+    }finally{setSavingCloud(false);}
   }
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
@@ -243,16 +257,20 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       if(!active)return;
       const saved=(j.projects||[]).find(p=>p.id===id);if(!saved)throw Error('Project not found in your account.');
       const savedBoard=BOARD_OPTIONS.some(x=>x.id===saved.board)?saved.board:'arduino:avr:uno';
-      setAcceptance(createAcceptanceRecord());setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
+      setAcceptance(saved.acceptance_record?.criteria?.length?saved.acceptance_record:createAcceptanceRecord());
+      setCloudProjectId(saved.id);setCloudRevision(Number(saved.revision)||1);
+      setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
+      setPrompt(saved.prompt||'');setOwnMaterials(saved.own_materials||'');
       const guide=savedBoard==='arduino:avr:uno'?STUDIO_BUILDS.find(x=>x.slug===saved.template_slug):null;
       setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
       setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
       setExtraModules(Array.isArray(saved.selected_modules)?saved.selected_modules:[]);
-      setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded. Verify the sketch, library requirements and pinout before compiling.');
+      setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded with its user-reported acceptance evidence. Verify the saved sketch, requirements and wiring before compiling.');
     }).catch(e=>{if(active)setError(e.message);});
     return()=>{active=false;};
   },[]);
   function startBlinkDemo(){
+    setCloudProjectId('');setCloudRevision(0);
     setAcceptance(createAcceptanceRecord());setBoard('arduino:avr:uno');setMode('guide');setSelected(['cb-059','cb-009','cb-002']);setExtraModules([]);setCodeDirty(false);
     setPrompt('Blink the Arduino UNO onboard LED on D13 every 600 milliseconds.');
     setCode(BLINK_DEMO_CODE);
@@ -444,7 +462,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             <button type="button" onClick={exportDraft}>Export project JSON</button>
             <button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code,'text/plain')}>Download .ino</button>
             <button type="button" onClick={()=>window.print()}>Print / Save PDF sheet</button>
-            <button type="button" disabled={working||!services?.authenticated||!services?.uat?.active} onClick={saveCloudProject}>{savingCloud?'Saving…':'Save to dashboard'}</button>
+            <button type="button" disabled={working||!services?.authenticated||!services?.uat?.active} onClick={saveCloudProject}>{savingCloud?'Saving…':cloudProjectId?'Update saved project':'Save to dashboard'}</button>
             <button type="button" onClick={saveDraft}>Save browser draft</button>
             <button type="button" disabled={working} onClick={openDraft}>Load draft</button>
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}

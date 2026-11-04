@@ -1,5 +1,5 @@
 'use client';
-import {STUDIO_STEPS,suggestStudioSetup} from '../../lib/studio-workflow.mjs';
+import {STUDIO_STEPS,suggestStudioSetup,reuseSuccessfulCompilation} from '../../lib/studio-workflow.mjs';
 import {prepareConnectionPlan} from '../../lib/studio-connection-plan.mjs';
 import {StudioHardwareWiring} from './hardware-wiring';
 import {useState,useMemo,useEffect,useRef} from 'react';
@@ -21,6 +21,8 @@ import {MODULE_STARTERS,moduleSerialStarter} from '../../lib/studio-module-start
 import {StudioUpdates} from './studio-updates';
 import {StudioKnowledgeCenter} from './knowledge-center';
 import {StudioProjectCoach} from './project-coach';
+import {StudioAcceptancePanel} from './acceptance-panel';
+import {createAcceptanceRecord,acceptanceScope,acceptanceSummary} from '../../lib/studio-acceptance.mjs';
 import {assessStudioProject} from '../../lib/studio-project-coach.mjs';
 import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
 import {studioRequest,studioProgressRequest} from '../../lib/studio-request.mjs';
@@ -63,8 +65,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [recovery,setRecovery]=useState(null),[draftStatus,setDraftStatus]=useState('');
   const importRef=useRef(null);
   const [usbBusy,setUsbBusy]=useState(false);
-  const [benchChecks,setBenchChecks]=useState({});
-  useEffect(()=>{setBenchChecks({});},[board,code,selected,extraModules]);
+  const [acceptance,setAcceptance]=useState(createAcceptanceRecord);
   const working=loading||busy||savingCloud||usbBusy;
   const catalogIds=useMemo(()=>parts.map(item=>item.id),[parts]);
   async function refreshServices(){
@@ -81,17 +82,18 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   useEffect(()=>{
     if(!project||!code.trim())return;
     const timer=setTimeout(()=>{
-      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
+      try{localStorage.setItem(RECOVERY_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials,acceptance}));setDraftStatus('Autosaved on this browser · '+new Date().toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit'}));}
       catch{setDraftStatus('Autosave unavailable. Download your sketch or export project JSON to keep your changes.');}
     },700);
     return()=>clearTimeout(timer);
-  },[project,code,prompt,selected,board,mode,codeDirty,extraModules,ownMaterials]);
+  },[project,code,prompt,selected,board,mode,codeDirty,extraModules,ownMaterials,acceptance]);
   function checkpoint(){
     if(!project||!code.trim())return;
-    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
+    try{const raw=serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials,acceptance});localStorage.setItem(RECOVERY_KEY,raw);setRecovery(parseStudioDraft(raw,catalogIds));}
     catch{setDraftStatus('Draft recovery could not be updated. Export project JSON to keep your changes.');}
   }
   function restoreDraft(saved){
+    setAcceptance(saved.acceptance||createAcceptanceRecord());
     setProject(saved.project);setCode(saved.code);setPrompt(saved.prompt);setSelected(saved.selected);setOwnMaterials(saved.ownMaterials||'');setApprovals({});setStep(0);setExtraModules(saved.moduleIds||[]);
     setBoard(saved.board);setMode(saved.mode);setCodeDirty(true);setCompile(null);setError('');
     setManualLibraries([]);setCustomLibrary(null);setRecovery(null);setTab('code');
@@ -103,7 +105,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     catch(e){setError(e.message||'Could not import project.');}
   }
   function exportDraft(){
-    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}),'application/json');}
+    try{downloadText((project.slug||'CircuitByteProject')+'.json',serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials,acceptance}),'application/json');}
     catch(e){setError(e.message);}
   }
   function serviceReason(operation){
@@ -125,14 +127,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       const r=await fetch('/education/code/'+build.slug+'.ino',{cache:'no-store'});if(!r.ok)throw Error('The project sketch could not be loaded. Please retry.');
       const sketch=await r.text();
       setBoard('arduino:avr:uno');setMode('guide');setSelected(build.parts);setPrompt(build.summary);
-      setCode(sketch);setCodeDirty(false);setManualLibraries([]);setCustomLibrary(null);setTab('code');setExtraModules([]);
+      setAcceptance(createAcceptanceRecord());setCode(sketch);setCodeDirty(false);setManualLibraries([]);setCustomLibrary(null);setTab('code');setExtraModules([]);
       setProject({...build,board:'arduino:avr:uno',prompt:build.summary,method:'guided-template',guideUrl:'/diy/'+build.slug,missing:[],warnings:build.notes});
       setNotice('Starter loaded with its required catalog parts. Check quantities and additional supplies in Parts / BOM.');
     }catch(e){setError(e.message);}finally{setLoading(false);}
   }
   function startBoardProject(){
     checkpoint();
-    const starter=boardSerialStarter(board);setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
+    const starter=boardSerialStarter(board);setAcceptance(createAcceptanceRecord());setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
     setSelected(starter.parts);setExtraModules([]);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
   }
@@ -140,7 +142,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     checkpoint();
     try{
       const starter=moduleSerialStarter(board,starterId,selected);
-      setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
+      setAcceptance(createAcceptanceRecord());setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
       const moduleId={'gps-neo6m':'neo6m','gsm-sim900a':'sim900a','bluetooth-hc05':'hc05'}[starterId];setExtraModules(moduleId?[moduleId]:[]);
       setCodeDirty(false);setCompile(null);setError('');
       setNotice('Module serial starter loaded. Power wiring is deliberately omitted until you verify your exact breakout, logic levels and board pins.');
@@ -171,11 +173,11 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
-        setCompile(null);setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
+        setCompile(null);setAcceptance(createAcceptanceRecord());setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
         setStep(3);setTab('schematic');setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
         const result=await studioProgressRequest('/api/studio/ai/progress',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000,onProgress:setAiProgress});
-        setCompile(null);
+        setCompile(null);setAcceptance(createAcceptanceRecord());
         setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
         setCode(result.code);setCodeDirty(false);setTab('code');setStep(3);setTab('schematic');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
@@ -183,7 +185,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     finally{setLoading(false);setAiProgress('');refreshServices();}
   }
   async function runCompile(){
-    if(!passed.slice(0,5).every(Boolean))return;setError('');setCompile(null);setBusy(true);
+    if(!passed.slice(0,5).every(Boolean))return;
+    if(reuseSuccessfulCompilation(compile,compiledKey,buildKey)){
+      setError('');
+      setNotice('This exact board, sketch and library configuration has already compiled. Reuse the existing firmware or edit the sketch before recompiling; no new Sandbox run or build credit was used.');
+      setStep(6);
+      return;
+    }
+    setError('');setCompile(null);setBusy(true);
     try{
       const result=await studioRequest('/api/studio/compile',{code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries},{timeoutMs:280000});
       setCompile(result);setCompiledKey(buildKey);
@@ -203,7 +212,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   }
   function saveDraft(){
     if(!project)return;
-    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials}));setNotice('Saved to this browser only. Not synced to a user account.');}
+    try{localStorage.setItem(DRAFT_KEY,serializeStudioDraft({project,code,prompt,selected,board,mode,codeDirty,moduleIds:extraModules,ownMaterials,acceptance}));setNotice('Saved to this browser only. Not synced to a user account.');}
     catch{setError('Browser storage is unavailable. Download the sketch instead.');}
   }
   function openDraft(){
@@ -216,7 +225,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     if(!project||!code.trim())return;
     setError('');setSavingCloud(true);
     try{
-      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules,ownMaterials})});
+      const r=await fetch('/api/studio/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',code,board,parts:selected,moduleIds:extraModules,ownMaterials,acceptance})});
       const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to save.');
       setNotice('Project saved to your private dashboard.');
     }catch(e){setError(e.message+' Visit My Dashboard to sign in or register when available.');}finally{setSavingCloud(false);}
@@ -234,7 +243,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       if(!active)return;
       const saved=(j.projects||[]).find(p=>p.id===id);if(!saved)throw Error('Project not found in your account.');
       const savedBoard=BOARD_OPTIONS.some(x=>x.id===saved.board)?saved.board:'arduino:avr:uno';
-      setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
+      setAcceptance(createAcceptanceRecord());setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
       const guide=savedBoard==='arduino:avr:uno'?STUDIO_BUILDS.find(x=>x.slug===saved.template_slug):null;
       setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
       setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
@@ -244,7 +253,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     return()=>{active=false;};
   },[]);
   function startBlinkDemo(){
-    setBoard('arduino:avr:uno');setMode('guide');setSelected(['cb-059','cb-009','cb-002']);setExtraModules([]);setCodeDirty(false);
+    setAcceptance(createAcceptanceRecord());setBoard('arduino:avr:uno');setMode('guide');setSelected(['cb-059','cb-009','cb-002']);setExtraModules([]);setCodeDirty(false);
     setPrompt('Blink the Arduino UNO onboard LED on D13 every 600 milliseconds.');
     setCode(BLINK_DEMO_CODE);
     setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],netlist:[{pin:'D13',to:'LED anode through series current-limiting resistor',net:'LED signal',kind:'digital-output',signalVoltage:5},{pin:'GND',to:'LED cathode',net:'Common ground',kind:'ground'}],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
@@ -274,6 +283,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const wiringKey=JSON.stringify([setupKey,project?.title,connections]);
   useEffect(()=>{setProjectSetupKey(project?setupKey:'');},[project]);
   const buildKey=JSON.stringify([setupKey,code,manualLibraries,customLibrary?.base64||'']);
+  const acceptanceKey=acceptanceScope({board,code,prompt,selected,moduleIds:extraModules,boardModel:acceptance.boardModel,supplyNotes:acceptance.supplyNotes});
+  const acceptanceReport=acceptanceSummary(acceptance,acceptanceKey);
   const nonBoardParts=selected.filter(id=>!BOARD_OPTIONS.some(b=>b.catalogId===id));
   const passed=[ideaKey.length>=12&&approvals.idea===ideaKey,
     Boolean((nonBoardParts.length||extraModules.length||ownMaterials.trim().length>=10)&&approvals.materials===materialsKey),
@@ -447,7 +458,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {visibleStep===5&&<section className="studio-ide-verify"><h4>Or compile in Arduino IDE</h4><button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code)}>Download this sketch</button><p>Install the board package and required libraries, select {studioBoardName(board)}, then click Verify. Fix every error before confirming.</p><label><input type="checkbox" checked={ideVerified===buildKey} onChange={e=>setIdeVerified(e.target.checked?buildKey:'')}/> Arduino IDE successfully verified this exact sketch for my selected board (self-reported).</label></section>}
           <p className="studio-help">Use the USB hardware tools below for your selected board’s upload method or serial monitoring. Cloud compilation requires verified sign-in and a remaining monthly allowance. Printable sheets use the browser's Save as PDF option.</p>
         </section>}
-        {project&&<details className="studio-disclosure studio-coach-disclosure" open={compile&&!compile.ok?true:undefined}><summary>Project coach &amp; checks <span>{coachReport.phase}</span></summary><StudioProjectCoach report={coachReport} checks={benchChecks} onCheck={(id,checked)=>setBenchChecks(old=>({...old,[id]:checked}))} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/></details>}
+        {project&&<details className="studio-disclosure studio-coach-disclosure" open={compile&&!compile.ok?true:undefined}><summary>Project coach &amp; checks <span>{coachReport.phase}</span></summary><StudioProjectCoach report={coachReport} onRepair={repairSketch} repairing={loading} repairDisabled={aiReason}/></details>}
+        {project&&<details className="studio-disclosure studio-acceptance-disclosure" open={visibleStep===6?true:undefined}><summary>Hardware acceptance &amp; measured evidence <span>{acceptanceReport.label}</span></summary><StudioAcceptancePanel value={acceptance} scope={acceptanceKey} onChange={setAcceptance}/></details>}
       </div>
     </div>
     {visibleStep===6&&passed.slice(0,6).every(Boolean)&&services?.usbUploadEnabled&&<details className="studio-disclosure studio-hardware-tools" open={usbBusy?true:undefined}><summary>USB upload &amp; serial monitor <span>Connect your physical board</span></summary><StudioUsbTools board={board} compiledHex={compile?.ok&&compile.board===board?compile.firmwareHex:null} firmwareImages={compile?.ok&&compile.board===board?compile.firmwareImages:null} uploadEnabled={services.usbUploadEnabled} disabled={busy||loading||savingCloud} onBusyChange={setUsbBusy}/></details>}
@@ -460,6 +472,10 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     {project&&<section id="studio-print-sheet" className="studio-print-sheet" aria-label="Printable Arduino project sheet">
       <header><strong>CIRCUITBYTE / ARDUINO PROJECT SHEET</strong><p>Educational low-voltage prototype · {studioBoardName(project.board||board)} · {new Date().toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</p><h1>{project.title}</h1><p>{project.summary}</p></header>
       <h2>1. Requirements</h2><p>{project.prompt||prompt}</p>
+      <h2>Physical acceptance evidence — user reported</h2>
+      <p>Board/module revisions: {acceptance.boardModel||'Not recorded'} · Power notes: {acceptance.supplyNotes||'Not recorded'}</p>
+      <p>{acceptanceReport.stale?'Evidence is stale for this design and is not counted.':acceptanceReport.label} · Neither Studio AI nor compilation independently certifies the hardware.</p>
+      <table><thead><tr><th>Criterion</th><th>Expected</th><th>Observed</th><th>Outcome</th></tr></thead><tbody>{acceptance.criteria.map(item=><tr key={item.id}><td>{item.title}</td><td>{item.expected}</td><td>{item.observed||'Not measured'}</td><td>{acceptanceReport.stale?'Stale':item.status}</td></tr>)}</tbody></table>
       {spec?<><h2>2. Bill of materials</h2><table><thead><tr><th>Part</th><th>Qty</th><th>Unit estimate</th><th>Subtotal</th></tr></thead><tbody>{bom.lines.map((line,i)=><tr key={i}><td>{line.name} ({line.id}){line.optional?' — optional':''} — {line.detail}</td><td>{line.qty}</td><td>{peso(line.unitPrice)}</td><td>{peso(line.subtotal)}</td></tr>)}</tbody></table><p><strong>Required listed parts: {peso(bom.requiredTotal)}</strong> · Optional estimate: {peso(bom.optionalTotal)}</p>{bom.excluded.length>0&&<p><strong>Unlisted/excluded:</strong> {bom.excluded.map(item=>item.qty+' × '+item.name).join('; ')}. These are not in the estimate.</p>}<p>{bom.pricingNotice}</p></>:<p><strong>This sketch has no reviewed project BOM or price quotation.</strong></p>}
       <h2>3. Pin connections</h2><table><thead><tr><th>Board pin</th><th>Destination</th><th>Net / signal</th></tr></thead><tbody>{connections.map((row,i)=><tr key={i}><td>{row.pin}</td><td>{row.to}</td><td>{row.net}</td></tr>)}</tbody></table>
       {diagramReady&&<><h2>4. Published connection illustrations</h2><p>{sheetWarning}</p><figure><img src={spec.assets.schematic} alt="Functional circuit schematic"/><figcaption>Published functional schematic</figcaption></figure><figure><img src={spec.assets.wiring} alt="Labelled wiring map"/><figcaption>Published pin/wiring reference</figcaption></figure></>}

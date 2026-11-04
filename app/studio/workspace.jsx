@@ -23,7 +23,7 @@ import {StudioKnowledgeCenter} from './knowledge-center';
 import {StudioProjectCoach} from './project-coach';
 import {assessStudioProject} from '../../lib/studio-project-coach.mjs';
 import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
-import {studioRequest} from '../../lib/studio-request.mjs';
+import {studioRequest,studioProgressRequest} from '../../lib/studio-request.mjs';
 import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
@@ -47,6 +47,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [project,setProject]=useState(null);
   const [code,setCode]=useState('');
   const [loading,setLoading]=useState(false);
+  const [aiProgress,setAiProgress]=useState('');
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const [compile,setCompile]=useState(null);
@@ -161,7 +162,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   async function generate(){
     if(!passed[0]||!passed[1]||approvals.board!==setupKey){setError('Complete Idea, Materials and Board confirmations first.');return;}
     checkpoint();
-    setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
+    setError('');setNotice('');setAiProgress('');setLoading(true);
     try {
       if(mode==='guide'){
         if(ownMaterials.trim())throw Error('Select AI draft to include your own unlisted materials.');
@@ -170,15 +171,16 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         const response=await fetch(result.codeUrl,{cache:'no-store'});
         if(!response.ok)throw Error('Project sketch could not be loaded.');
         const sketch=await response.text();
-        setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
+        setCompile(null);setCode(sketch);setProject({...result,board});setCodeDirty(false);setTab('code');
         setStep(3);setTab('schematic');setNotice('Matched a published example. Editable code and missing-material warnings are shown below.');
       } else {
-        const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
+        const result=await studioProgressRequest('/api/studio/ai/progress',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000,onProgress:setAiProgress});
+        setCompile(null);
         setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
         setCode(result.code);setCodeDirty(false);setTab('code');setStep(3);setTab('schematic');setNotice('AI draft generated. It has NOT been compiled or hardware-tested.');
       }
     }catch(e){setError(e.message||'Unable to prepare your project.');}
-    finally{setLoading(false);refreshServices();}
+    finally{setLoading(false);setAiProgress('');refreshServices();}
   }
   async function runCompile(){
     if(!passed.slice(0,5).every(Boolean))return;setError('');setCompile(null);setBusy(true);
@@ -190,14 +192,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   }
   async function repairSketch(){
     if(!compile||compile.ok||!code.trim()||aiReason)return;
-    checkpoint();setError('');setLoading(true);
+    checkpoint();setError('');setAiProgress('');setLoading(true);
     try{
-      const result=await studioRequest('/api/studio/ai',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400),provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000});
+      const result=await studioProgressRequest('/api/studio/ai/progress',{prompt,parts:selected,board,moduleIds:extraModules,ownMaterials,repairCode:code,compilerFeedback:String(compile.output||compile.error||'').slice(-1400),provider:aiProvider},{timeoutMs:aiProvider==='copilot'?105000:45000,onProgress:setAiProgress});
       setProject({...result,board,prompt,method:'ai-draft',missing:result.missing||[],warnings:result.warnings||[],wires:result.wires||[],netlist:result.netlist||[],parts:result.parts||selected});
       setCode(result.code);setCodeDirty(true);setCompile(null);setTab('code');
       setNotice('AI suggested a repair. Your previous sketch is in browser recovery. Review wiring, then recompile.');
     }catch(e){setError(e.message||'AI repair failed; your original sketch is unchanged.');}
-    finally{setLoading(false);refreshServices();}
+    finally{setLoading(false);setAiProgress('');refreshServices();}
   }
   function saveDraft(){
     if(!project)return;
@@ -338,7 +340,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       </div></details>
     </div>
     </details>
-    {error&&<p role="alert" className="studio-error">{error}</p>}{notice&&<p role="status" className="studio-notice">{notice}</p>}
+    {error&&<p role="alert" className="studio-error">{error}</p>}{notice&&<p role="status" className="studio-notice">{notice}</p>}{loading&&aiProgress&&<p role="status" aria-live="polite" className="studio-notice">AI project progress: {aiProgress}</p>}
     {serviceError&&<p role="status" className="studio-error">Service status unavailable. Open Account &amp; AI settings to refresh.</p>}
     <div id="studio-step-content" role="tabpanel" aria-labelledby={'studio-step-'+visibleStep} className="studio-grid studio-wizard-grid">
       <div className="studio-controls" hidden={visibleStep>2}>

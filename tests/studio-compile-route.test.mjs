@@ -38,3 +38,20 @@ test('Failed builds and unexpected service errors do not consume credits',async(
  throws=false;buildOk=true;
  const body=await (await POST(request())).json();assert.equal(body.creditCharged,true);
 });
+
+test('Known mismatched ESP32 source is rejected before quota reservation or Sandbox allocation',async()=>{
+ process.env.STUDIO_COMPILER_ENABLED='true';
+ const priorBuilds=builds,priorReads=quotaReads,priorSettles=settlements.length;
+ const response=await POST(new Request('https://circuitbyte.vercel.app/api/studio/compile',{
+  method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({board:'esp32:esp32:m5stack-core-esp32',code:'#include <SoftwareSerial.h>\nvoid setup(){} void loop(){}'})
+ }));
+ const body=await response.json();
+ assert.equal(response.status,422);
+ assert.equal(body.stage,'preflight');
+ assert.equal(body.creditCharged,false);
+ assert.ok(body.findings.some(x=>x.code==='ESP32_SOFTWARE_SERIAL'));
+ assert.equal(builds,priorBuilds,'No Sandbox build');
+ assert.equal(quotaReads,priorReads,'No reserved credit');
+ assert.equal(settlements.length,priorSettles,'No quota settlement for a known source mismatch');
+});

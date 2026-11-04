@@ -1,5 +1,6 @@
 'use client';
 import {STUDIO_STEPS,suggestStudioSetup,reuseSuccessfulCompilation} from '../../lib/studio-workflow.mjs';
+import {reviewStudioSketch} from '../../lib/studio-sketch-preflight.mjs';
 import {prepareConnectionPlan} from '../../lib/studio-connection-plan.mjs';
 import {StudioHardwareWiring} from './hardware-wiring';
 import {useState,useMemo,useEffect,useRef} from 'react';
@@ -188,7 +189,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     finally{setLoading(false);setAiProgress('');refreshServices();}
   }
   async function runCompile(){
-    if(!passed.slice(0,5).every(Boolean))return;
+    if(!passed.slice(0,5).every(Boolean)||!compatibility.canCompile)return;
     if(reuseSuccessfulCompilation(compile,compiledKey,buildKey)){
       setError('');
       setNotice('This exact board, sketch and library configuration has already compiled. Reuse the existing firmware or edit the sketch before recompiling; no new Sandbox run or build credit was used.');
@@ -292,7 +293,9 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   },[board,project?.board,project?.netlist,spec,codeDirty,connections,connectionPlan.rejected.length]);
   const {value:diagramImage,busy:diagramBusy}=useAutomaticDiagram({board,title:project?.title||'',connections,enabled:services?.diagramEnabled&&!codeDirty&&!connectionPlan.rejected.length&&connections.length>0&&electricalReview.status!=='failed',authenticated:services?.authenticated});
   const diagramReady=Boolean(spec&&docProblems.length===0);
-  const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems]);
+  const compatibility=useMemo(()=>reviewStudioSketch({board,code,parts:selected,manualLibraries,customLibrary:Boolean(customLibrary?.base64)}),
+    [board,code,selected,manualLibraries,Boolean(customLibrary?.base64)]);
+  const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems,preflight:compatibility}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems,compatibility]);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
   const suggestions=useMemo(()=>suggestStudioSetup(prompt),[prompt]);
   const ideaKey=prompt.trim();
@@ -308,7 +311,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     Boolean((nonBoardParts.length||extraModules.length||ownMaterials.trim().length>=10)&&approvals.materials===materialsKey),
     Boolean(approvals.board===setupKey&&projectSetupKey===setupKey&&project&&(!project.board||project.board===board)),
     Boolean(project&&!missing.length&&!connectionPlan.rejected.length&&electricalReview.status!=='failed'&&approvals.wiring===wiringKey),
-    Boolean(code.trim()&&/\bvoid\s+setup\s*\(/.test(code)&&/\bvoid\s+loop\s*\(/.test(code)&&approvals.code===buildKey),
+    Boolean(code.trim()&&compatibility.canCompile&&/\bvoid\s+setup\s*\(/.test(code)&&/\bvoid\s+loop\s*\(/.test(code)&&approvals.code===buildKey),
     Boolean((compile?.ok&&compiledKey===buildKey)||ideVerified===buildKey),false];
   const firstUnmet=passed.findIndex(value=>!value);
   const visibleStep=Math.min(step,firstUnmet);
@@ -456,6 +459,12 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
           {tab==='safety'&&<div className="studio-warning"><ul>{[...(project.warnings||[]),...(spec?.cautions||[])].map((item,i)=><li key={i}>{item}</li>)}</ul></div>}
           </div>
           {visibleStep===3&&<label className="studio-gate-check"><input type="checkbox" disabled={electricalReview.status==='failed'||missing.length>0||connectionPlan.rejected.length>0} checked={approvals.wiring===wiringKey} onChange={e=>confirmStep('wiring',wiringKey,e.target.checked)}/> I checked the actual pin labels, supply/logic voltages, ground and all unresolved findings against my hardware documentation.</label>}
+          {(visibleStep===4||visibleStep===5)&&Boolean(code.trim())&&<section className="studio-compatibility" aria-label="Zero-credit board and library compatibility check">
+            <h4>Board and library preflight <small>Offline / no credits</small></h4>
+            <p role="status">{compatibility.canCompile?'No known blocking core/API mismatch found.':compatibility.blockers.length+' known incompatibility issue(s) detected. Fix before compiling.'} This is not a compiler or proof that wiring is safe.</p>
+            {compatibility.blockers.length>0&&<ul>{compatibility.blockers.map(item=><li key={item.code} className="studio-compatibility-blocker"><strong>{item.message}</strong><span>{item.fix}</span></li>)}</ul>}
+            {compatibility.warnings.length>0&&<details><summary>{compatibility.warnings.length} compatibility detail(s) to review</summary><ul>{compatibility.warnings.map(item=><li key={item.code}><strong>{item.message}</strong><span>{item.fix}</span></li>)}</ul></details>}
+          </section>}
           {visibleStep===4&&<label className="studio-gate-check"><input type="checkbox" checked={approvals.code===buildKey} onChange={e=>confirmStep('code',buildKey,e.target.checked)}/> I reviewed this code, its libraries and pin assignments; edited pins still match my wiring.</label>}
           <details hidden={visibleStep<4} className="studio-export-tools"><summary>Save, download &amp; export</summary><div className="studio-buttons">
             <button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(code);setNotice('Sketch copied. Paste it into Arduino IDE.');}catch{setError('Clipboard access is unavailable. Select the sketch text or download the .ino file.');}}}>Copy sketch</button>

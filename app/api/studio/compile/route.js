@@ -4,6 +4,7 @@ import {requireUser,sameOrigin} from '../../../../lib/auth.js';
 import {reserveStudentQuota,settleStudentQuota} from '../../../../lib/studio-usage.mjs';
 import {resolveStudioLibraries,STUDIO_LIBRARY_REGISTRY} from '../../../../lib/studio-libraries.mjs';
 import {BOARD_PROFILES,compileStudioSketch} from '../../../../lib/studio-compiler.mjs';
+import {reviewStudioSketch} from '../../../../lib/studio-sketch-preflight.mjs';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -37,6 +38,14 @@ export async function POST(request) {
   }
   if(customLibrary && Buffer.byteLength(customLibrary,'base64')>250000){
     return Response.json({error:'Custom library archive is too large (250 KB maximum).'},{status:400});
+  }
+  // Pure board/core checks run BEFORE any networked library index, quota reservation or Sandbox.
+  const preflight=reviewStudioSketch({board,code,parts,manualLibraries,customLibrary:Boolean(customLibrary)});
+  if(!preflight.canCompile){
+    return Response.json({ok:false,stage:'preflight',board,fqbn:profile.fqbn,
+      error:'Fix known board or library conflicts before starting a paid Sandbox build.',
+      findings:preflight.blockers,advisories:preflight.warnings,creditCharged:false},
+      {status:422,headers:{'Cache-Control':'no-store'}});
   }
   if(dependencies.unknownIncludes.includes('M5Stack.h')&&!customLibrary){
     return Response.json({error:'The legacy M5Stack.h library does not support the installed ESP32 3.3.12 core. Use M5Unified.h from Library Manager, or compile with a matching legacy core in Arduino IDE.'},{status:422});

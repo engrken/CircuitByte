@@ -305,3 +305,21 @@
 .studio-acceptance-test:disabled{opacity:.8}
 .studio-acceptance-summary{font-size:13px;background:#edf5f1;padding:12px 14px;border-radius:8px;border-left:3px solid #4a8d73}
 @media(max-width:720px){.studio-acceptance-details,.studio-acceptance-tests{grid-template-columns:1fr}.studio-acceptance{padding:12px 0}.studio-acceptance-test{padding:12px}}
+
+/* Deterministic, offline-only compiler compatibility and diagnostic guidance. */
+.studio-compatibility{margin:16px 0;padding:16px 18px;border:1px solid #b8d5ca;border-radius:12px;background:#f3faf6;color:#183e35}
+.studio-compatibility h4{font-size:1rem;margin:0 0 8px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.studio-compatibility h4 small{font-size:.72rem;border:1px solid #abd6bf;background:#e4f4e9;border-radius:20px;padding:3px 8px;color:#28543c}
+.studio-compatibility p{font-size:.89rem;margin:6px 0 10px}
+.studio-compatibility summary{cursor:pointer;font-size:.89rem;font-weight:600;min-height:32px}
+.studio-compatibility ul{margin:10px 0;padding-left:20px;display:grid;gap:12px}
+.studio-compatibility li{line-height:1.55;overflow-wrap:anywhere}
+.studio-compatibility li strong,.studio-compatibility li span{display:block}
+.studio-compatibility li span{font-size:.88rem;color:#466455;margin-top:4px}
+.studio-compatibility-blocker{border-left:3px solid #b94a39;padding-left:12px}
+.studio-coach-diagnostics{border:1px solid #c5d9cf;border-radius:11px;padding:15px;background:#f7fbf8;margin:15px 0}
+.studio-coach-diagnostics h4{margin:0 0 8px}
+.studio-coach-diagnostics ol{padding-left:22px;margin:10px 0 0;display:grid;gap:13px}
+.studio-coach-diagnostics li{font-size:.89rem;line-height:1.55;overflow-wrap:anywhere}
+.studio-coach-diagnostics li p{margin:4px 0}
+@media(max-width:700px){.studio-compatibility,.studio-coach-diagnostics{padding:12px}}

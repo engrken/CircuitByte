@@ -18,6 +18,7 @@ export function DcInstruments({project,probe,onProbe}){
  const sim=useMemo(()=>simulateDcCircuit(project,{drivePin:pin,driveHigh:high,buttonClosed:closed,potPercent,ldrOhms}),[project,pin,high,closed,potPercent,ldrOhms]);
  const voltage=measureDcVoltage(sim,a,b);
  const currents=project.parts.filter(x=>sim.currents[x.id]);
+ const highCurrent=currents.filter(part=>Number.isFinite(sim.currents[part.id].amps)&&Math.abs(sim.currents[part.id].amps)>0.02);
  const hasButton=project.parts.some(x=>x.type==='button');
  const hasPot=project.parts.some(x=>x.type==='potentiometer');
  const hasLdr=project.parts.some(x=>x.type==='ldr');
@@ -34,6 +35,7 @@ export function DcInstruments({project,probe,onProbe}){
   </div>
   <div className="cb-dc-meter" aria-live="polite"><div><small>DC VOLTMETER · {a} − {b}</small><strong>{sim.status==='modeled'?formatV(voltage):'—'}</strong><span>{sim.status==='modeled'?(voltage===null?'A probe is not tied to a modeled voltage source.':'Computed from the selected circuit and conditions.'):sim.reason}</span></div><svg width="220" height="66" viewBox="0 0 220 66" role="img" aria-label="Voltmeter numeric reading"><rect x="2" y="2" width="216" height="62" rx="8" fill="#071d1c" stroke="#6bbdac" strokeWidth="2"/><text x="110" y="42" fontSize="26" textAnchor="middle" fontFamily="monospace" fill="#aaf3a6">{sim.status==='modeled'&&voltage!==null?voltage.toFixed(3)+' V':'— V'}</text></svg></div>
   {currents.length>0&&<div className="cb-dc-current"><h4>Modeled component currents</h4><div className="cb-dc-current-grid">{currents.map(part=><div key={part.id}><strong>{part.id}</strong><small>{PART_TYPES[part.type].name}</small><span>{formatI(sim.currents[part.id].amps)}</span></div>)}</div></div>}
+  {highCurrent.length>0&&<p className="cb-dc-warning">High modeled current (over 20 mA) in {highCurrent.map(p=>p.id).join(', ')}. Check supply and GPIO current limits; this idealized model does not enforce actual board ratings.</p>}
   {sim.unsupported.length>0&&<p className="cb-dc-warning">These parts are not simulated: {sim.unsupported.join(', ')}. Their internal circuit behavior and loading are omitted, so readings can be incomplete.</p>}
   <p className="cb-dc-disclaimer">{sim.scope} This instrument does not run Arduino firmware or measure actual hardware. The manual GPIO source is an idealized test input, not a validated power supply. Confirm output drive ratings, voltage limits and circuit performance on real hardware.</p>
  </section>;

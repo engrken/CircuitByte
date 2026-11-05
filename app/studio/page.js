@@ -3,6 +3,7 @@ import catalog from '../../scripts/catalog.json';
 import specs from '../../content/studio-project-specs.json';
 import { StudioWorkspace } from './workspace';
 import './studio.css';
+import './avr-emulator.css';
 
 export const metadata = {
   title: 'Arduino Project Studio | CircuitByte',

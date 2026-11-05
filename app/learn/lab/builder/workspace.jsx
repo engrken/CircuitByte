@@ -2,6 +2,8 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {BOARD_PINS,PART_TYPES,PART_TYPE_IDS,CIRCUIT_TEMPLATES,BUILDER_STORAGE_KEY,ROW_COUNT,addPart,addWire,analyzeCircuit,fromTemplate,newCircuit,normalizeCircuit,removePart,removeWire,serializeCircuit} from '../../../../lib/studio-circuit-builder.mjs';
 
+import {DcInstruments} from './dc-instruments';
+
 const COLS='abcdefghij';
 const COLOR={power:'#e95753',ground:'#6caefa',signal:'#fac978'};
 const point=(id,parts,mode)=>{
@@ -110,6 +112,8 @@ function Drawing({project,view,selection,onSelect,svgRef}){
 export function CircuitBuilder(){
  const [project,setProject]=useState(()=>fromTemplate('blink'));
  const [view,setView]=useState('breadboard');
+ const [tool,setTool]=useState('wire');
+ const [probe,setProbe]=useState('uno:5V');
  const [from,setFrom]=useState('');const [to,setTo]=useState('');
  const [chosenType,setChosenType]=useState('resistor');
  const [template,setTemplate]=useState('blink');
@@ -145,7 +149,7 @@ export function CircuitBuilder(){
  };
  const exportSvg=()=>{if(!svgRef.current)return;const source=svgRef.current.cloneNode(true);source.setAttribute('xmlns','http://www.w3.org/2000/svg');download('CircuitByte_Circuit_'+view+'.svg',new XMLSerializer().serializeToString(source),'image/svg+xml;charset=utf-8');};
  return <div className="cb-builder">
-   <section className="cb-builder-hero"><div><span className="cb-builder-kicker">CIRCUITBYTE / INTERACTIVE LAB / PHASE 2</span><h1>Build a circuit. <em>Understand every connection.</em></h1><p>Create breadboard wiring with clickable terminals, inspect an alternate 2D connection map, and screen for basic electrical hazards before moving to real hardware.</p><div className="cb-builder-links"><a href="/learn/lab">← Guided Arduino lessons</a><a href="/studio">Continue to AI Project Studio ↗</a></div></div><div className="cb-builder-summary"><strong>{project.parts.length}</strong><small>Components</small><strong>{project.wires.length}</strong><small>Wires</small><strong>{report.errors.length}</strong><small>Detected critical issues</small></div></section>
+   <section className="cb-builder-hero"><div><span className="cb-builder-kicker">CIRCUITBYTE / INTERACTIVE DC LAB</span><h1>Build a circuit. <em>Understand every connection.</em></h1><p>Create breadboard wiring with clickable terminals, inspect an alternate 2D connection map, and screen for basic electrical hazards before moving to real hardware.</p><div className="cb-builder-links"><a href="/learn/lab">← Guided Arduino lessons</a><a href="/studio">Continue to AI Project Studio ↗</a></div></div><div className="cb-builder-summary"><strong>{project.parts.length}</strong><small>Components</small><strong>{project.wires.length}</strong><small>Wires</small><strong>{report.errors.length}</strong><small>Detected critical issues</small></div></section>
    <div className="cb-builder-layout"><aside className="cb-builder-sidebar">
       <section><h2>1. Start with a circuit</h2><label htmlFor="cb-builder-template">Teaching template</label><select id="cb-builder-template" value={template} onChange={e=>{const k=e.target.value;if(k!=='custom')selectTemplate(k);}}><option value="custom" disabled>Custom circuit</option><option value="blank">Start blank</option>{Object.entries(CIRCUIT_TEMPLATES).map(([key,val])=><option key={key} value={key}>{val.name}</option>)}</select><p>Templates are examples, not automatic firmware validation.</p></section>
       <section><h2>2. Add components</h2><label htmlFor="cb-builder-type">Available components</label><select id="cb-builder-type" value={chosenType} onChange={e=>setChosenType(e.target.value)}>{PART_TYPE_IDS.map(type=><option key={type} value={type}>{PART_TYPES[type].name}</option>)}</select><button className="cb-builder-primary" onClick={addComponent}>+ Add component</button><div className="cb-builder-part-list">{project.parts.length===0?<p>No components placed.</p>:project.parts.map(p=><div key={p.id}><span><strong>{p.id}</strong><small>{PART_TYPES[p.type].name}</small></span><button type="button" aria-label={'Remove '+p.id} onClick={()=>update(removePart(project,p.id),'Removed '+p.id+' and all of its connected wires.')}>×</button></div>)}</div></section>
@@ -154,16 +158,18 @@ export function CircuitBuilder(){
     </aside>
     <div className="cb-builder-workspace"><div className="cb-builder-workspace-heading"><div><span className="cb-builder-kicker">WIRING / ELECTRICAL NETLIST</span><h2>{project.name}</h2></div><span className="cb-builder-board">Arduino Uno R3 · 5 V logic</span></div>
       <div className="cb-builder-modes" role="group" aria-label="Circuit diagram view"><button type="button" aria-pressed={view==='breadboard'} onClick={()=>setView('breadboard')}>Breadboard</button><button type="button" aria-pressed={view==='3d'} onClick={()=>setView('3d')}>3D perspective</button><button type="button" aria-pressed={view==='schematic'} onClick={()=>setView('schematic')}>2D connection map</button></div>
-      <div className={'cb-builder-canvas cb-builder-'+view}><Drawing project={project} view={view} selection={from} onSelect={selectEndpoint} svgRef={svgRef}/></div>
+      <div className="cb-builder-probe-tool" role="group" aria-label="Choose wiring or measurement tool"><button type="button" aria-pressed={tool==='wire'} onClick={()=>setTool('wire')}>Connect wires</button><button type="button" aria-pressed={tool==='probe'} onClick={()=>setTool('probe')}>Probe a terminal</button></div>
+      <div className={'cb-builder-canvas cb-builder-'+view}><Drawing project={project} view={view} selection={tool==='probe'?probe:from} onSelect={tool==='probe'?setProbe:selectEndpoint} svgRef={svgRef}/></div>
       <p className="cb-builder-canvas-caption">{view==='schematic'?'2D map collapses each internally connected breadboard five-hole group to one junction. It is a schematic-style netlist, not an IEC-standard schematic.':view==='3d'?'CSS perspective uses the exact same netlist as the 2D views. Choose individual holes to connect wires.':'A–E holes in the same numbered row are internally connected; F–J form a separate row across the center gap. Power rails are independent until wired.'} Swipe horizontally on smaller screens to inspect the full board.</p>
       {error&&<div className="cb-builder-error" role="alert">{error}</div>}
       <div className="cb-builder-notice" role="status">{notice}</div>
+      <DcInstruments project={project} probe={probe} onProbe={setProbe}/>
       <section className="cb-builder-checks"><div className="cb-builder-check-header"><h3>Electrical rule screening</h3><span className={report.errors.length?'has-errors':'is-clear'}>{report.errors.length?report.errors.length+' critical issue(s)':'No critical issues detected'}</span></div><p>Rules examine supply/ground shorts, breadboard strips, connected component supplies, LED resistor placement and common wiring hazards.</p>
         {report.issues.length===0?<div className="cb-builder-issue ok">No modeled electrical issues detected. A physical and datasheet review is still required.</div>:<div className="cb-builder-issues">{report.issues.map((issue,i)=><div className={'cb-builder-issue '+issue.level} key={issue.code+'-'+i}><strong>{issue.level.toUpperCase()} · {issue.code.replaceAll('_',' ')}</strong><p>{issue.message}</p></div>)}</div>}
         <small>{report.note}</small>
       </section>
       <section className="cb-builder-wires"><div><h3>Wire list</h3><p>Each item appears in the 3D perspective, breadboard view and 2D connection map.</p></div>{project.wires.length===0?<p>No wires yet.</p>:<div className="cb-builder-wire-list">{project.wires.map(w=><div key={w.id}><code>{w.id}</code><span>{label(w.a)} ↔ {label(w.b)}</span><button type="button" aria-label={'Remove wire '+w.id} onClick={()=>update(removeWire(project,w.id),'Wire '+w.id+' removed.')}>Remove</button></div>)}</div>}</section>
-      <p className="cb-builder-disclaimer">Phase 2 performs static wire connectivity screening, not electrical simulation or current-limit calculation. It does not generate compiled firmware or validate actual component ratings. Treat diagrams as educational drafts; inspect actual pinouts, resistor values and supply capacity before connecting physical hardware.</p>
+      <p className="cb-builder-disclaimer">Connectivity checks are static. The separate DC instrument models only known passive and LED circuits; it is not SPICE or a full hardware simulator. This builder does not compile firmware. Verify actual pinouts, component ratings and power budgets before real wiring.</p>
     </div>
    </div>
  </div>;

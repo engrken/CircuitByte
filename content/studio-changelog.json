@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-browser-dc-avr-lab-20261105",
+    "date": "2026-11-05",
+    "title": "Virtual DC Test Bench and Arduino Uno firmware worker",
+    "type": "Studio",
+    "highlights": [
+      "A new client-side DC solver adds modeled voltmeter and component-current measurements to the existing interactive Uno circuit builder; floating nodes and unsupported components are explicitly labelled.",
+      "The wiring diagram supports selecting a probe with touch or keyboard while keeping breadboard, perspective, schematic, JSON export and static safety checks synchronized.",
+      "Successful Arduino Uno .hex artifacts can run in a bounded AVR8js web worker to inspect D2–D13 signals, basic serial output and D13 transitions; no additional Sandbox compile or build credit is required.",
+      "ESP32, sensors, power budgets, full SPICE and physical hardware behavior are not emulated. The new validation tests run in the low-cost Vercel prebuild gate."
+    ]
+  },
+  {
     "id": "studio-image-access-20261103",
     "date": "2026-11-03",
     "title": "Image model compatibility and automatic wiring fallback",

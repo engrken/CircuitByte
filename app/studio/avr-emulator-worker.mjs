@@ -8,6 +8,8 @@ const cancel=()=>{running=false;if(timer!==null)clearTimeout(timer);timer=null;}
 function pinState(pin){
  const port=pin<=7?ports.d:ports.b,index=pin<=7?pin:pin-8;
  const state=port.pinState(index);
+ // D2 is the simulated external input: read PIND, not just the GPIO direction.
+ if(pin===2&&(state===PinState.Input||state===PinState.InputPullUp))return cpu.data[port.portConfig.PIN]&(1<<index)?'high':'low';
  return state===PinState.High?'high':state===PinState.Low?'low':state===PinState.InputPullUp?'pullup':'input';
 }
 function readPins(){const pins={};for(let id=2;id<=13;id++)pins['D'+id]=pinState(id);return pins;}

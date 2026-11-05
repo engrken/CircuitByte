@@ -47,6 +47,22 @@ test('connected but unmodeled sensor is explicitly omitted',()=>{
  const m=simulateDcCircuit(p);
  assert.deepEqual(m.unsupported,[p.parts[0].id]);
 });
+test('closing a pushbutton directly across separate ideal supply rails is blocked',()=>{
+ let circuit=addPart(newCircuit(),'button');const id=circuit.parts[0].id;
+ circuit=addWire(circuit,'uno:5V',id+':A');
+ circuit=addWire(circuit,id+':B','uno:GND');
+ const released=simulateDcCircuit(circuit,{buttonClosed:false});
+ assert.equal(released.status,'modeled');
+ const pressed=simulateDcCircuit(circuit,{buttonClosed:true});
+ assert.equal(pressed.status,'blocked');
+ assert.match(pressed.reason,/conflicting ideal voltage sources/i);
+});
+test('driven GPIO connected to ground through a closed switch is blocked',()=>{
+ let circuit=addPart(newCircuit(),'button');const id=circuit.parts[0].id;
+ circuit=addWire(circuit,'uno:D13',id+':A');
+ circuit=addWire(circuit,id+':B','uno:GND');
+ assert.equal(simulateDcCircuit(circuit,{buttonClosed:true,drivePin:'D13',driveHigh:true}).status,'blocked');
+});
 test('solver is deterministic and does not mutate the source netlist',()=>{
  const {p}=divider(),before=JSON.stringify(p);
  assert.deepEqual(simulateDcCircuit(p),simulateDcCircuit(p));

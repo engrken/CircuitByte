@@ -1,55 +1,55 @@
 import {AVRIOPort,AVRTimer,AVRUSART,CPU,PinState,avrInstruction,portBConfig,portCConfig,portDConfig,timer0Config,timer1Config,timer2Config,usart0Config} from 'avr8js';
 import {parseUnoHex} from '../../lib/studio-intel-hex.mjs';
+import {captureLogicPins,newLogicTrace,LOGIC_PINS} from '../../lib/studio-logic-trace.mjs';
 
-let timer=null,running=false,cpu=null,ports=null,serial='';
-let transitions=[],last13=null;
-const CPU_HZ=16000000,MAX_CYCLES=160000000;
-const stop=()=>{running=false;if(timer!==null)clearTimeout(timer);timer=null;};
+const CPU_HZ=16000000,MAX_CYCLES=160000000,CHUNK_CYCLES=250000;
+let timer=null,running=false,cpu=null,ports=null,serial='',pressed=false,trace=newLogicTrace();
+const cancel=()=>{running=false;if(timer!==null)clearTimeout(timer);timer=null;};
 function pinState(pin){
- const port=pin<=7?ports.d:ports.b,position=pin<=7?pin:pin-8;
- const state=port.pinState(position);
+ const port=pin<=7?ports.d:ports.b,index=pin<=7?pin:pin-8;
+ const state=port.pinState(index);
  return state===PinState.High?'high':state===PinState.Low?'low':state===PinState.InputPullUp?'pullup':'input';
 }
-function tracePin13(){
- const value=pinState(13);
- if(value===last13)return;
- last13=value;
- transitions.push({ms:Math.round(cpu.cycles/16000*10)/10,level:value});
- if(transitions.length>100)transitions=transitions.slice(-100);
-}
+function readPins(){const pins={};for(let id=2;id<=13;id++)pins['D'+id]=pinState(id);return pins;}
+function capturePins(){if(cpu&&ports)captureLogicPins(trace,readPins(),cpu.cycles/16000);}
 function snapshot(){
- const pins={};for(let id=2;id<=13;id++)pins['D'+id]=pinState(id);
- postMessage({kind:'snapshot',simulatedMs:Math.round(cpu.cycles/16000),pins,transitions:transitions.slice(-80),serial});
+ if(!cpu||!ports)return;
+ const pins=readPins();captureLogicPins(trace,pins,cpu.cycles/16000);
+ postMessage({kind:'snapshot',simulatedMs:Math.round(cpu.cycles/16000),pins,
+  traces:trace.edges,dropped:trace.dropped,buttonPressed:pressed,serial});
 }
 function execute(){
- if(!running)return;
+ if(!running||!cpu)return;
  try{
-  const end=cpu.cycles+100000;
+  const end=Math.min(MAX_CYCLES,cpu.cycles+CHUNK_CYCLES);
   while(running&&cpu.cycles<end){avrInstruction(cpu);cpu.tick();}
   snapshot();
-  if(cpu.cycles>=MAX_CYCLES){stop();postMessage({kind:'ended',reason:'Reached the 10-second simulated-time safety limit. Restart to replay.'});return;}
-  timer=setTimeout(execute,12);
- }catch(error){stop();postMessage({kind:'error',reason:'AVR instruction execution stopped: '+String(error?.message||error).slice(0,180)});}
+  if(cpu.cycles>=MAX_CYCLES){cancel();postMessage({kind:'ended',reason:'Reached the 10-second simulated-time limit. Restart to replay.'});return;}
+  timer=setTimeout(execute,20);
+ }catch(error){cancel();postMessage({kind:'error',reason:'AVR execution stopped: '+String(error?.message||error).slice(0,180)});}
 }
 self.onmessage=event=>{
- const {kind,hex,pressed}=event.data||{};
- if(kind==='stop'){stop();postMessage({kind:'stopped'});return;}
- if(kind==='button'&&running){ports.d.setPin(2,!pressed);return;}
+ const {kind,hex,pressed:nextPressed}=event.data||{};
+ if(kind==='stop'){cancel();cpu=null;ports=null;postMessage({kind:'stopped'});return;}
+ if(kind==='button'&&cpu&&ports){pressed=Boolean(nextPressed);ports.d.setPin(2,!pressed);snapshot();return;}
+ if(kind==='pause'&&running){cancel();snapshot();postMessage({kind:'paused'});return;}
+ if(kind==='resume'&&cpu&&!running&&cpu.cycles<MAX_CYCLES){running=true;postMessage({kind:'resumed'});timer=setTimeout(execute,0);return;}
  if(kind!=='start')return;
- stop();
+ cancel();cpu=null;ports=null;
  try{
   const flash=parseUnoHex(hex),program=new Uint16Array(flash.buffer);
   cpu=new CPU(program);
   const timers=[new AVRTimer(cpu,timer0Config),new AVRTimer(cpu,timer1Config),new AVRTimer(cpu,timer2Config)];
   ports={b:new AVRIOPort(cpu,portBConfig),c:new AVRIOPort(cpu,portCConfig),d:new AVRIOPort(cpu,portDConfig)};
   const usart=new AVRUSART(cpu,usart0Config,CPU_HZ);
-  serial='';transitions=[];last13=null;
-  usart.onByteTransmit=byte=>{if(byte===10||byte===13||(byte>=32&&byte<=126)){serial=(serial+String.fromCharCode(byte)).slice(-500);}};
-  ports.b.addListener(tracePin13);
+  serial='';pressed=false;trace=newLogicTrace();
+  usart.onByteTransmit=byte=>{if(byte===10||byte===13||(byte>=32&&byte<=126))serial=(serial+String.fromCharCode(byte)).slice(-500);};
+  ports.b.addListener(capturePins);
+  ports.d.addListener(capturePins);
   ports.d.setPin(2,true);
-  tracePin13();running=true;
+  capturePins();running=true;
   void timers;
-  postMessage({kind:'started'});
+  postMessage({kind:'started',pins:LOGIC_PINS});
   timer=setTimeout(execute,0);
- }catch(error){stop();postMessage({kind:'error',reason:String(error?.message||error).slice(0,200)});}
+ }catch(error){cancel();cpu=null;ports=null;postMessage({kind:'error',reason:String(error?.message||error).slice(0,200)});}
 };

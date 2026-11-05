@@ -3,3 +3,18 @@
 .studio-avr-status{font:800 11px monospace;color:#285c46}.studio-avr-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:12px 0}.studio-avr-actions button{border:0;background:#246347;color:white;border-radius:7px;padding:10px 15px;font-weight:750}.studio-avr-actions button:disabled{opacity:.5;cursor:not-allowed}.studio-avr-actions label{font-size:11px;display:grid;gap:4px;font-weight:700}
 .studio-avr-message{border:1px solid #d8e5dc;padding:9px;border-radius:6px;background:#fff}.studio-avr-pins{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}.studio-avr-led{display:grid;gap:6px;place-items:center;background:#15372f;color:#c7ddd2;padding:18px;border-radius:10px;min-width:140px}.studio-avr-led:before{content:'';width:36px;height:36px;border-radius:50%;background:#5c4836;border:3px solid #b0a183}.studio-avr-led.lit:before{background:#ffd14f;box-shadow:0 0 16px #ffa414}.studio-avr-led strong{text-transform:uppercase;font-size:11px}.studio-avr-pin-grid{flex:1;min-width:220px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.studio-avr-pin-grid>div{display:grid;gap:2px;background:#e6f0e8;text-align:center;padding:6px 2px;border-radius:5px}.studio-avr-pin-grid small{font-size:10px}.studio-avr-pin-grid b{font-size:10px;color:#547467}.studio-avr-pin-grid b.is-high{color:#1d7434}.studio-avr-scope{background:#102d29;padding:12px;border-radius:9px;color:#c9ead3;margin:12px 0}.studio-avr-scope svg{display:block;width:100%;max-height:95px}.studio-avr-scope small{font-size:11px}.studio-avr-button{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700}.studio-avr-serial{background:#102d29;color:#b9efd1;max-height:140px;overflow:auto;padding:10px;border-radius:5px;font-size:11px;white-space:pre-wrap}
 @media(max-width:600px){.studio-avr-pin-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.studio-avr-actions label{width:100%}}
+
+/* Phase 4: digital-only multi-channel logic analyzer (bounded edge history). */
+.studio-avr-analyzer{margin:14px 0;padding:13px;border-radius:12px;background:#102d29;color:#c9ead3}
+.studio-avr-analyzer>header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:11px}
+.studio-avr-analyzer>header>div{display:grid;gap:5px}.studio-avr-analyzer header small{font-size:11px;color:#b3d3c4}
+.studio-avr-analyzer button{border:1px solid #82c7a6;border-radius:7px;padding:8px 12px;background:#255d47;color:#fff;font-size:11px;font-weight:800}
+.studio-avr-analyzer button:disabled{opacity:.5;cursor:not-allowed}
+.studio-avr-channel{display:grid;grid-template-columns:105px minmax(0,1fr) 70px;gap:10px;align-items:center;margin:6px 0;border:1px solid #3d6a56;border-radius:8px;padding:7px}
+.studio-avr-channel label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800}
+.studio-avr-channel select{min-width:65px;padding:6px 5px;color:#16432f;background:#f5fff3;border:1px solid #b2d9bc;border-radius:5px}
+.studio-avr-channel svg{width:100%;min-width:0;height:65px}
+.studio-avr-last{font:800 11px monospace;text-align:center;text-transform:uppercase;overflow-wrap:anywhere}
+.studio-avr-loss{border:1px solid #d3ae7b;background:#694b28;border-radius:7px;padding:8px 12px;font-size:11px}
+.studio-avr-explain{color:#c4dfcc;font-size:11px;line-height:1.6}
+@media(max-width:650px){.studio-avr-channel{grid-template-columns:80px minmax(0,1fr)}.studio-avr-last{grid-column:1 / -1;text-align:left}.studio-avr-channel label{display:grid}.studio-avr-channel svg{height:60px}}

@@ -13,7 +13,7 @@
 ## Important non-features
 - The 3D view is a CSS perspective representation of the same 2D netlist, **not** a photorealistic drag-and-drop electronics bench.
 - The 2D view is a labeled connection map, **not** an IEC/IEEE standard schematic or a professional netlist export.
-- The builder does not simulate voltage, current, arbitrary electronics, sensor protocols, or firmware.
+- The original Phase 2 wiring model has no analog physics; Phase 3 adds limited steady-state DC calculations for selected components. Arbitrary circuits, sensors and hardware still are not simulated.
 - The tool does not assert a safe current budget, component tolerance, datasheet compliance, or physical build correctness.
 - Only Arduino Uno R3 wiring is available in this phase. Other boards belong in a future validated expansion, rather than misleading users about available pin models.
 
@@ -32,3 +32,11 @@ This implementation adds no packages or runtime APIs, preserving GitHub Actions/
 - CircuitByte Studio's separate AVR emulator (`app/studio/avr-emulator-worker.mjs`) accepts the existing **successful Uno HEX** artifact or a local HEX import and runs ATmega328P instructions with MIT-licensed `avr8js@0.21.1` in a browser worker. Supported: D2–D13 output state, basic timer operation, serial TX, and a D2 button input. It does not emulate ESP32/ESP8266 or physical electrical circuits, SPI/I²C modules, peripherals, voltage/current loading, or external sensors. Worker stops at 10 simulated seconds, and simulated time is not guaranteed real time.
 - Intel HEX parsing enforces record checksum, EOF, 32 KB flash size and repeated-data consistency, with browser-side tests. Basic passive circuit/nodal/LED examples have deterministic unit tests. Only a successful matching build consumes existing compilation credits; replaying a compiled artifact does not call the compiler.
 - **Release verification**: run `npm ci`, `npm test`, `npm run build`, then check the new UI in a real desktop/mobile browser. For the AVR path, compile Uno Blink once and confirm D13 output transitions in the worker; no unverified simulator behavior should be represented as hardware proof.
+
+## Phase 4 — Uno digital logic analyzer and solver safety (2026-11-05)
+- Uno firmware emulation now includes a **four-channel digital logic analyzer** with selectable D2–D13 channels, pause/resume, bounded per-pin edge history (64 retained edges), CSV trace export and input-button interaction. The four charts share one worker run and use simulated CPU time, not an analog oscilloscope.
+- Locally compiled Uno Intel HEX files may be imported **without spending a cloud compilation credit or requiring a previous cloud build**. If a user imports a file when a Studio-generated HEX already exists, the local file takes precedence for the current analyzer instance.
+- Low-resistance closed switches and potentiometer paths that attempt to join conflicting ideal voltage sources now **fail closed** instead of displaying enormous ideal-source currents. Hardware supply current capacity and transient effects remain unmodeled.
+- The edge trace keeps at most 64 transitions per GPIO and counts discarded older transitions. A CSV export contains only the chosen four channels' retained events. A 5-simulated-second scrolling display can omit older transitions even when a pin is still at the last state.
+- The analyzer and DC solver remain separate: an AVR GPIO trace is not an electrical simulation of the full circuit and cannot establish physical safety or sensor operation.
+- New pure trace tests and closed-switch regression tests run under `npm test` and the Vercel pre-build gate; no additional third-party packages, database migrations, paid AI calls, or new compilation charges.

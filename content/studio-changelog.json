@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-phase4-logic-trace-20261105",
+    "date": "2026-11-05",
+    "title": "Four-channel Uno logic analyzer and safer DC models",
+    "type": "Studio",
+    "highlights": [
+      "Compiled Arduino Uno firmware now supports four selectable D2–D13 logic traces, pause/resume, simulated-time labels and browser-local CSV export.",
+      "Logic capture is capped to 64 retained edges per GPIO, with an explicit history-overflow count; the analyzer is digital-only, not an analog oscilloscope.",
+      "Users may import locally compiled Uno Intel HEX directly from the Compile step without completing a cloud build or using a successful-build credit.",
+      "The DC solver blocks closed switches and potentiometer near-shorts between opposing ideal supplies instead of reporting nonphysical currents; regression tests cover both cases."
+    ]
+  },
+  {
     "id": "studio-browser-dc-avr-lab-20261105",
     "date": "2026-11-05",
     "title": "Virtual DC Test Bench and Arduino Uno firmware worker",

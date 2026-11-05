@@ -1,5 +1,17 @@
 [
   {
+    "id": "circuitbyte-guided-virtual-lab-20261105",
+    "date": "2026-11-05",
+    "title": "Guided Virtual Electronics Laboratory and experiment evidence",
+    "type": "Studio",
+    "highlights": [
+      "Four guided DC experiments in the existing interactive workbench: 330-ohm divider, potentiometer control, LED forward current, and LDR response.",
+      "The laboratory shares the live breadboard netlist, voltmeter probes and manual GPIO/test conditions; automatic checkpoint checks reject wrong wiring or mismatched conditions.",
+      "Learners can record modeled readings, add short observations, restore local progress, and export an experiment report, without AI calls or compilation credits.",
+      "Evidence remains browser-local and explicitly simulated, with stale observations invalidated when the circuit changes. No physical hardware certification is implied."
+    ]
+  },
+  {
     "id": "studio-phase4-logic-trace-20261105",
     "date": "2026-11-05",
     "title": "Four-channel Uno logic analyzer and safer DC models",

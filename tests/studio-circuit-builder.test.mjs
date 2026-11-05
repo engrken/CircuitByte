@@ -12,7 +12,7 @@ test('curated board and breadboard have correct independent row halves',()=>{
  assert.equal(ROW_COUNT,12);
 });
 test('all reviewed teaching templates have no detected direct electrical short',()=>{
- for(const name of ['blink','button','potentiometer','ultrasonic']){
+ for(const name of ['blink','button','potentiometer','ultrasonic','divider','ldr-divider']){
   const check=analyzeCircuit(fromTemplate(name));
   assert.equal(check.errors.length,0,`${name}: ${JSON.stringify(check.errors)}`);
  }

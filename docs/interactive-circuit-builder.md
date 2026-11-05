@@ -40,3 +40,11 @@ This implementation adds no packages or runtime APIs, preserving GitHub Actions/
 - The edge trace keeps at most 64 transitions per GPIO and counts discarded older transitions. A CSV export contains only the chosen four channels' retained events. A 5-simulated-second scrolling display can omit older transitions even when a pin is still at the last state.
 - The analyzer and DC solver remain separate: an AVR GPIO trace is not an electrical simulation of the full circuit and cannot establish physical safety or sensor operation.
 - New pure trace tests and closed-switch regression tests run under `npm test` and the Vercel pre-build gate; no additional third-party packages, database migrations, paid AI calls, or new compilation charges.
+
+## Phase 5 — Guided virtual laboratory (2026-11-05)
+- `/learn/lab/builder#virtual-lab` contains four structured teaching experiments: 5 V / two 330 Ω resistors, 10 kΩ potentiometer, D13 LED current, and LDR divider resistance response.
+- Every experiment uses the same breadboard netlist and steady-state DC engine as the standalone instrument. A pair of curated safe templates supplements the earlier beginner templates. No separate animation or fake measurements.
+- Students load a starter, inspect wiring, configure instrument settings, choose voltage probes, and **explicitly capture** each expected modeled reading. Checks require electrically matching circuit topology, correct manual GPIO/potentiometer/LDR settings, expected probe selection, safety screening and a bounded numeric tolerance.
+- Captures are tagged with the exact circuit version. Editing a wire or component invalidates that version’s completion status. Observations are browser-local, bounded, and restored only from validated record shapes. The downloadable Markdown report is **simulated evidence only**; it is not an academic grade nor a certificate of hardware correctness.
+- Supported cases are idealized low-voltage DC only; real tolerances, GPIO current budgets, sensor physics, oscilloscope waveforms and actual firmware/hardware interaction are outside these checkpoint models.
+- CI includes deterministic laboratory scenario tests alongside the existing netlist and DC solver tests. No new dependency, database table, server API, cloud deployment target or credit charge.

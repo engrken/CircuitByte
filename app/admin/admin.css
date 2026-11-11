@@ -12,3 +12,31 @@
   .orders-admin .order-card,.orders-admin .order-editor{padding:16px}
   nav a{display:inline-flex;align-items:center;min-height:44px}
 }
+
+
+.inventory-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.inventory-stats .inventory-stat-action{
+  color:#173d34;background:#fff;border:1px solid #a8c7b7;border-radius:16px;padding:22px;text-align:left
+}
+.inventory-stats .inventory-stat-action:hover:not(:disabled),
+.inventory-stats .inventory-stat-action[aria-pressed=true]{background:#e1f0e7!important;border-color:#3e826a}
+.inventory-stats .inventory-stat-action span{font-weight:700;color:#215846}
+#inventory-results{scroll-margin-top:20px}
+.restock-list{list-style:none;padding:0;display:grid;gap:10px}
+.restock-row{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;
+  background:#fff;border:1px solid #dce5dc;border-radius:12px;padding:16px
+}
+.restock-row p{margin:6px 0 0;color:#52665c}
+.restock-row .restock-form{
+  display:flex;align-items:end;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0;background:transparent
+}
+.restock-form label{margin:0;max-width:130px}
+.restock-form .restock-edit{background:#fff;color:#174d40}
+.restock-form .restock-edit:hover:not(:disabled){color:#fff}
+@media(max-width:650px){
+  .inventory-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inventory-stats .inventory-stat-action{padding:12px 8px}
+  .restock-row{grid-template-columns:minmax(0,1fr);gap:12px}
+  .restock-form label{max-width:125px}
+}

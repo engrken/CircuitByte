@@ -9,6 +9,6 @@ export async function POST(req){
   const body=await readBody(req);
   if(typeof body?.id!=='string'||!/^[0-9a-f-]{36}$/i.test(body.id))return Response.json({error:'Invalid order'},{status:400});
   await deliverOrderNotifications(body.id,process.env.BETTER_AUTH_URL||new URL(req.url).origin);
-  return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
+  return Response.json({ok:true},{headers:{'Cache-Control':'private, no-store'}});
  }catch(e){return errorResponse(e);}
 }

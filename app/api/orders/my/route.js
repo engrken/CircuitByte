@@ -4,7 +4,7 @@ import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {errorResponse,listCustomerOrders,readBody,recordPaymentReference} from '../../../../lib/orders';
 
 export const dynamic='force-dynamic';
-const headers={'Cache-Control':'no-store'};
+const headers={'Cache-Control':'private, no-store'};
 
 export async function GET(){
  let user;

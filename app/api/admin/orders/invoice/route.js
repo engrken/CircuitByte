@@ -5,7 +5,7 @@ import {deliverOrderInvoice,issueOrderInvoice} from '../../../../../lib/order-in
 import {OrderError} from '../../../../../lib/order-rules.mjs';
 
 export const dynamic='force-dynamic';
-const headers={'Cache-Control':'no-store'};
+const headers={'Cache-Control':'private, no-store'};
 
 export async function POST(req){
  let admin;

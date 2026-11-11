@@ -7,10 +7,17 @@ const pg=new PGlite();
 const query=(sql,args)=>sql.startsWith('SELECT pg_advisory_xact_lock')?Promise.resolve({rows:[]}):pg.query(sql,args);
 const connection={query,release(){}};
 mock.module('../lib/db.js',{namedExports:{db:()=>({query,connect:async()=>connection})}});
-const {createOrder,updateOrder,trackOrder}=await import('../lib/orders.js');
+const {createOrder,updateOrder,trackOrder,listCustomerOrders}=await import('../lib/orders.js');
+let adminSignedIn=false;
+mock.module('../lib/auth.js',{namedExports:{requireAdmin:async()=>{
+ if(!adminSignedIn)throw new Error('Unauthorized');
+ return {email:'admin@example.invalid'};
+},sameOrigin:()=>{}}});
+const {GET:adminOrders}=await import('../app/api/admin/orders/route.js');
+const schema=await readFile(new URL('../scripts/schema.sql',import.meta.url),'utf8');
 after(()=>pg.close());
 test('SQL migration and order lifecycle against isolated PostgreSQL engine',async()=>{
- const schema=await readFile(new URL('../scripts/schema.sql',import.meta.url),'utf8');await pg.exec(schema);await pg.exec(schema);
+ await pg.exec(schema);await pg.exec(schema);
  await query("INSERT INTO products(id,name,categories,price_cents,stock) VALUES('board','Board',ARRAY['boards'],15000,5),('sensor','Sensor',ARRAY['sensors'],1000,1),('unknown','Uncounted',ARRAY['tools'],100,NULL)");
  const body={name:'QA customer',contact:'09171234567',location:'Roxas City test landmark',city:'Roxas City, Capiz',notes:'',requestId:crypto.randomUUID(),token:'b'.repeat(64),items:[{id:'board',quantity:3,price_cents:15000}]};
  const user={id:'qa-member',email:'buyer@example.invalid'};
@@ -36,4 +43,53 @@ test('SQL migration and order lifecycle against isolated PostgreSQL engine',asyn
  assert.equal((await query('SELECT status FROM orders WHERE id=$1',[fourth.requestId])).rows[0].status,'Pending');
  await assert.rejects(query("UPDATE products SET reserved_stock=3 WHERE id='board'"),/products_reservation_check/);
  assert.equal((await query('SELECT count(*) FROM product_audit')).rows[0].count,4);
+});
+
+test('Maxim checkout records fee acknowledgment and limits delivery data to the buyer and selected admin order',async()=>{
+ await pg.exec(schema);
+ await query("INSERT INTO products(id,name,categories,price_cents,stock) VALUES('delivery-fixture','Delivery item',ARRAY['boards'],5500,1)");
+ const origin='https://circuitbyte.vercel.app',address='Unit 12, Test Street, Roxas City';
+ const buyer={id:'maxim-buyer',email:'maxim-buyer@example.invalid'};
+ const body={name:'Delivery Customer',contact:'09170000000',location:address,city:'Roxas City, Capiz',
+  notes:'Private delivery instructions',requestId:crypto.randomUUID(),token:'2'.repeat(64),items:[{id:'delivery-fixture',quantity:1,price_cents:5500}],
+  fulfillmentMethod:'maxim',invoice:{tin:'test-invoice-identifier'}};
+ await assert.rejects(createOrder(body,'test',buyer),/Acknowledge/);
+ const accepted={...body,deliveryFeeAccepted:true};
+ const receipt=await createOrder(accepted,'test',buyer);
+ assert.equal(receipt.fulfillment_method,'maxim');
+ assert.equal(receipt.total_cents,5500);
+ assert.equal('proposed_location' in receipt,false);
+ assert.equal((await createOrder(accepted,'test',buyer)).reference,receipt.reference);
+ await assert.rejects(createOrder({...accepted,fulfillmentMethod:'meetup'},'test',buyer),/different details/);
+ const tracked=await trackOrder(body.token);
+ assert.deepEqual(Object.keys(tracked).sort(),['reference','status','updated_at']);
+ assert.equal(tracked.reference,receipt.reference);
+ const [owned]=await listCustomerOrders(buyer.id);
+ assert.equal(owned.proposed_location,address);
+ assert.equal('invoice_tin' in owned,false);
+ assert.deepEqual(await listCustomerOrders('other-buyer'),[]);
+
+ const detailRequest=new Request(origin+'/api/admin/orders?id='+body.requestId);
+ assert.equal((await adminOrders(detailRequest)).status,401);
+ adminSignedIn=true;
+ const response=await adminOrders(new Request(origin+'/api/admin/orders',{
+  headers:{'x-circuitbyte-order-search':new URLSearchParams({q:buyer.email}).toString()}
+ }));
+ assert.equal(response.status,200);
+ assert.equal(response.headers.get('cache-control'),'private, no-store');
+ const data=await response.json();
+ assert.equal(data.orders.length,1);
+ const listed=data.orders[0];
+ assert.equal(listed.item_count,1);
+ for(const key of ['customer_name','customer_email','contact','notes','proposed_location','invoice_tin','payment_reference'])assert.equal(key in listed,false);
+
+ const {order}=await (await adminOrders(detailRequest)).json();
+ assert.equal(order.proposed_location,address);
+ assert.equal(order.customer_email,buyer.email);
+ assert.ok(order.delivery_fee_acknowledged_at);
+ const update={id:body.requestId,version:1,status:'Confirmed',confirmed_location:'',customer_update:''};
+ await assert.rejects(updateOrder(update,'QA admin'),/Confirm the delivery address/);
+ const confirmed=await updateOrder({...update,confirmed_location:address},'QA admin');
+ assert.equal(confirmed.order.status,'Confirmed');
+ assert.equal((await listCustomerOrders(buyer.id))[0].confirmed_location,address);
 });

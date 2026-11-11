@@ -1,0 +1,6 @@
+.privacy-notice{max-width:820px;margin:auto;padding:clamp(24px,5vw,64px) 20px;color:#19372e;line-height:1.7}
+.privacy-notice h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.1;letter-spacing:-.035em;margin:0 0 14px}
+.privacy-notice section{margin:30px 0;padding-top:18px;border-top:1px solid #d6e4d9}
+.privacy-notice h2{font-size:1.35rem;margin:0 0 10px}
+.privacy-notice li{margin-bottom:10px}
+.privacy-notice a{color:#195a43;text-decoration:underline}

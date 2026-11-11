@@ -124,6 +124,7 @@ export default function StudioAccount(){
      {['login','signup','reset'].includes(mode)&&<label>Password<input name="password" type="password" required minLength={mode==='login'?undefined:12} maxLength={128} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
      <button type="submit" disabled={busy||(mode==='signup'&&!registrationOpen)}>{busy?'Working…':{login:'Sign in',signup:'Register',verify:'Verify email',forgot:'Send password link',reset:'Save password'}[mode]}</button>
     </form>
+    {mode==='signup'&&<p>See the <a href="/privacy">Privacy Notice</a> for how we use and protect your account details.</p>}
     {mode==='verify'&&<button className="account-link" type="button" disabled={busy} onClick={resend}>Send a new code</button>}
     {mode==='login'&&<button className="account-link" type="button" onClick={()=>changeMode('forgot')}>Forgot your password or used email-code sign-in before?</button>}
     {mode==='login'&&registrationOpen&&<><button className="account-link" type="button" onClick={()=>changeMode('signup')}>Create an account</button> <button className="account-link" type="button" onClick={()=>changeMode('verify')}>Enter a registration code</button></>}

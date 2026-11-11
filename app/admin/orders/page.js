@@ -2,7 +2,7 @@
 import {useState,useEffect} from 'react';
 import '../admin.css';
 import './orders.css';
-import {OrderProgress,paymentLabel,peso} from '../../order-display';
+import {OrderProgress,paymentLabel,fulfillmentLabel,peso} from '../../order-display';
 const options={Pending:['Pending','Confirmed','Cancelled'],Confirmed:['Confirmed','Ready','Cancelled'],Ready:['Ready','Completed','Cancelled'],Completed:['Completed'],Cancelled:['Cancelled']};
 const esc=s=>String(s||'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 function printInvoice(invoice,order){const w=window.open('','_blank','width=850,height=900');if(!w)throw Error('Allow pop-ups to print the invoice.');w.opener=null;const rows=(invoice.items||order.items||[]).map(i=>`<tr><td>${esc(i.name)}${i.option?`<small><br>${esc(i.option_label||'Option')}: ${esc(i.option)}</small>`:''}</td><td>${i.quantity}</td><td>₱${(i.price_cents/100).toFixed(2)}</td><td>₱${(i.price_cents*i.quantity/100).toFixed(2)}</td></tr>`).join('');w.document.write(`<!doctype html><html><head><title>Invoice ${esc(invoice.invoice_number)}</title><style>body{font:15px Arial,sans-serif;color:#182e29;margin:48px}.top{display:flex;justify-content:space-between;border-bottom:2px solid #17644f;padding-bottom:18px}.muted{color:#64756f}table{width:100%;border-collapse:collapse;margin:28px 0}td,th{text-align:left;padding:12px;border-bottom:1px solid #dce5df}th{background:#f0f5f2}.total{text-align:right;font-size:20px;font-weight:bold}.foot{margin-top:60px;border-top:1px solid #dce5df;padding-top:14px}@media print{button{display:none}}</style></head><body><div class="top"><div><h1>${esc(invoice.seller_name||'CircuitByte')}</h1><div>${esc(invoice.seller_address)}</div><div>${invoice.seller_tin?`TIN: ${esc(invoice.seller_tin)}`:''}</div></div><div><h2>ORDER INVOICE</h2><b>${esc(invoice.invoice_number)}</b><div>${new Date(invoice.issued_at).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}</div></div></div><h3>Bill to</h3><div>${esc(invoice.customer_name)}</div><div>${esc(invoice.customer_email)}</div><div>${esc(invoice.billing_address)}</div><div>${invoice.customer_tin?`TIN: ${esc(invoice.customer_tin)}`:''}</div><table><thead><tr><th>Item</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table><p class="total">Total: ₱${(Number(invoice.subtotal_cents)/100).toFixed(2)}</p><p>Order reference: ${esc(order.reference)} · ${esc(paymentLabel(order.payment_method))}</p><p>${esc(invoice.notes)}</p><div class="foot muted">CircuitByte · Roxas City, Capiz<br></div><script>window.onload=()=>window.print()</script></body></html>`);w.document.close();}
@@ -13,7 +13,7 @@ const date=value=>new Date(value).toLocaleString('en-PH',{timeZone:'Asia/Manila'
 function paymentStatus(order){
  if(order.payment_method!=='qrph')return 'Cash at handover';
  if(order.payment_verified_at)return 'QR Ph · Verified';
- if(order.payment_reference)return 'QR Ph · Review transfer';
+ if(order.payment_reference||order.has_payment_reference)return 'QR Ph · Review transfer';
  return order.status==='Pending'&&!order.qr_payment_opened_at?'QR Ph · Awaiting stock review':'QR Ph · Awaiting payment';
 }
 
@@ -54,7 +54,9 @@ export default function Orders(){
  async function load(signal){
   setLoading(true);
   try{
-   const r=await fetch('/api/admin/orders?'+new URLSearchParams({status:filter,q:query,offset}),{signal,cache:'no-store'});
+   const r=await fetch('/api/admin/orders?'+new URLSearchParams({status:filter,offset}),{
+    signal,cache:'no-store',headers:{'x-circuitbyte-order-search':new URLSearchParams({q:query}).toString()}
+   });
    const data=await r.json();
    if(!r.ok)throw new Error(r.status===401?'Sign in through the inventory dashboard to view orders.':data.error);
    if(signal?.aborted)return;
@@ -65,6 +67,21 @@ export default function Orders(){
   }finally{if(!signal?.aborted)setLoading(false);}
  }
  useEffect(()=>{const controller=new AbortController();load(controller.signal);return()=>controller.abort();},[filter,query,offset]);
+
+ async function fetchOrder(id){
+  const response=await fetch('/api/admin/orders?'+new URLSearchParams({id}),{cache:'no-store'});
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error||'Could not load order details.');
+  return data.order;
+ }
+ async function openOrder(id){
+  setBusy(true);setError('');setNotice('');
+  try{
+   const order=await fetchOrder(id);
+   setSelected({...order,originalStatus:order.status});
+   window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
 
  function deliveryNotice(delivery,email){
   if(delivery==='sent')return ' Invoice emailed to the customer.';
@@ -93,9 +110,8 @@ export default function Orders(){
    const response=await fetch('/api/admin/orders/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:selected.id})});
    const data=await response.json();
    if(!response.ok)throw new Error(data.error);
-   const rows=await load();
-   const updated=rows?.find(order=>order.id===selected.id);
-   if(updated)setSelected({...selected,notifications:updated.notifications});
+   const updated=await fetchOrder(selected.id);
+   setSelected({...selected,notifications:updated.notifications});
    setNotice('Order email delivery status refreshed.');
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
@@ -118,7 +134,7 @@ export default function Orders(){
   {error&&<p role="alert" className="order-error">{error}</p>}
   {notice&&<p role="status" className="order-notice">{notice}</p>}
   <div className="order-filters">
-   <input aria-label="Search orders" type="search" placeholder="Search reference, customer or email" value={query} disabled={busy} onChange={e=>{setQuery(e.target.value);setOffset(0);setSelected(null);setError('');}}/>
+   <input aria-label="Search orders" type="search" maxLength={100} placeholder="Search reference, customer or email" value={query} disabled={busy} onChange={e=>{setQuery(e.target.value);setOffset(0);setSelected(null);setError('');}}/>
    <button className="secondary" disabled={loading||busy} onClick={async()=>{setError('');await load();setSelected(null);}}>Refresh</button>
   </div>
   <div className="status-tabs" aria-label="Filter orders by status">{['',...statuses].map(status=><button type="button" key={status} disabled={busy} aria-pressed={filter===status}
@@ -129,7 +145,11 @@ export default function Orders(){
    <OrderProgress status={selected.originalStatus}/>
    <p><strong>{selected.customer_name}</strong> · <a href={'tel:'+selected.contact.replace(/[^+\d]/g,'')}>{selected.contact}</a></p>
    {selected.guest&&!closed(selected.originalStatus)?<label>Customer email (optional)<input type="email" maxLength={200} value={selected.customer_email} onChange={e=>setSelected({...selected,customer_email:e.target.value})}/></label>:<p>{selected.customer_email}</p>}
-   <p><strong>Requested meetup:</strong> {selected.proposed_location}</p>
+   <p><strong>{fulfillmentLabel(selected.fulfillment_method)}</strong></p>
+   <p><strong>{selected.fulfillment_method==='maxim'?'Requested delivery address:':'Requested meetup:'}</strong> {selected.proposed_location}</p>
+   {selected.fulfillment_method==='maxim'&&<p>Customer pays the courier fee separately. Confirm the quote and handover arrangements before booking.
+    {selected.payment_method==='cash'?' Confirm how the buyer will pay for the items before dispatch.':''} Share only the name, contact number and drop-off details needed for delivery.</p>}
+   {selected.fulfillment_method==='maxim'&&!closed(selected.originalStatus)&&<p><a href="https://taximaxim.com/ph/en/8445-roxas/order-a-taxi-online" target="_blank" rel="noopener noreferrer">Open Maxim Roxas ↗</a></p>}
    {selected.notes&&<p><strong>Customer message:</strong> {selected.notes}</p>}
    <ul className="order-items">{selected.items.map((item,index)=><li key={item.id+'-'+index}>
     {item.name}{item.option?` — ${item.option_label||'Variant'}: ${item.option}`:''} × {item.quantity} — {peso(item.price_cents*item.quantity)}
@@ -139,7 +159,7 @@ export default function Orders(){
     {selected.payment_reference&&<p>Transfer reference <strong>{selected.payment_reference}</strong></p>}
     {selected.payment_reference&&!selected.payment_verified_at&&!closed(selected.originalStatus)&&<label className="payment-check">
      <input type="checkbox" checked={Boolean(selected.verifyPayment)} onChange={e=>setSelected({...selected,verifyPayment:e.target.checked})}/>
-     I matched this transfer reference and amount to the payment received.
+     I matched the transfer reference and received amount in Peddlr Kankolek.
     </label>}
    </div>
    {selected.notifications&&<div className="order-email-status">
@@ -154,8 +174,10 @@ export default function Orders(){
     <label>Status<select disabled={busy} value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})}>
      {options[selected.originalStatus].filter(status=>!(selected.originalStatus==='Pending'&&selected.payment_method==='qrph'&&status==='Confirmed')).map(status=><option key={status}>{status}</option>)}
     </select></label>
-    <label>Confirmed meetup location in Roxas City<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
+    <label>{selected.fulfillment_method==='maxim'?'Confirmed delivery address in Roxas City':'Confirmed meetup location in Roxas City'}<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
      value={selected.confirmed_location} onChange={e=>setSelected({...selected,confirmed_location:e.target.value})}/></label>
+    {selected.fulfillment_method==='maxim'&&<button className="secondary" type="button" disabled={busy}
+     onClick={()=>setSelected({...selected,confirmed_location:selected.proposed_location})}>Use requested address</button>}
     <label>Update for customer<textarea maxLength={1000} placeholder="Agreed date, time or landmark"
      value={selected.customer_update} onChange={e=>setSelected({...selected,customer_update:e.target.value})}/></label>
     <button disabled={busy}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
@@ -167,12 +189,12 @@ export default function Orders(){
   </form>}
   {loading?<p role="status">Loading orders…</p>:<div className="order-grid">{orders.map(order=><article className="order-card" key={order.id}>
    <div className="order-heading"><span className="status-pill">{order.status}</span><small>{date(order.created_at)}</small></div>
-   <h2>{order.reference}</h2><strong>{order.customer_name}</strong>
+   <h2>{order.reference}</h2><strong>{fulfillmentLabel(order.fulfillment_method)}</strong>
    <OrderProgress status={order.status}/>
-   <p>{order.items.reduce((n,item)=>n+item.quantity,0)} items · {peso(order.total_cents)}</p>
+   <p>{order.item_count} items · {peso(order.total_cents)}</p>
    <p>{paymentStatus(order)}</p>
-   {order.invoice&&<p>Invoice {order.invoice.invoice_number}{order.invoice.email_failed_at?' · Email failed':''}</p>}
-   <button disabled={busy} type="button" onClick={()=>{setSelected({...order,originalStatus:order.status});setError('');setNotice('');window.scrollTo({top:0,behavior:'smooth'});}}>Manage order</button>
+   {order.invoice_number&&<p>Invoice {order.invoice_number}{order.invoice_email_failed?' · Email failed':''}</p>}
+   <button disabled={busy} type="button" onClick={()=>openOrder(order.id)}>Manage order</button>
   </article>)}</div>}
   {!loading&&!error&&orders.length===0&&<p>No orders match these filters.</p>}
   <nav className="pager" aria-label="Order pages">

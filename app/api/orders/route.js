@@ -16,6 +16,6 @@ export async function POST(req){
    try{await deliverOrderNotifications(body.requestId,origin);}
    catch(error){console.error('Could not send new order notifications:',error.code||error.name);}
   });
-  return Response.json(order,{headers:{'Cache-Control':'no-store'}});
+  return Response.json(order,{headers:{'Cache-Control':'private, no-store'}});
  }catch(e){return errorResponse(e);}
 }

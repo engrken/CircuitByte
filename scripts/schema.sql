@@ -99,3 +99,7 @@ CREATE TABLE IF NOT EXISTS order_notifications (
  failed_at timestamptz,
  PRIMARY KEY(order_id,kind)
 );
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_method text NOT NULL DEFAULT 'meetup'
+ CHECK (fulfillment_method IN ('meetup','maxim'));
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_acknowledged_at timestamptz;

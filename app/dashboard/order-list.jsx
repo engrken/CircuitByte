@@ -1,6 +1,6 @@
 'use client';
 import {useState} from 'react';
-import {OrderProgress,paymentLabel,peso} from '../order-display';
+import {OrderProgress,paymentLabel,fulfillmentLabel,peso} from '../order-display';
 
 function Payment({order,onUpdate}){
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false),[showQr,setShowQr]=useState(false);
@@ -22,9 +22,9 @@ function Payment({order,onUpdate}){
  const qrUrl='/api/orders/my/qr?id='+encodeURIComponent(order.id);
  return <details className="order-payment" onToggle={e=>setShowQr(e.currentTarget.open)}>
   <summary>{order.payment_reference?'QR Ph reference submitted · awaiting verification':'Pay with QR Ph'}</summary>
-  {!order.payment_reference&&<p>Scan the QR Ph code and pay <strong>{peso(order.total_cents)}</strong> to <strong>CircuitByte</strong>. Check the recipient and any fees displayed in your banking or wallet app before sending.</p>}
+  {!order.payment_reference&&<p>Your items total is <strong>{peso(order.total_cents)}</strong>. Scan the code for <strong>CircuitByte</strong> and enter the items total plus the applicable Kolek fee shown with the QR. Check the recipient and total before sending.</p>}
   {order.payment_reference&&<p>Reference on file: <strong>{order.payment_reference}</strong>. You can correct it below.</p>}
-  {showQr&&!order.payment_reference&&<a href={qrUrl} download="CircuitByte-QR-Ph.jpg">Save the payment QR<img src={qrUrl} alt="CircuitByte QR Ph payment code and Netbank fee schedule" width="857" height="1536" loading="lazy"/></a>}
+  {showQr&&!order.payment_reference&&<a href={qrUrl} download="CircuitByte-QR-Ph.jpg">Save the payment QR<img src={qrUrl} alt="CircuitByte QR Ph payment code and Peddlr Kolek fee schedule" width="857" height="1536" loading="lazy"/></a>}
   <form onSubmit={submit}>
    <label>Transfer reference<input name="reference" maxLength={100} required defaultValue={order.payment_reference||''}/></label>
    <button disabled={busy}>{busy?'Submitting…':'Submit transfer reference'}</button>
@@ -39,7 +39,11 @@ export default function OrderList({orders,onUpdate}){
    <strong>{order.reference}</strong>
    <OrderProgress status={order.status}/>
    <p>{order.items.reduce((n,item)=>n+item.quantity,0)} items · {peso(order.total_cents)} · {paymentLabel(order.payment_method)}</p>
-   {order.confirmed_location&&<p>Handover: {order.confirmed_location}</p>}
+   <p><strong>{fulfillmentLabel(order.fulfillment_method)}</strong></p>
+   {order.fulfillment_method==='maxim'?<>
+    <p>{order.confirmed_location?'Confirmed delivery address':'Requested delivery address'}: {order.confirmed_location||order.proposed_location}</p>
+    <p>You pay the Maxim courier fee separately. CircuitByte confirms the delivery arrangements before booking.</p>
+   </>:<p>{order.confirmed_location?'Confirmed meetup':'Requested meetup'}: {order.confirmed_location||order.proposed_location}</p>}
    {order.customer_update&&<p>{order.customer_update}</p>}
    {order.invoice_number&&<p>Order invoice <strong>{order.invoice_number}</strong></p>}
    {order.payment_method==='qrph'&&<Payment order={order} onUpdate={onUpdate}/>}

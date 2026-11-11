@@ -60,26 +60,92 @@ if(cartParams.get('payment')==='qrph'){
 function showPaymentDetails(){$('#qr-checkout-note').hidden=paymentSelect.value!=='qrph';}
 paymentSelect.onchange=showPaymentDetails;
 showPaymentDetails();
+const fulfillmentSelect=$('#checkout select[name="fulfillmentMethod"]');
+const checkoutLocation=$('#checkout input[name="location"]');
+const deliveryFeeAccepted=$('#checkout input[name="deliveryFeeAccepted"]');
+function showFulfillmentDetails(){
+ const maxim=fulfillmentSelect.value==='maxim';
+ $('#maxim-checkout-note').hidden=!maxim;
+ $('#meetup-checkout-note').hidden=maxim;
+ deliveryFeeAccepted.required=maxim;
+ deliveryFeeAccepted.disabled=!maxim;
+ $('#checkout-location-label').textContent=maxim?'Delivery address in Roxas City':'Preferred meetup point / landmark';
+ checkoutLocation.placeholder=maxim?'House number, street, barangay and landmark':'Barangay, street or landmark in Roxas City';
+ checkoutLocation.autocomplete=maxim?'street-address':'off';
+}
+fulfillmentSelect.onchange=showFulfillmentDetails;
+showFulfillmentDetails();
+
+const attemptKey='circuitbyte.checkoutAttempt';
 let checkoutAttempt=null,placing=false;
-try{checkoutAttempt=JSON.parse(sessionStorage.getItem('circuitbyte.checkoutAttempt')||'null');}catch{}
+async function checkoutFingerprint(payload){
+ const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload));
+ return Array.from(new Uint8Array(bytes),value=>value.toString(16).padStart(2,'0')).join('');
+}
+function saveCheckoutAttempt(){
+ try{sessionStorage.setItem(attemptKey,JSON.stringify(checkoutAttempt));}catch{}
+}
+const restoredAttempt=(async()=>{
+ try{
+  const attempt=JSON.parse(sessionStorage.getItem(attemptKey)||'null');
+  if(!attempt)return;
+  // Upgrade pending checkouts that stored the form as plain text.
+  if(!/^[0-9a-f]{64}$/.test(attempt.fingerprint)){
+   sessionStorage.removeItem(attemptKey);
+   attempt.fingerprint=await checkoutFingerprint(attempt.fingerprint);
+  }
+  checkoutAttempt={fingerprint:attempt.fingerprint,requestId:attempt.requestId,token:attempt.token};
+  saveCheckoutAttempt();
+ }catch{}
+})();
 $('#checkout').onsubmit=async e=>{
- e.preventDefault();if(!cart.length||placing)return;const f=new FormData(e.target);
+ e.preventDefault();if(!cart.length||placing)return;
+ const f=new FormData(e.currentTarget);
  if(cart.some(i=>products.find(p=>p.id===i.id)?.options&&!i.option)){toast('Choose an option for each product in your cart.');return;}
  if(!checkoutUser?.emailVerified){toast('Verify your email before placing an order.');return;}
- const payload={name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),city:'Roxas City, Capiz',paymentMethod:String(f.get('paymentMethod')),notes:String(f.get('notes')||''),invoice:{name:String(f.get('invoiceName')||''),address:String(f.get('invoiceAddress')||''),tin:String(f.get('invoiceTin')||'')},items:cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100),...(i.option?{option:i.option}:{})}))};
- const fingerprint=JSON.stringify({...payload,account:checkoutUser.id});
- if(checkoutAttempt&&checkoutAttempt.fingerprint!==fingerprint){toast('A previous submission needs checking. Use Track order before changing this checkout.');window.location.href='/track.html#'+checkoutAttempt.token;return;}
- if(!checkoutAttempt){checkoutAttempt={fingerprint,requestId:crypto.randomUUID(),token:Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('')};try{sessionStorage.setItem('circuitbyte.checkoutAttempt',JSON.stringify(checkoutAttempt));}catch{}}
+ const maxim=f.get('fulfillmentMethod')==='maxim';
+ if(maxim&&f.get('deliveryFeeAccepted')!=='yes'){toast('Please acknowledge the separate Maxim delivery fee.');return;}
+ const payload={
+  name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),
+  city:'Roxas City, Capiz',paymentMethod:String(f.get('paymentMethod')),notes:String(f.get('notes')||''),
+  invoice:{name:String(f.get('invoiceName')||''),address:String(f.get('invoiceAddress')||''),tin:String(f.get('invoiceTin')||'')},
+  items:cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100),...(i.option?{option:i.option}:{})})),
+  ...(maxim?{fulfillmentMethod:'maxim',deliveryFeeAccepted:true}:{})
+ };
  placing=true;$('#prepare').disabled=true;$('#prepare').textContent='Submitting…';
- try{const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,requestId:checkoutAttempt.requestId,token:checkoutAttempt.token})});const data=await r.json();if(!r.ok){if(r.status<500){checkoutAttempt=null;try{sessionStorage.removeItem('circuitbyte.checkoutAttempt');}catch{}}throw Error(data.error||'Unable to submit order');}
- const link=location.origin+'/track.html#'+checkoutAttempt.token;
- try{localStorage.setItem('circuitbyte.lastTracking',checkoutAttempt.token);sessionStorage.removeItem('circuitbyte.checkoutAttempt');}catch{}
- checkoutAttempt=null;cart=[];save();renderCart();
- const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
- $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
- $('#order-message').value='Order '+data.reference+' — '+data.status+'\nTotal: '+money(data.total_cents/100)+'\nProposed meetup: '+data.proposed_location+'\nRoxas City, Capiz\n'+(data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. Await stock and location confirmation.')+'\n\nPrivate tracking link (keep safe):\n'+link;
- let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});toast('Order recorded. Check your email for confirmation.');
- }catch(err){toast(err.message+' — Retry unchanged if the connection failed.');}finally{placing=false;$('#prepare').disabled=!cart.length;$('#prepare').textContent='Place order ↗';}
+ try{
+  await restoredAttempt;
+  const fingerprint=await checkoutFingerprint(JSON.stringify({...payload,account:checkoutUser.id}));
+  if(checkoutAttempt&&checkoutAttempt.fingerprint!==fingerprint){
+   toast('A previous submission needs checking. Use Track order before changing this checkout.');
+   window.location.href='/track.html#'+checkoutAttempt.token;return;
+  }
+  if(!checkoutAttempt){
+   checkoutAttempt={fingerprint,requestId:crypto.randomUUID(),token:Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('')};
+   saveCheckoutAttempt();
+  }
+  const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({...payload,requestId:checkoutAttempt.requestId,token:checkoutAttempt.token})});
+  const data=await response.json();
+  if(!response.ok){
+   if(response.status<500){checkoutAttempt=null;try{sessionStorage.removeItem(attemptKey);}catch{}}
+   throw Error(data.error||'Unable to submit order');
+  }
+  const link=location.origin+'/track.html#'+checkoutAttempt.token;
+  try{localStorage.setItem('circuitbyte.lastTracking',checkoutAttempt.token);sessionStorage.removeItem(attemptKey);}catch{}
+  checkoutAttempt=null;cart=[];save();renderCart();
+  const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
+  $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
+  const handover=data.fulfillment_method==='maxim'?'Maxim door-to-door. You pay the courier fee separately.':'Meetup in Roxas City, Capiz.';
+  const payment=data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. CircuitByte will confirm the arrangements.';
+  $('#order-message').value=`Order ${data.reference} — ${data.status}\nItems total: ${money(data.total_cents/100)}\n${handover}\n${payment}\n\nPrivate tracking link (keep safe):\n${link}`;
+  let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}
+  a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});
+  checkoutLocation.value='';$('#checkout textarea[name="notes"]').value='';
+  for(const field of ['invoiceName','invoiceAddress','invoiceTin'])$('#checkout input[name="'+field+'"]').value='';
+  toast('Order recorded. Check your email for confirmation.');
+ }catch(err){toast(err.message+' — Retry unchanged if the connection failed.');}
+ finally{placing=false;$('#prepare').disabled=!cart.length;$('#prepare').textContent='Place order ↗';}
 };
 $('#copy-order').onclick=async()=>{try{await navigator.clipboard.writeText($('#order-message').value);toast('Order confirmation copied. Keep your tracking link safe.');}catch{$('#order-message').focus();$('#order-message').select();toast('Select and copy the message manually.');}};$('#year').textContent=new Date().getFullYear();
 fetch('/api/products').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{products=data;load();readCatalogUrl();renderCategories();renderProducts();renderCart();const requested=new URLSearchParams(location.search).get('product');const selected=products.find(p=>p.id===requested);if(selected)details(selected);else if(new URLSearchParams(location.search).get('cart')==='1')openCart();}).catch(()=>{if(isCatalog){$('#catalog-count').textContent='Catalog could not load. Please refresh the page.';$('#products').append(el('p','muted','We could not reach the catalog. Please try again shortly or contact CircuitByte.'));}else toast('Products could not load. Please refresh before opening your cart.');$('#prepare').disabled=true;});

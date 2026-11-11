@@ -76,6 +76,10 @@
 .cart-option-label{display:block;margin:8px 0 12px;font-size:12px;color:var(--muted)}.cart-option{display:block;width:100%;margin-top:6px}.cart-controls{flex-wrap:wrap}#detail-option-wrap{margin:18px 0}#detail-option-wrap label{display:block;margin-bottom:7px;font-size:13px}#detail-option{display:block;width:100%}
 
 #maxim-checkout-note[hidden],#meetup-checkout-note[hidden]{display:none}
+.checkout-promotion{border-top:1px solid var(--line);padding:12px 0}
+.checkout-promo-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.checkout-promo-controls input{flex:1 1 140px;min-width:0}
+#checkout .checkout-fee-check[hidden],#promo-total[hidden],#remove-promo[hidden]{display:none}
 #checkout .checkout-fee-check{display:flex;align-items:flex-start;gap:8px}
 #checkout .checkout-fee-check input{flex:none;width:18px;height:18px;margin-top:2px}
 

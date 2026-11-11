@@ -73,6 +73,7 @@ function changeVariant(item,choice){
 }
 function renderCart(){
  invalidate();$('#cart-lines').replaceChildren();$('#cart-count').textContent=cart.reduce((a,x)=>a+x.quantity,0);
+ if(appliedPromo||quotingPromo)clearPromotion('Cart changed. Apply the promo code again.');
  $('#prepare').disabled=!cart.length;$('#subtotal').textContent=money(total());
  if(!cart.length)$('#cart-lines').append(el('p','muted','Your cart is waiting for your next idea. Add a component to get started.'));
  cart.forEach((item,index)=>{
@@ -220,18 +221,69 @@ showPaymentDetails();
 const fulfillmentSelect=$('#checkout select[name="fulfillmentMethod"]');
 const checkoutLocation=$('#checkout input[name="location"]');
 const deliveryFeeAccepted=$('#checkout input[name="deliveryFeeAccepted"]');
+const promoInput=$('#shop-coupon'),promoStatus=$('#promo-status'),applyPromoButton=$('#apply-promo');
+let appliedPromo=null,quotingPromo=false,promoRevision=0;
 function showFulfillmentDetails(){
  const maxim=fulfillmentSelect.value==='maxim';
+ const free=Boolean(appliedPromo?.promotion.free_maxim);
  $('#maxim-checkout-note').hidden=!maxim;
  $('#meetup-checkout-note').hidden=maxim;
- deliveryFeeAccepted.required=maxim;
- deliveryFeeAccepted.disabled=!maxim;
+ deliveryFeeAccepted.required=maxim&&!free;
+ deliveryFeeAccepted.disabled=!maxim||free;
+ deliveryFeeAccepted.closest('label').hidden=free;
+ $('#maxim-fee-message').textContent=free?'CircuitByte covers the Maxim courier fee with this promo.':'You pay the Maxim courier fee separately. CircuitByte confirms delivery arrangements before booking.';
  $('#checkout-location-label').textContent=maxim?'Delivery address in Roxas City':'Preferred meetup point / landmark';
  checkoutLocation.placeholder=maxim?'House number, street, barangay and landmark':'Barangay, street or landmark in Roxas City';
  checkoutLocation.autocomplete=maxim?'street-address':'off';
 }
-fulfillmentSelect.onchange=showFulfillmentDetails;
+fulfillmentSelect.onchange=()=>{if(appliedPromo||quotingPromo)clearPromotion('Delivery method changed. Apply the promo code again.');else showFulfillmentDetails();};
 showFulfillmentDetails();
+
+function cartOrderItems(){
+ return cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100),
+  ...(i.option?{option:i.option}:{}),...(i.wireLengthCm!==undefined?{wireLengthCm:i.wireLengthCm}:{})}));
+}
+function showPromotion(message){
+ promoStatus.textContent=message;
+ $('#remove-promo').hidden=!appliedPromo;
+ $('#promo-total').hidden=!appliedPromo;
+ if(appliedPromo)$('#promo-total strong').textContent=money(appliedPromo.total_cents/100);
+ const freeItems=appliedPromo?.total_cents===0;
+ paymentSelect.options[0].textContent=freeItems?'No item payment due':'Cash at handover';
+ paymentSelect.options[1].disabled=freeItems;
+ if(freeItems)paymentSelect.value='cash';
+ showPaymentDetails();showFulfillmentDetails();
+}
+function clearPromotion(message=''){
+ promoRevision++;appliedPromo=null;quotingPromo=false;applyPromoButton.disabled=false;
+ showPromotion(message);
+}
+async function applyPromotion(){
+ const couponCode=promoInput.value.trim();
+ if(!couponCode){clearPromotion('Enter a promo code.');return;}
+ if(!cart.length){clearPromotion('Add an item to the cart before applying a code.');return;}
+ clearPromotion('Checking promo code…');
+ const revision=promoRevision;
+ quotingPromo=true;applyPromoButton.disabled=true;
+ try{
+  const response=await fetch('/api/orders/promotion',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({couponCode,items:cartOrderItems(),fulfillmentMethod:fulfillmentSelect.value})});
+  const result=await response.json();
+  if(revision!==promoRevision)return;
+  if(!response.ok)throw Error(result.error||'Unable to apply this promo code.');
+  appliedPromo=result;
+  const promo=result.promotion;
+  promoInput.value=promo.code;
+  const benefit=promo.gift?`${promo.gift.quantity} × ${promo.gift.name}${promo.gift.option?' ('+promo.gift.option+')':''} free`:
+   promo.free_maxim?'Maxim delivery fee covered':`${money(promo.discount_cents/100)} off`;
+  showPromotion(`${promo.code} applied. ${benefit}.`);
+ }catch(error){if(revision===promoRevision)clearPromotion(error.message);}
+ finally{if(revision===promoRevision){quotingPromo=false;applyPromoButton.disabled=false;}}
+}
+applyPromoButton.onclick=applyPromotion;
+promoInput.oninput=()=>clearPromotion();
+promoInput.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();applyPromotion();}};
+$('#remove-promo').onclick=()=>{promoInput.value='';clearPromotion('Promo code removed.');};
 
 const attemptKey='circuitbyte.checkoutAttempt';
 let checkoutAttempt=null,placing=false;
@@ -261,14 +313,18 @@ $('#checkout').onsubmit=async e=>{
  if(cart.some(i=>products.find(p=>p.id===i.id)?.options&&!i.option)){toast('Choose an option for each product in your cart.');return;}
  if(cart.some(i=>products.find(p=>p.id===i.id)?.options?.wireLengthsCm&&!validWireLength(i.wireLengthCm))){toast('Choose a length for each Dupont wire in your cart.');return;}
  if(!checkoutUser?.emailVerified){toast('Verify your email before placing an order.');return;}
+ if(promoInput.value.trim()&&!appliedPromo){promoStatus.textContent=quotingPromo?'Wait for the promotion to finish checking.':'Apply the promo code or clear it before placing your order.';promoInput.focus();return;}
  const maxim=f.get('fulfillmentMethod')==='maxim';
- if(maxim&&f.get('deliveryFeeAccepted')!=='yes'){toast('Please acknowledge the separate Maxim delivery fee.');return;}
+ const freeDelivery=appliedPromo?.promotion.free_maxim;
+ if(maxim&&!freeDelivery&&f.get('deliveryFeeAccepted')!=='yes'){toast('Please acknowledge the separate Maxim delivery fee.');return;}
  const payload={
   name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),
   city:'Roxas City, Capiz',paymentMethod:String(f.get('paymentMethod')),notes:String(f.get('notes')||''),
   invoice:{name:String(f.get('invoiceName')||''),address:String(f.get('invoiceAddress')||''),tin:String(f.get('invoiceTin')||'')},
-  items:cart.map(i=>({id:i.id,quantity:i.quantity,price_cents:Math.round(products.find(p=>p.id===i.id).price*100),...(i.option?{option:i.option}:{}),...(i.wireLengthCm!==undefined?{wireLengthCm:i.wireLengthCm}:{})})),
-  ...(maxim?{fulfillmentMethod:'maxim',deliveryFeeAccepted:true}:{})
+  items:cartOrderItems(),
+  ...(maxim?{fulfillmentMethod:'maxim',deliveryFeeAccepted:!freeDelivery}:{}),
+  ...(appliedPromo?{couponCode:appliedPromo.promotion.code,couponId:appliedPromo.promotion.id,
+   couponVersion:appliedPromo.promotion.version,couponTotalCents:appliedPromo.total_cents}:{})
  };
  placing=true;$('#prepare').disabled=true;$('#prepare').textContent='Submitting…';
  try{
@@ -286,17 +342,18 @@ $('#checkout').onsubmit=async e=>{
    body:JSON.stringify({...payload,requestId:checkoutAttempt.requestId,token:checkoutAttempt.token})});
   const data=await response.json();
   if(!response.ok){
-   if(response.status<500){checkoutAttempt=null;try{sessionStorage.removeItem(attemptKey);}catch{}}
+   if(response.status<500){checkoutAttempt=null;try{sessionStorage.removeItem(attemptKey);}catch{}if(appliedPromo)clearPromotion(data.error||'Apply the promo code again.');}
    throw Error(data.error||'Unable to submit order');
   }
   const link=location.origin+'/track.html#'+checkoutAttempt.token;
   try{localStorage.setItem('circuitbyte.lastTracking',checkoutAttempt.token);sessionStorage.removeItem(attemptKey);}catch{}
-  checkoutAttempt=null;cart=[];save();renderCart();
+  checkoutAttempt=null;cart=[];promoInput.value='';clearPromotion();save();renderCart();
   const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
   $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
-  const handover=data.fulfillment_method==='maxim'?'Maxim door-to-door. You pay the courier fee separately.':'Meetup in Roxas City, Capiz.';
-  const payment=data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. CircuitByte will confirm the arrangements.';
-  $('#order-message').value=`Order ${data.reference} — ${data.status}\nItems total: ${money(data.total_cents/100)}\n${handover}\n${payment}\n\nPrivate tracking link (keep safe):\n${link}`;
+  const handover=data.fulfillment_method==='maxim'?(data.promotion?.free_maxim?'Maxim door-to-door. CircuitByte covers the courier fee.':'Maxim door-to-door. You pay the courier fee separately.'):'Meetup in Roxas City, Capiz.';
+  const payment=data.total_cents===0?'No item payment due.':data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. CircuitByte will confirm the arrangements.';
+  const promo=data.promotion?`\nPromo code: ${data.promotion.code}${data.promotion.discount_cents?' (−'+money(data.promotion.discount_cents/100)+')':''}${data.promotion.gift?'\nFree gift: '+data.promotion.gift.quantity+' × '+data.promotion.gift.name:''}`:'';
+  $('#order-message').value=`Order ${data.reference} — ${data.status}\nItems total: ${money(data.total_cents/100)}${promo}\n${handover}\n${payment}\n\nPrivate tracking link (keep safe):\n${link}`;
   let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}
   a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});
   checkoutLocation.value='';$('#checkout textarea[name="notes"]').value='';

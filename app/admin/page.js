@@ -206,6 +206,8 @@ return <main className="inventory-admin" id="main">
   <nav className="inventory-nav" aria-label="Admin navigation">
    <a href="/catalog">Shop ↗</a>
    {signed&&<>
+    <a href="/admin/accounts">Account verification</a>
+    <a href="/admin/promotions">Shop promotions</a>
     <button type="button" className="inventory-secondary" disabled={busy||loading} onClick={signOut}>Sign out</button>
    </>}
   </nav>

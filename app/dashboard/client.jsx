@@ -1,30 +1,37 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {createAuthClient} from 'better-auth/react';
+import {emailOTPClient} from 'better-auth/client/plugins';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {StudioKnowledgeReview} from './knowledge-review';
-const auth=createAuthClient();
+const auth=createAuthClient({plugins:[emailOTPClient()]});
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
 export default function StudioAccount(){
  const {data:session,isPending}=auth.useSession();
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const [otpSent,setOtpSent]=useState(false);
  const [uat,setUat]=useState(null);
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
- const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]);
+ const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]),[orders,setOrders]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
  useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setUat(d.uat||null);setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');if(d.registrationOpen&&new URLSearchParams(window.location.search).get('register')==='1')setMode('signup');}).catch(()=>{});},[]);
  async function load(){
-  const [p,q]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'})]);
+  const [p,q,m]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'}),fetch('/api/orders/my',{cache:'no-store'})]);
   if(!p.ok||!q.ok)throw Error('Could not load Studio account. Database initialization may still be pending.');
-  const result=await p.json(), saved=await q.json();
-  setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setIsAdmin(Boolean(result.isAdmin));
+  const result=await p.json(), saved=await q.json(),myOrders=m.ok?await m.json():{orders:[]};
+  setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setOrders(myOrders.orders||[]);setIsAdmin(Boolean(result.isAdmin));
  }
  useEffect(()=>{if(!session?.user)return;load().catch(e=>setError(e.message));},[session?.user?.id]);
  async function login(e){
   e.preventDefault();setBusy(true);setError('');setNotice('');
   const data=new FormData(e.currentTarget);
   try{
+   if(mode==='otp'){
+    const email=String(data.get('email')).trim().toLowerCase();
+    if(!otpSent){const result=await auth.emailOtp.sendVerificationOtp({email,type:'sign-in'});if(result.error)throw Error(result.error.message);setOtpSent(true);setNotice('A sign-in code was sent to your email. It expires in 5 minutes.');return;}
+    const result=await auth.signIn.emailOtp({email,otp:String(data.get('otp')),name:String(data.get('name')||'CircuitByte member')});if(result.error)throw Error(result.error.message);await load();return;
+   }
    if(mode==='signup'){
     if(!registrationOpen)throw Error('New accounts are not open yet.');
     const result=await auth.signUp.email({name:String(data.get('name')),email:String(data.get('email')),password:String(data.get('password'))});
@@ -78,16 +85,22 @@ export default function StudioAccount(){
     <button type="button" onClick={()=>auth.signOut()}>Sign out and check your inbox</button>
   </section> :
   !session?.user?<section className="account-card account-login">
-    <h2>{mode==='login'?'Member sign in':'Create a member account'}</h2><p>{registrationNotice}</p>
+    <h2>{mode==='login'?'Member sign in':mode==='otp'?'Sign in with email code':'Create a member account'}</h2><p>{registrationNotice}</p>
     <form onSubmit={login}>
      {mode==='signup'&&<label>Full name<input name="name" required maxLength={100} autoComplete="name"/></label>}
      <label>Email address<input name="email" type="email" required autoComplete="email"/></label>
-     <label>Password<input name="password" type="password" required minLength={12} autoComplete={mode==='login'?'current-password':'new-password'}/></label>
-     <button type="submit" disabled={busy}>{busy?'Checking…':mode==='login'?'Sign in':'Register and verify email'}</button>
+     {mode==='otp'&&otpSent&&<label>6-digit code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>}
+     {mode!=='otp'&&<label>Password<input name="password" type="password" required minLength={12} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
+     <button type="submit" disabled={busy}>{busy?'Checking…':mode==='otp'?(otpSent?'Verify code':'Email sign-in code'):mode==='login'?'Sign in':'Register and verify email'}</button>
     </form>
+    {mode==='otp'&&otpSent&&<button className="account-link" type="button" onClick={()=>setOtpSent(false)}>Send a new code</button>}
+    {mode!=='otp'&&<button className="account-link" type="button" onClick={()=>{setMode('otp');setOtpSent(false);setError('');setNotice('Use the same email as your CircuitByte checkout account.');}}>Sign in with an email code</button>}
     {registrationOpen?<button className="account-link" type="button" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');}}>{mode==='login'?'New member? Create account':'Already registered? Sign in'}</button>:<p className="account-muted">New UAT registration is currently closed. Existing members can still sign in to view their saved projects.</p>}
   </section>:
   <div className="account-layout">
+   <section className="account-card"><div className="account-top"><div><h2>My orders</h2><p>Order progress and issued invoice references for this account.</p></div><a href="/catalog">Shop components →</a></div>
+    {orders.length?<ul className="account-projects">{orders.map(o=>{const stages=['Pending','Confirmed','Ready','Completed'],idx=stages.indexOf(o.status);return <li key={o.id}><div><strong>{o.reference} · {o.status}</strong><div aria-label={'Order progress: '+o.status} style={{display:'flex',gap:4,maxWidth:360,margin:'10px 0'}}>{o.status==='Cancelled'?<span style={{color:'#a33'}}>Cancelled</span>:stages.map((s,i)=><span key={s} title={s} style={{height:5,flex:1,borderRadius:5,background:i<=idx?'#258260':'#dce8e1'}}/>)}</div><span>{(o.items||[]).reduce((n,i)=>n+i.quantity,0)} items · ₱{(Number(o.total_cents)/100).toFixed(2)} · {new Date(o.created_at).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}{o.customer_update?' · '+o.customer_update:''}{o.invoice_number?' · Invoice '+o.invoice_number:''}</span></div><div>{o.invoice_number?<strong>Invoice issued</strong>:null}</div></li>})}</ul>:<p className="account-muted">Orders placed with this verified email will appear here.</p>}
+   </section>
    <section className="account-card"><div className="account-top"><div><h2>My profile</h2><p>Signed in as <strong>{session.user.name}</strong> ({session.user.email})</p></div><button type="button" onClick={()=>auth.signOut()}>Sign out</button></div>
     <form onSubmit={saveProfile} className="account-form">
      <label>School / institution (optional)<input maxLength={120} value={profile.schoolName} onChange={e=>setProfile(p=>({...p,schoolName:e.target.value}))} placeholder="Official institution name"/></label>

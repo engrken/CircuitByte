@@ -72,7 +72,7 @@
     "categories": [
       "components"
     ],
-    "price": 35.0,
+    "price": 40.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/ne555.jpg"
   },
@@ -83,7 +83,7 @@
     "categories": [
       "components"
     ],
-    "price": 35.0,
+    "price": 40.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/lm833.jpg"
   },
@@ -105,7 +105,7 @@
     "categories": [
       "components"
     ],
-    "price": 25.0,
+    "price": 30.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/3296.jpg"
   },
@@ -116,7 +116,7 @@
     "categories": [
       "components"
     ],
-    "price": 25.0,
+    "price": 30.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/rm063.jpg"
   },
@@ -127,7 +127,7 @@
     "categories": [
       "components"
     ],
-    "price": 50.0,
+    "price": 55.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/3pin.jpg"
   },
@@ -138,7 +138,7 @@
     "categories": [
       "components"
     ],
-    "price": 40.0,
+    "price": 45.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/regulator.jpg"
   },
@@ -149,7 +149,7 @@
     "categories": [
       "boards"
     ],
-    "price": 15.0,
+    "price": 20.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/pcb.jpg"
   },
@@ -160,7 +160,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/joy.jpg"
   },
@@ -171,7 +171,7 @@
     "categories": [
       "components"
     ],
-    "price": 10.0,
+    "price": 15.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/tact.jpg"
   },
@@ -182,7 +182,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/relay.jpg"
   },
@@ -193,7 +193,7 @@
     "categories": [
       "modules"
     ],
-    "price": 460.0,
+    "price": 465.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/hc05.jpg"
   },
@@ -216,7 +216,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mic.jpg"
   },
@@ -228,7 +228,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/smic.jpg"
   },
@@ -240,7 +240,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/line.jpg"
   },
@@ -252,7 +252,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/avoid.jpg"
   },
@@ -264,7 +264,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/flame.jpg"
   },
@@ -275,7 +275,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/linear.jpg"
   },
@@ -287,7 +287,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/touch.jpg"
   },
@@ -298,7 +298,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/dtemp.jpg"
   },
@@ -309,7 +309,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/buzz.jpg"
   },
@@ -320,7 +320,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/pbuzz.jpg"
   },
@@ -331,7 +331,7 @@
     "categories": [
       "modules"
     ],
-    "price": 280.0,
+    "price": 285.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/gpsneo.jpg"
   },
@@ -342,7 +342,7 @@
     "categories": [
       "tools"
     ],
-    "price": 35.0,
+    "price": 40.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/snap.jpg"
   },
@@ -353,7 +353,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/3608.jpg"
   },
@@ -364,7 +364,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/4056.jpg"
   },
@@ -419,7 +419,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/reed.jpg"
   },
@@ -430,7 +430,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mreed.jpg"
   },
@@ -442,7 +442,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/hbeat.jpg"
   },
@@ -464,7 +464,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/laser.jpg"
   },
@@ -475,7 +475,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/button.jpg"
   },
@@ -486,7 +486,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/shock.jpg"
   },
@@ -497,7 +497,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/rotary.jpg"
   },
@@ -508,7 +508,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mlight.jpg"
   },
@@ -519,7 +519,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/tiltsw.jpg"
   },
@@ -531,7 +531,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/bsw.jpg"
   },
@@ -554,7 +554,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/dht11.jpg"
   },
@@ -566,7 +566,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/ahall.jpg"
   },
@@ -578,7 +578,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/hall.jpg"
   },
@@ -590,7 +590,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/temp.jpg"
   },
@@ -602,7 +602,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/atemp.jpg"
   },
@@ -613,7 +613,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/ir.jpg"
   },
@@ -624,7 +624,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/irr.jpg"
   },
@@ -636,7 +636,7 @@
       "modules",
       "sensors"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/knock.jpg"
   },
@@ -647,7 +647,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/pinter.jpg"
   },
@@ -658,7 +658,7 @@
     "categories": [
       "boards"
     ],
-    "price": 270.0,
+    "price": 275.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/unoc.jpg"
   },
@@ -669,7 +669,7 @@
     "categories": [
       "modules"
     ],
-    "price": 120.0,
+    "price": 125.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/2rel.jpg"
   },
@@ -680,7 +680,7 @@
     "categories": [
       "modules"
     ],
-    "price": 270.0,
+    "price": 275.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/sim900a.jpg"
   },
@@ -691,7 +691,7 @@
     "categories": [
       "boards"
     ],
-    "price": 150.0,
+    "price": 155.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/nodemcu.jpg"
   },
@@ -702,7 +702,7 @@
     "categories": [
       "boards"
     ],
-    "price": 270.0,
+    "price": 275.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/esp32.jpg"
   },
@@ -713,7 +713,7 @@
     "categories": [
       "boards"
     ],
-    "price": 140.0,
+    "price": 145.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/esp32b.jpg"
   },
@@ -724,7 +724,7 @@
     "categories": [
       "boards"
     ],
-    "price": 70.0,
+    "price": 75.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/bread.jpg"
   },
@@ -735,7 +735,7 @@
     "categories": [
       "modules"
     ],
-    "price": 170.0,
+    "price": 175.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/1602.jpg"
   },
@@ -746,7 +746,7 @@
     "categories": [
       "modules"
     ],
-    "price": 140.0,
+    "price": 145.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/3231.jpg"
   },
@@ -757,7 +757,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/1302.jpg"
   },
@@ -768,7 +768,7 @@
     "categories": [
       "modules"
     ],
-    "price": 90.0,
+    "price": 95.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/48sd.jpg"
   },
@@ -779,7 +779,7 @@
     "categories": [
       "motors"
     ],
-    "price": 170.0,
+    "price": 175.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mg90.jpg"
   },
@@ -790,7 +790,7 @@
     "categories": [
       "motors"
     ],
-    "price": 230.0,
+    "price": 235.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mg996r.jpg"
   },
@@ -801,7 +801,7 @@
     "categories": [
       "motors"
     ],
-    "price": 140.0,
+    "price": 145.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/stepper.jpg"
   },
@@ -812,7 +812,7 @@
     "categories": [
       "motors"
     ],
-    "price": 130.0,
+    "price": 135.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/l298.jpg"
   },
@@ -823,7 +823,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 110.0,
+    "price": 115.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/sr04.jpg"
   },
@@ -834,7 +834,7 @@
     "categories": [
       "tools"
     ],
-    "price": 90.0,
+    "price": 95.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/dualusb.jpg"
   },
@@ -845,7 +845,7 @@
     "categories": [
       "tools"
     ],
-    "price": 2.0,
+    "price": 7.0,
     "quantityLabel": "Quantity: 1pc (any type/length)",
     "image": "images/wires.jpg"
   },
@@ -856,7 +856,7 @@
     "categories": [
       "modules"
     ],
-    "price": 75.0,
+    "price": 80.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/micro.jpg"
   },
@@ -868,7 +868,7 @@
       "modules",
       "boards"
     ],
-    "price": 220.0,
+    "price": 225.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/relaysh.jpg"
   },
@@ -880,7 +880,7 @@
       "sensors",
       "modules"
     ],
-    "price": 110.0,
+    "price": 115.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/dht22.jpg"
   },
@@ -891,7 +891,7 @@
     "categories": [
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/l9110s.jpg"
   },
@@ -903,7 +903,7 @@
       "sensors",
       "modules"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/hallc.jpg"
   },
@@ -915,7 +915,7 @@
       "sensors",
       "modules"
     ],
-    "price": 65.0,
+    "price": 70.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/vsm.jpg"
   },
@@ -926,7 +926,7 @@
     "categories": [
       "modules"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/neo.jpg"
   },
@@ -937,7 +937,7 @@
     "categories": [
       "tools"
     ],
-    "price": 60.0,
+    "price": 65.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/stepup.jpg"
   },
@@ -948,7 +948,7 @@
     "categories": [
       "tools"
     ],
-    "price": 160.0,
+    "price": 165.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/xl6009.jpg"
   },
@@ -959,7 +959,7 @@
     "categories": [
       "tools"
     ],
-    "price": 15.0,
+    "price": 20.0,
     "quantityLabel": "Quantity: 1 meter",
     "image": "images/lead.jpg"
   },
@@ -970,7 +970,7 @@
     "categories": [
       "tools"
     ],
-    "price": 10.0,
+    "price": 15.0,
     "quantityLabel": "Quantity: 1 meter",
     "image": "images/tf22.jpg"
   },
@@ -981,7 +981,7 @@
     "categories": [
       "tools"
     ],
-    "price": 10.0,
+    "price": 15.0,
     "quantityLabel": "Quantity: 1 meter",
     "image": "images/solid.jpg"
   },
@@ -992,7 +992,7 @@
     "categories": [
       "tools"
     ],
-    "price": 15.0,
+    "price": 20.0,
     "quantityLabel": "Quantity: 1 meter",
     "image": "images/dcwire.jpg"
   },
@@ -1003,7 +1003,7 @@
     "categories": [
       "tools"
     ],
-    "price": 125.0,
+    "price": 130.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/wick.jpg"
   },
@@ -1014,7 +1014,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 140.0,
+    "price": 145.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/proxi.jpg"
   },
@@ -1025,7 +1025,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 180.0,
+    "price": 185.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/proxi1.jpg"
   },
@@ -1036,7 +1036,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq2.jpg"
   },
@@ -1047,7 +1047,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq3.jpg"
   },
@@ -1058,7 +1058,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq4.jpg"
   },
@@ -1069,7 +1069,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq5.jpg"
   },
@@ -1080,7 +1080,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq6.jpg"
   },
@@ -1091,7 +1091,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq7.jpg"
   },
@@ -1102,7 +1102,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq8.jpg"
   },
@@ -1113,7 +1113,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq9.jpg"
   },
@@ -1124,7 +1124,7 @@
     "categories": [
       "sensors"
     ],
-    "price": 100.0,
+    "price": 105.0,
     "quantityLabel": "Quantity: 1",
     "image": "images/mq135.jpg"
   }

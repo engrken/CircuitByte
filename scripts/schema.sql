@@ -21,18 +21,45 @@ DO $$ BEGIN
 END $$;
 CREATE TABLE IF NOT EXISTS orders (
  id uuid PRIMARY KEY, reference text UNIQUE NOT NULL, token_hash text UNIQUE NOT NULL,
- request_hash text NOT NULL, customer_name text NOT NULL, contact text NOT NULL,
+ request_hash text NOT NULL, customer_name text NOT NULL, customer_email text NOT NULL DEFAULT '', customer_user_id text,
+ invoice_customer_name text NOT NULL DEFAULT '', invoice_billing_address text NOT NULL DEFAULT '', invoice_tin text NOT NULL DEFAULT '',
  proposed_location text NOT NULL, confirmed_location text NOT NULL DEFAULT '',
  notes text NOT NULL DEFAULT '', customer_update text NOT NULL DEFAULT '',
  items jsonb NOT NULL, total_cents bigint NOT NULL CHECK(total_cents>=0),
  status text NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending','Confirmed','Ready','Completed','Cancelled')),
  version integer NOT NULL DEFAULT 1, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email text NOT NULL DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_user_id text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_customer_name text NOT NULL DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_billing_address text NOT NULL DEFAULT '';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_tin text NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS orders_created_idx ON orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS orders_customer_idx ON orders(customer_user_id,created_at DESC);
 CREATE TABLE IF NOT EXISTS order_events (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, order_id uuid NOT NULL REFERENCES orders(id),
  status text NOT NULL, actor text NOT NULL, note text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS order_invoices (
+ id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ order_id uuid NOT NULL UNIQUE REFERENCES orders(id),
+ invoice_number text NOT NULL UNIQUE,
+ customer_name text NOT NULL,
+ customer_email text NOT NULL,
+ billing_address text NOT NULL,
+ customer_tin text NOT NULL DEFAULT '',
+ seller_name text NOT NULL DEFAULT 'CircuitByte',
+ seller_address text NOT NULL DEFAULT '',
+ seller_tin text NOT NULL DEFAULT '',
+ items jsonb NOT NULL,
+ subtotal_cents bigint NOT NULL CHECK(subtotal_cents>=0),
+ notes text NOT NULL DEFAULT '',
+ issued_by text NOT NULL,
+ issued_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS seller_name text NOT NULL DEFAULT 'CircuitByte';
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS seller_address text NOT NULL DEFAULT '';
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS seller_tin text NOT NULL DEFAULT '';
 CREATE TABLE IF NOT EXISTS order_rate_limits (key text PRIMARY KEY, window_start timestamptz NOT NULL, count integer NOT NULL);
 
 

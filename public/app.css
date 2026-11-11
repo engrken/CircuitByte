@@ -72,3 +72,5 @@
 
 /* Visible Bootstrap storefront entry points. */
 .catalog-home-callout .card{border-radius:16px;background:#fff}.catalog-home-callout .card-body{padding:32px}.catalog-home-callout .btn-primary{display:inline-flex;background:#173f43;color:#fff;border:1px solid #173f43;border-radius:8px;padding:14px 22px;font-size:1rem}.catalog-home-callout p{font-size:1rem;line-height:1.7;color:#64748b}.header .btn-primary{border-radius:8px}.hero .btn-primary{border-radius:8px;font-size:.95rem}.catalog-home-callout .badge{font-size:.75rem;letter-spacing:.06em}.catalog-home-callout h2{font-size:1.75rem;font-weight:700;letter-spacing:-.5px}
+
+.cart-option-label{display:block;margin:8px 0 12px;font-size:12px;color:var(--muted)}.cart-option{display:block;width:100%;margin-top:6px}.cart-controls{flex-wrap:wrap}#detail-option-wrap{margin:18px 0}#detail-option-wrap label{display:block;margin-bottom:7px;font-size:13px}#detail-option{display:block;width:100%}

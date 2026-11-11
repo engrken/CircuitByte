@@ -3,7 +3,7 @@ import './faq.css';
 
 export const metadata={
  title:'Frequently asked questions | CircuitByte',
- description:'Help with CircuitByte accounts, shopping, QR Ph payments, order tracking, invoices, and Project Studio.'
+ description:'Help with CircuitByte orders, warranty and replacement, payments, accounts, and Project Studio.'
 };
 
 const groups=[
@@ -17,6 +17,10 @@ const groups=[
   ['How do I use a promo code?',<>Enter the code in your Shop cart and select <strong>Apply</strong> before placing the order. You can use one valid code per order. Checkout shows the discount, free gift, or covered Maxim delivery when the cart qualifies.</>],
   ['Where do I track an order?',<>Open <a href="/dashboard">My Dashboard</a> and look under <strong>My orders</strong> for progress, handover details, and invoice references. If you have a private tracking link from an earlier order, use the <a href="/track.html">tracking page</a> to see the order reference and status.</>],
   ['How do I change or cancel an order?',<>Message the <a href="https://www.facebook.com/circuitbyteph" target="_blank" rel="noopener noreferrer">CircuitByte page</a> with your order reference. Include the requested change and whether you have already paid.</>]
+ ]},
+ {id:'warranty',title:'Warranty and replacement',questions:[
+  ['What is the Shop warranty?',<>All products sold by CircuitByte come with a <strong>3-day warranty and replacement for defects</strong>. The three days start when you receive the product, whether by pickup or delivery. Your rights under Philippine consumer law also apply.</>],
+  ['How do I request a replacement?',<>Message the <a href="https://www.facebook.com/circuitbyteph" target="_blank" rel="noopener noreferrer">CircuitByte Facebook page</a> with your order reference, the product name, and a short description of the defect. You can find your order reference in <a href="/dashboard">My Dashboard</a>.</>]
  ]},
  {id:'payments',title:'Payments and invoices',questions:[
   ['How do I pay with QR Ph?',<>Select <strong>QR Ph</strong> at checkout. After CircuitByte checks stock and opens payment, open the order in <a href="/dashboard">My Dashboard</a> and select <strong>Pay with QR Ph</strong>. Scan or save the code, pay the items total plus the applicable Kolek fee shown with the QR, and submit the transfer reference from your banking or wallet app.</>],
@@ -37,7 +41,7 @@ export default function Faq(){
    <nav aria-label="FAQ topics">{groups.map(group=><a href={'#'+group.id} key={group.id}>{group.title}</a>)}</nav>
    {groups.map(group=><section className="faq-group" id={group.id} key={group.id}>
     <h2>{group.title}</h2>
-    {group.questions.map(([question,answer])=><details key={question}><summary>{question}</summary><p>{answer}</p></details>)}
+    {group.questions.map(([question,answer])=><details key={question} open={group.id==='warranty'}><summary>{question}</summary><p>{answer}</p></details>)}
    </section>)}
    <section className="faq-contact"><h2>Need help with something else?</h2><p>For order or payment issues, include your order reference.</p>
     <a className="edu-button" href="https://www.facebook.com/circuitbyteph" target="_blank" rel="noopener noreferrer">Message the CircuitByte page ↗</a>

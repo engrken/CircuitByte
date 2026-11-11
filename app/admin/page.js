@@ -1,5 +1,5 @@
 'use client';
-import {useState,useEffect} from 'react';
+import {useState,useEffect,useRef} from 'react';
 import './admin.css';
 import {createAuthClient} from 'better-auth/react';
 const auth=createAuthClient();
@@ -11,6 +11,8 @@ const availableStock=p=>p.stock===null?null:p.stock-p.reserved_stock;
 const isOutOfStock=p=>p.active&&availableStock(p)===0;
 const isLowStock=p=>p.active&&availableStock(p)>0&&availableStock(p)<=5;
 const isUncounted=p=>p.stock===null;
+const categoryLabels={all:'All categories',components:'Components',sensors:'Sensors',modules:'Modules',motors:'Motors',boards:'Boards',tools:'Tools & supplies'};
+const productCategories=Object.keys(categoryLabels).filter(id=>id!=='all');
 const inventoryFilters={all:()=>true,active:p=>p.active,archived:p=>!p.active,out:isOutOfStock,low:isLowStock,unknown:isUncounted};
 
 function RestockRow({item,busy,onRestock,onEdit}){
@@ -42,6 +44,9 @@ const [signed,setSigned]=useState(null),[loading,setLoading]=useState(true),[que
 const [history,setHistory]=useState(null),[filter,setFilter]=useState('all'),[category,setCategory]=useState('all'),[page,setPage]=useState(1);
 const [orderSummary,setOrderSummary]=useState(null),[selectedPhoto,setSelectedPhoto]=useState(null),[preview,setPreview]=useState('');
 const [savedPhotoDraft,setSavedPhotoDraft]=useState(null);
+const editorHeading=useRef(null);
+const editing=Boolean(product);
+useEffect(()=>{if(editing)editorHeading.current?.focus();},[editing]);
 useEffect(()=>{if(!selectedPhoto){setPreview('');return;}const url=URL.createObjectURL(selectedPhoto);setPreview(url);return()=>URL.revokeObjectURL(url);},[selectedPhoto]);
 
 async function load(showSignInError=false){
@@ -159,6 +164,15 @@ async function restock(item,rawQuantity){
  finally{setBusy(false);}
 }
 
+async function toggleHistory(){
+ if(history){setHistory(null);return;}
+ try{
+  const response=await fetch('/api/admin/history');
+  if(!response.ok)throw Error('History unavailable');
+  setHistory(await response.json());
+ }catch(error){setError(error.message);}
+}
+
 function edit(item){
  setError('');setSelectedPhoto(null);setSavedPhotoDraft(null);setProduct(productDraft(item));
 }
@@ -175,31 +189,176 @@ const currentPage=Math.min(page,pageCount);
 const visibleItems=filteredItems.slice((currentPage-1)*pageSize,currentPage*pageSize);
 const stockView=filter==='out'||filter==='unknown';
 const success=error.startsWith('Product saved')||error.startsWith('Product and photo saved')||error.startsWith('Stock saved');
-return <main style={{maxWidth:1100,margin:'30px auto',padding:20,fontFamily:'system-ui',color:'#183c37'}}><style>{`body{background:#f0f4ef}input,textarea,select,button{font:inherit;padding:12px;border:1px solid #b3c7bd;border-radius:7px}button{cursor:pointer;background:#174d40;color:white}label{display:grid;gap:6px;margin:14px 0}table{width:100%;border-collapse:collapse;background:white}td,th{text-align:left;padding:14px;border-bottom:1px solid #ddd}form{max-width:650px}nav{display:flex;gap:12px;flex-wrap:wrap}textarea{min-height:100px}`}</style><a href="/">← Storefront</a><h1>CircuitByte / Admin</h1><p>Manage stock, product changes and customer fulfillment from one workspace.</p><p role={success?'status':'alert'} aria-live="polite" style={{minHeight:24,color:success?'#17633b':error?'#a12323':'inherit',fontWeight:600}}>{error}</p>{signed===null?<p role="status">{loading?'Checking administrator access…':<button type="button" onClick={()=>load()}>Retry inventory</button>}</p>:!signed?<form onSubmit={login}><h2>Administrator sign in</h2><label>Email<input name="email" type="email" required autoComplete="username"/></label><label>Password<input name="password" type="password" required autoComplete="current-password"/></label><button disabled={busy}>Sign in</button></form>:<><nav><a href="/admin/orders">Orders &amp; fulfillment →</a><button disabled={busy} onClick={()=>edit({...blank,id:crypto.randomUUID()})}>Add product</button><button disabled={busy||loading||Boolean(product)} onClick={async()=>{setError('');await load(true);}}>Refresh inventory</button><button disabled={busy||loading} onClick={signOut}>Sign out</button><input aria-label="Search inventory" placeholder="Search inventory" value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/><select aria-label="Product category" value={category} onChange={e=>{setCategory(e.target.value);setPage(1);}}>{Object.entries({all:'All categories',components:'Components',sensors:'Sensors',modules:'Modules',motors:'Motors',boards:'Boards',tools:'Tools & supplies'}).map(([id,label])=><option key={id} value={id}>{label} ({items.filter(p=>id==='all'||p.categories.includes(id)).length})</option>)}</select><select aria-label="Inventory status" value={filter} onChange={e=>{setFilter(e.target.value);setPage(1);}}><option value="all">All products</option><option value="active">Published</option><option value="archived">Archived</option><option value="out">Out of stock</option><option value="low">Low stock</option><option value="unknown">Uncounted</option></select><button onClick={async()=>{if(history){setHistory(null);return;}try{const r=await fetch('/api/admin/history');if(!r.ok)throw Error('History unavailable');setHistory(await r.json());}catch(e){setError(e.message);}}}>{history?'Hide activity':'Activity history'}</button></nav><div className="inventory-stats"><div><strong>{items.length}</strong><span>Catalog products</span></div><button type="button" className="inventory-stat-action" aria-pressed={filter==='out'} aria-controls="inventory-results"
- disabled={busy||Boolean(product)} onClick={()=>showInventoryList('out')}><strong>{items.filter(isOutOfStock).length}</strong><span>Out of stock</span></button>
-<div><strong>{items.filter(isLowStock).length}</strong><span>Low available stock</span></div>
-<button type="button" className="inventory-stat-action" aria-pressed={filter==='unknown'} aria-controls="inventory-results"
- disabled={busy||Boolean(product)} onClick={()=>showInventoryList('unknown')}><strong>{items.filter(isUncounted).length}</strong><span>Awaiting stock count</span></button><div><strong>{orderSummary?.pending??'—'}</strong><span>Pending orders</span></div><div><strong>{orderSummary?.confirmed??'—'}</strong><span>Confirmed</span></div><div><strong>{orderSummary?.ready??'—'}</strong><span>Ready for handover</span></div></div>{history&&<section className="history"><h2>Recent activity</h2><p>Latest 100 changes · Philippine time</p>{history.length===0?<p>No changes yet.</p>:history.map(h=><article key={h.id}><strong>{h.name}</strong> — {h.reason}<small>{h.actor} · {new Date(h.created_at).toLocaleString('en-PH',{timeZone:'Asia/Manila'})}</small><small>Price: ₱{((h.before_data?.price_cents??0)/100).toFixed(2)} → ₱{((h.after_data?.price_cents??0)/100).toFixed(2)} · Stock: {h.before_data?.stock??'uncounted'} → {h.after_data?.stock??'uncounted'}</small></article>)}</section>}{product?<form onSubmit={save}><h2>{product.version?'Edit product':'New product'}</h2><fieldset disabled={busy} style={{border:0,padding:0,margin:0,minWidth:0}}>{['name','description','quantity_label','reason'].map(k=><label key={k}>{k==='reason'?'Change note (optional)':k.replaceAll('_',' ')}{k==='description'?<textarea value={product[k]} onChange={e=>setProduct({...product,[k]:e.target.value})}/>:<input required={k==='name'} placeholder={k==='reason'?'e.g. Updated description or stock':''} value={product[k]} onChange={e=>setProduct({...product,[k]:e.target.value})}/>}</label>)}<label>Price (PHP)<input type="number" min="0" step="0.01" required max="1000000" value={product.priceInput} onChange={e=>setProduct({...product,priceInput:e.target.value})}/></label><label>Total on-hand stock (includes reserved units; blank = not counted)<input type="number" min="0" step="1" value={product.stock??''} onChange={e=>setProduct({...product,stock:e.target.value===''?null:Number(e.target.value)})}/></label>{product.reserved_stock>0&&<p className="stock-reservation-note">{product.reserved_stock} unit(s) reserved for open orders · {Math.max(0,(product.stock??0)-product.reserved_stock)} available to sell.</p>}<label>Category<select value={product.categories[0]} onChange={e=>setProduct({...product,categories:[e.target.value]})}>{['components','sensors','modules','motors','boards','tools'].map(c=><option key={c}>{c}</option>)}</select></label><label><span><input type="checkbox" checked={product.active} onChange={e=>setProduct({...product,active:e.target.checked})}/> Published</span></label><button disabled={busy}>{busy?'Saving…':product===savedPhotoDraft&&selectedPhoto?'Retry photo':'Save product'}</button> <button type="button" disabled={busy} onClick={()=>{setError('');closeEditor();}}>Cancel</button><label>Product photo (JPEG/PNG/WebP, maximum 3 MB)<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={photo}/><small>Selected photo uploads when you save the product.</small>{(preview||product.image_url)&&<img src={preview||product.image_url} alt="Product preview" style={{width:160,height:140,objectFit:'contain'}}/>}</label></fieldset></form>:
- <section id="inventory-results" tabIndex={-1} aria-labelledby="inventory-results-heading">
-  {stockView&&<button type="button" onClick={()=>showInventoryList('all')}>← Back to inventory</button>}
-  <h2 id="inventory-results-heading">{filter==='out'?'Out-of-stock products':filter==='unknown'?'Products awaiting a stock count':'Inventory'}</h2>
-  {stockView&&<p>{filter==='out'?'Add new units to on-hand stock. Existing reservations are kept.':'Enter the total units you currently have on hand.'}</p>}
-  {!visibleItems.length?<p>{stockView?'No products match this stock filter.':'No products match these filters.'}</p>:stockView?
-   <ul className="restock-list">{visibleItems.map(item=><RestockRow key={item.id+':'+item.version} item={item} busy={busy} onRestock={restock} onEdit={edit}/>)}</ul>:
-   <div style={{overflowX:'auto'}}>
-    <table>
-     <thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead>
-     <tbody>{visibleItems.map(p=><tr key={p.id}>
-      <td>{p.name}</td><td>₱{(p.price_cents/100).toFixed(2)}</td>
-      <td>{p.stock??'Not counted'}{p.reserved_stock>0&&<small> · {p.reserved_stock} reserved · {availableStock(p)} available</small>}</td>
-      <td>{p.active?'Published':'Archived'}</td>
-      <td><button type="button" disabled={busy} onClick={()=>edit(p)}>Edit</button></td>
-     </tr>)}</tbody>
-    </table>
-   </div>}
-  {pageCount>1&&<nav className="inventory-pager" aria-label="Inventory pages">
-   <button type="button" disabled={currentPage<=1||busy} onClick={()=>setPage(currentPage-1)}>← Previous</button>
-   <span>Page {currentPage} of {pageCount} · {filteredItems.length} products</span>
-   <button type="button" disabled={currentPage>=pageCount||busy} onClick={()=>setPage(currentPage+1)}>Next →</button>
-  </nav>}
- </section>}</>}</main>}
+const notice=<p className={success?'inventory-notice success':'inventory-notice'} role={success?'status':'alert'} aria-live="polite">{error}</p>;
+
+return <main className="inventory-admin" id="main">
+ <header className="inventory-header">
+  <div>
+   <p>CircuitByte Admin</p>
+   <h1>Inventory &amp; orders</h1>
+  </div>
+  <nav className="inventory-nav" aria-label="Admin navigation">
+   <a href="/catalog">Shop ↗</a>
+   {signed&&<>
+    <button type="button" className="inventory-secondary" disabled={busy||loading} onClick={signOut}>Sign out</button>
+   </>}
+  </nav>
+ </header>
+
+ {!signed&&notice}
+ {signed===null?(
+  loading?<p role="status">Checking administrator access…</p>:
+   <button type="button" onClick={()=>load()}>Retry inventory</button>
+ ):!signed?(
+  <form onSubmit={login}>
+   <h2>Administrator sign in</h2>
+   <label>Email<input name="email" type="email" required autoComplete="username"/></label>
+   <label>Password<input name="password" type="password" required autoComplete="current-password"/></label>
+   <button disabled={busy}>Sign in</button>
+  </form>
+ ):<>
+  <div className="inventory-overview">
+   <section aria-labelledby="stock-overview-title">
+    <h2 id="stock-overview-title">Stock overview</h2>
+    <div className="inventory-stats">
+     <button type="button" className="inventory-stat-action" aria-pressed={filter==='out'} aria-controls={editing?undefined:'inventory-results'}
+      disabled={busy||editing} onClick={()=>showInventoryList('out')}>
+      <strong>{items.filter(isOutOfStock).length}</strong><span>Out of stock</span>
+     </button>
+     <button type="button" className="inventory-stat-action" aria-pressed={filter==='unknown'} aria-controls={editing?undefined:'inventory-results'}
+      disabled={busy||editing} onClick={()=>showInventoryList('unknown')}>
+      <strong>{items.filter(isUncounted).length}</strong><span>Awaiting stock count</span>
+     </button>
+     <button type="button" className="inventory-stat-action" aria-pressed={filter==='low'} aria-controls={editing?undefined:'inventory-results'}
+      disabled={busy||editing} onClick={()=>showInventoryList('low')}>
+      <strong>{items.filter(isLowStock).length}</strong><span>Low available stock</span>
+     </button>
+     <div><strong>{items.length}</strong><span>Catalog products</span></div>
+    </div>
+   </section>
+   <section className="order-overview" aria-labelledby="order-overview-title">
+    <h2 id="order-overview-title">Order queue</h2>
+    <dl>
+     <div><dt>Pending orders</dt><dd>{orderSummary?.pending??'—'}</dd></div>
+     <div><dt>Confirmed</dt><dd>{orderSummary?.confirmed??'—'}</dd></div>
+     <div><dt>Ready for handover</dt><dd>{orderSummary?.ready??'—'}</dd></div>
+    </dl>
+    <a href="/admin/orders">Orders &amp; fulfillment →</a>
+   </section>
+  </div>
+
+  {notice}
+  {product?(
+   <form onSubmit={save} className="inventory-editor">
+    <h2 ref={editorHeading} tabIndex={-1}>{product.version?'Edit product':'New product'}</h2>
+    <fieldset disabled={busy}>
+     {['name','description','quantity_label','reason'].map(k=><label key={k}>
+      {k==='reason'?'Change note (optional)':k.replaceAll('_',' ')}
+      {k==='description'?<textarea value={product[k]} onChange={e=>setProduct({...product,[k]:e.target.value})}/>:
+       <input required={k==='name'} placeholder={k==='reason'?'e.g. Updated description or stock':''} value={product[k]}
+        onChange={e=>setProduct({...product,[k]:e.target.value})}/>}
+     </label>)}
+     <label>Price (PHP)
+      <input type="number" min="0" step="0.01" required max="1000000" value={product.priceInput}
+       onChange={e=>setProduct({...product,priceInput:e.target.value})}/>
+     </label>
+     <label>Total on-hand stock (includes reserved units; blank = not counted)
+      <input type="number" min="0" step="1" value={product.stock??''}
+       onChange={e=>setProduct({...product,stock:e.target.value===''?null:Number(e.target.value)})}/>
+     </label>
+     {product.reserved_stock>0&&<p className="stock-reservation-note">
+      {product.reserved_stock} unit(s) reserved for open orders · {Math.max(0,(product.stock??0)-product.reserved_stock)} available to sell.
+     </p>}
+     <label>Category
+      <select value={product.categories[0]} onChange={e=>setProduct({...product,categories:[e.target.value]})}>
+       {productCategories.map(id=><option key={id} value={id}>{categoryLabels[id]}</option>)}
+      </select>
+     </label>
+     <label><span><input type="checkbox" checked={product.active} onChange={e=>setProduct({...product,active:e.target.checked})}/> Published</span></label>
+     <label>Product photo (JPEG/PNG/WebP, maximum 3 MB)
+      <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={photo}/>
+      <small>Selected photo uploads when you save the product.</small>
+      {(preview||product.image_url)&&<img className="inventory-photo-preview" src={preview||product.image_url} alt="Product preview"/>}
+     </label>
+     <div className="inventory-actions">
+      <button disabled={busy}>{busy?'Saving…':product===savedPhotoDraft&&selectedPhoto?'Retry photo':'Save product'}</button>
+      <button type="button" className="inventory-secondary" disabled={busy} onClick={()=>{setError('');closeEditor();}}>Cancel</button>
+     </div>
+    </fieldset>
+   </form>
+  ):(
+   <section id="inventory-results" tabIndex={-1} aria-labelledby="inventory-results-heading">
+    {stockView&&<button type="button" className="inventory-secondary" onClick={()=>showInventoryList('all')}>← Back to inventory</button>}
+    <div className="inventory-list-heading">
+     <div>
+      <h2 id="inventory-results-heading">{filter==='out'?'Out-of-stock products':filter==='unknown'?'Products awaiting a stock count':'Inventory'}</h2>
+      <p>{filteredItems.length} {filteredItems.length===1?'product':'products'}</p>
+     </div>
+     <div className="inventory-actions">
+      <button type="button" disabled={busy} onClick={()=>edit({...blank,id:crypto.randomUUID()})}>Add product</button>
+      <button type="button" className="inventory-secondary" disabled={busy||loading} onClick={()=>{setError('');load(true);}}>Refresh inventory</button>
+      <button type="button" className="inventory-secondary" aria-expanded={Boolean(history)} onClick={toggleHistory}>{history?'Hide activity':'Activity history'}</button>
+     </div>
+    </div>
+    <div className="inventory-filters">
+     <label>Search inventory
+      <input type="search" placeholder="Product name" value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
+     </label>
+     <label>Product category
+      <select value={category} onChange={e=>{setCategory(e.target.value);setPage(1);}}>
+       {Object.entries(categoryLabels).map(([id,label])=><option key={id} value={id}>
+        {label} ({items.filter(p=>id==='all'||p.categories.includes(id)).length})
+       </option>)}
+      </select>
+     </label>
+     <label>Inventory status
+      <select value={filter} onChange={e=>{setFilter(e.target.value);setPage(1);}}>
+       <option value="all">All products</option><option value="active">Published</option><option value="archived">Archived</option>
+       <option value="out">Out of stock</option><option value="low">Low stock</option><option value="unknown">Uncounted</option>
+      </select>
+     </label>
+    </div>
+    {history&&<section className="history">
+     <h2>Recent activity</h2><p>Latest 100 changes · Philippine time</p>
+     {history.length===0?<p>No changes yet.</p>:history.map(h=><article key={h.id}>
+      <strong>{h.name}</strong> — {h.reason}
+      <small>{h.actor} · {new Date(h.created_at).toLocaleString('en-PH',{timeZone:'Asia/Manila'})}</small>
+      <small>Price: ₱{((h.before_data?.price_cents??0)/100).toFixed(2)} → ₱{((h.after_data?.price_cents??0)/100).toFixed(2)} · Stock: {h.before_data?.stock??'uncounted'} → {h.after_data?.stock??'uncounted'}</small>
+     </article>)}
+    </section>}
+    {stockView&&<p className="inventory-stock-guide">{filter==='out'?'Add new units to on-hand stock. Existing reservations are kept.':'Enter the total units you currently have on hand.'}</p>}
+    {!visibleItems.length?<p className="inventory-empty">{stockView?'No products match this stock filter.':'No products match these filters.'}</p>:stockView?(
+     <ul className="restock-list">
+      {visibleItems.map(item=><RestockRow key={item.id+':'+item.version} item={item} busy={busy} onRestock={restock} onEdit={edit}/>)}
+     </ul>
+    ):(
+     <table className="inventory-table" aria-label="Product inventory" role="table">
+      <thead role="rowgroup"><tr role="row">
+       {['Product','Price','Stock','Status','Action'].map(label=><th key={label} scope="col" role="columnheader">{label}</th>)}
+      </tr></thead>
+      <tbody role="rowgroup">{visibleItems.map(p=><tr key={p.id} role="row">
+       <th className="inventory-product-name" scope="row" role="rowheader">{p.name}</th>
+       <td className="inventory-price" role="cell">₱{(p.price_cents/100).toFixed(2)}</td>
+       <td className="inventory-stock" role="cell">
+        <span>{p.stock===null?'Stock not counted':p.stock+' on hand'}</span>
+        {p.reserved_stock>0&&<small>{p.reserved_stock} reserved · {availableStock(p)} available</small>}
+       </td>
+       <td className="inventory-visibility" role="cell">
+        <span className={'inventory-badge'+(p.active?'':' archived')}>{p.active?'Published':'Archived'}</span>
+       </td>
+       <td className="inventory-edit" role="cell">
+        <button type="button" className="inventory-secondary" disabled={busy} onClick={()=>edit(p)} aria-label={'Edit '+p.name}>Edit</button>
+       </td>
+      </tr>)}</tbody>
+     </table>
+    )}
+    {pageCount>1&&<nav className="inventory-pager" aria-label="Inventory pages">
+     <button type="button" disabled={currentPage<=1||busy} onClick={()=>setPage(currentPage-1)}>← Previous</button>
+     <span>Page {currentPage} of {pageCount} · {filteredItems.length} products</span>
+     <button type="button" disabled={currentPage>=pageCount||busy} onClick={()=>setPage(currentPage+1)}>Next →</button>
+    </nav>}
+   </section>
+  )}
+ </>}
+</main>;
+}

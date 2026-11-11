@@ -1,0 +1,32 @@
+.orders-admin{color:#19352e;font-family:Inter,system-ui,sans-serif}
+.order-nav,.order-filters,.order-heading,.pager{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.order-heading,.pager{justify-content:space-between}
+.orders-admin input,.orders-admin select,.orders-admin textarea,.orders-admin button{font:inherit;padding:10px 12px;border:1px solid #c9d8d0;border-radius:9px}
+.orders-admin button{background:#155944;color:#fff;cursor:pointer;font-weight:650}
+.orders-admin button.secondary,.status-tabs button[aria-pressed=false]{background:#fff;color:#205143}
+.orders-admin button:hover{color:white}
+.order-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px;margin:18px 0}
+.order-card,.order-editor{background:#fff;border:1px solid #dce6e0;border-radius:16px;padding:22px;overflow-wrap:anywhere}
+.order-card h2,.order-editor h2{font-size:1.2rem;margin:10px 0}
+.order-card p{margin:8px 0}
+.order-card button{margin-top:10px}
+.order-card small{color:#52665c}
+.order-editor{max-width:760px}
+.order-editor label{display:grid;gap:7px;margin:14px 0;font-weight:600}
+.order-editor textarea{min-height:80px}
+.status-pill{border-radius:20px;background:#e7f3ec;color:#155944;padding:5px 12px;font-size:.8rem;font-weight:700}
+.order-error{color:#a12323}
+.order-items{padding-left:20px}
+.order-items li{margin:8px 0}
+.orders-hero{background:#154c3f;color:white;padding:24px;border-radius:16px;margin:20px 0}
+.orders-hero h1{margin:0 0 8px}
+.orders-hero p{margin:0;color:#dceee5}
+.order-filters{background:#fff;border:1px solid #dce6e0;padding:12px;border-radius:12px}
+.order-filters input{flex:1;min-width:min(210px,100%)}
+.status-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:14px 0}
+.status-tabs b{margin-left:3px}
+.invoice-box{border-top:1px solid #dce6e0;margin-top:20px}
+.invoice-summary,.payment-review{background:#eff6f2;border-radius:10px;padding:14px}
+.invoice-summary button{margin-right:8px}
+.order-editor .payment-check{display:flex;align-items:center;margin-bottom:0;gap:8px;text-transform:none}
+.order-editor .payment-check input{width:auto}

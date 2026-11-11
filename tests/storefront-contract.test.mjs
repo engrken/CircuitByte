@@ -16,13 +16,13 @@ test('dedicated catalog keeps accessible search, filters and cart hooks', () => 
   assert.match(html, /href="\/catalog"/);
 });
 
-test('checkout preserves guest ordering and optional Studio consent', () => {
-  assert.match(html, /<form id="checkout">/);
-  assert.match(html, /name="name"[^>]*required/);
-  assert.match(html, /name="contact"[^>]*required/);
-  assert.match(html, /name="location"[^>]*required/);
-  assert.match(html, /id="studio-invite"[^>]*type="checkbox"|type="checkbox"[^>]*id="studio-invite"/);
-  assert.match(html, /id="studio-email"[^>]*disabled/);
+test('both storefront entry points require a CircuitByte account for checkout', () => {
+ for(const page of [html,catalog]){
+  assert.match(page, /<form id="checkout" hidden>/);
+  assert.match(page, /href="\/dashboard\?checkout=1"/);
+  assert.match(page, /name="paymentMethod"/);
+  assert.doesNotMatch(page, /id="otp-request"/);
+ }
 });
 
 test('learning and DIY links remain available in storefront navigation', () => {

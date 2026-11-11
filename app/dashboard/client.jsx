@@ -4,43 +4,74 @@ import {createAuthClient} from 'better-auth/react';
 import {emailOTPClient} from 'better-auth/client/plugins';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {StudioKnowledgeReview} from './knowledge-review';
+import OrderList from './order-list';
 const auth=createAuthClient({plugins:[emailOTPClient()]});
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
 export default function StudioAccount(){
  const {data:session,isPending}=auth.useSession();
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
- const [otpSent,setOtpSent]=useState(false);
+ const [email,setEmail]=useState(''),[checkout,setCheckout]=useState(false),[resetToken,setResetToken]=useState('');
  const [uat,setUat]=useState(null);
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]),[orders,setOrders]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
- useEffect(()=>{fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{setUat(d.uat||null);setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');if(d.registrationOpen&&new URLSearchParams(window.location.search).get('register')==='1')setMode('signup');}).catch(()=>{});},[]);
+ useEffect(()=>{
+  const params=new URLSearchParams(window.location.search);
+  setCheckout(params.get('checkout')==='1');
+  if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',params.get('checkout')==='1'?'/dashboard?checkout=1':'/dashboard');}
+  else if(params.get('error'))setError('That password link has expired. Request a new one.');
+  else if(params.get('register')==='1')setMode('signup');
+  fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{
+   setUat(d.uat||null);setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');
+  }).catch(()=>{});
+ },[]);
  async function load(){
   const [p,q,m]=await Promise.all([fetch('/api/studio/profile',{cache:'no-store'}),fetch('/api/studio/projects',{cache:'no-store'}),fetch('/api/orders/my',{cache:'no-store'})]);
-  if(!p.ok||!q.ok)throw Error('Could not load Studio account. Database initialization may still be pending.');
-  const result=await p.json(), saved=await q.json(),myOrders=m.ok?await m.json():{orders:[]};
+  if(!p.ok||!q.ok||!m.ok)throw Error('Could not load your CircuitByte account. Please try again.');
+  const result=await p.json(), saved=await q.json(),myOrders=await m.json();
   setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setOrders(myOrders.orders||[]);setIsAdmin(Boolean(result.isAdmin));
  }
- useEffect(()=>{if(!session?.user)return;load().catch(e=>setError(e.message));},[session?.user?.id]);
+ useEffect(()=>{if(!session?.user?.emailVerified)return;if(checkout&&mode!=='reset'){window.location.assign('/catalog?cart=1');return;}load().catch(e=>setError(e.message));},[session?.user?.id,session?.user?.emailVerified,checkout,mode]);
+ function changeMode(next){setMode(next);setError('');setNotice('');}
+ async function resend(){
+  setBusy(true);setError('');setNotice('');
+  try{
+   const result=await auth.emailOtp.sendVerificationOtp({email:email.trim().toLowerCase(),type:'email-verification'});
+   if(result.error)throw Error(result.error.message);
+   setNotice('If your account is awaiting verification, a new code has been sent.');
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
  async function login(e){
   e.preventDefault();setBusy(true);setError('');setNotice('');
-  const data=new FormData(e.currentTarget);
+  const data=new FormData(e.currentTarget),address=email.trim().toLowerCase();
   try{
-   if(mode==='otp'){
-    const email=String(data.get('email')).trim().toLowerCase();
-    if(!otpSent){const result=await auth.emailOtp.sendVerificationOtp({email,type:'sign-in'});if(result.error)throw Error(result.error.message);setOtpSent(true);setNotice('A sign-in code was sent to your email. It expires in 5 minutes.');return;}
-    const result=await auth.signIn.emailOtp({email,otp:String(data.get('otp')),name:String(data.get('name')||'CircuitByte member')});if(result.error)throw Error(result.error.message);await load();return;
-   }
-   if(mode==='signup'){
-    if(!registrationOpen)throw Error('New accounts are not open yet.');
-    const result=await auth.signUp.email({name:String(data.get('name')),email:String(data.get('email')),password:String(data.get('password'))});
+   if(mode==='verify'){
+    const result=await auth.emailOtp.verifyEmail({email:address,otp:String(data.get('otp')).trim()});
     if(result.error)throw Error(result.error.message);
-    setNotice('Registration received. Check your inbox for a verification link before signing in.');setMode('login');
+    setMode('login');setNotice('Email verified. Sign in with your password.');
+   }else if(mode==='signup'){
+    if(!registrationOpen)throw Error('New accounts are temporarily unavailable.');
+    const result=await auth.signUp.email({name:String(data.get('name')),email:address,password:String(data.get('password'))});
+    if(result.error)throw Error(result.error.message);
+    setEmail(address);setMode('verify');
+    setNotice('Enter the 6-digit registration code sent to your email. The code expires in 5 minutes.');
+   }else if(mode==='forgot'){
+    const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+'/dashboard'+(checkout?'?checkout=1':'')});
+    if(result.error)throw Error(result.error.message);
+    setNotice('If this is a verified account, check your inbox for a password link.');
+   }else if(mode==='reset'){
+    const result=await auth.resetPassword({token:resetToken,newPassword:String(data.get('password'))});
+    if(result.error)throw Error(result.error.message);
+    window.history.replaceState(null,'',checkout?'/dashboard?checkout=1':'/dashboard');
+    setMode('login');setNotice('Password saved. You can now sign in.');
    }else{
-    const result=await auth.signIn.email({email:String(data.get('email')),password:String(data.get('password'))});
-    if(result.error)throw Error(result.error.message);
-    await load();
+    const result=await auth.signIn.email({email:address,password:String(data.get('password'))});
+    if(result.error){
+     if(result.error.code==='EMAIL_NOT_VERIFIED'){setEmail(address);setMode('verify');}
+     throw Error(result.error.message);
+    }
+    if(checkout){window.location.assign('/catalog?cart=1');return;}
    }
   }catch(e){setError(e.message||'Unable to authenticate.');}
   finally{setBusy(false);}
@@ -75,32 +106,31 @@ export default function StudioAccount(){
  }
  if(isPending)return <p className="account-message">Checking your session…</p>;
  return <div className="account-page">
-  <header className="account-hero"><span className="edu-kicker">CIRCUITBYTE / MEMBER WORKSPACE</span><h1>My CircuitByte Dashboard</h1><p>Save your Arduino projects, manage your profile and school information, and build at your own pace.</p></header>
+  <header className="account-hero"><span className="edu-kicker">CIRCUITBYTE / MEMBER WORKSPACE</span><h1>My CircuitByte Dashboard</h1><p>Track your orders, manage your account, and open your saved Studio projects.</p></header>
   {uat&&<section className="account-card account-uat" aria-label="Student Hobby UAT access"><h2>{uat.active?'Student / Hobby UAT — Free':'Student / Hobby UAT closed'}</h2><p>{uat.message}</p><a href="/studio/pricing">View UAT dates and allowances →</a></section>}
   {error&&<p className="account-error" role="alert">{error}</p>}
   {notice&&<p className="account-notice" role="status">{notice}</p>}
-  {session?.user && !session.user.emailVerified && !isAdmin ? <section className="account-card account-login">
-    <h2>Confirm your email address</h2>
-    <p>Before using your saved projects or school profile, open the verification link sent to <strong>{session.user.email}</strong>.</p>
-    <button type="button" onClick={()=>auth.signOut()}>Sign out and check your inbox</button>
+  {session?.user && !session.user.emailVerified ? <section className="account-card account-login">
+    <h2>Verify your email</h2><p>Enter your registration code to activate your CircuitByte account.</p>
+    <button type="button" onClick={async()=>{await auth.signOut();setEmail(session.user.email);changeMode('verify');}}>Verify email</button>
   </section> :
-  !session?.user?<section className="account-card account-login">
-    <h2>{mode==='login'?'Member sign in':mode==='otp'?'Sign in with email code':'Create a member account'}</h2><p>{registrationNotice}</p>
-    <form onSubmit={login}>
+  !session?.user||mode==='reset'?<section className="account-card account-login">
+    <h2>{{login:'Sign in',signup:'Create an account',verify:'Verify your email',forgot:'Get a password link',reset:'Set your password'}[mode]}</h2>
+    {mode==='login'&&<p>{checkout?'Sign in to return to your cart.':registrationNotice}</p>}
+    <form key={mode} onSubmit={login}>
      {mode==='signup'&&<label>Full name<input name="name" required maxLength={100} autoComplete="name"/></label>}
-     <label>Email address<input name="email" type="email" required autoComplete="email"/></label>
-     {mode==='otp'&&otpSent&&<label>6-digit code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>}
-     {mode!=='otp'&&<label>Password<input name="password" type="password" required minLength={12} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
-     <button type="submit" disabled={busy}>{busy?'Checking…':mode==='otp'?(otpSent?'Verify code':'Email sign-in code'):mode==='login'?'Sign in':'Register and verify email'}</button>
+     {mode!=='reset'&&<label>Email address<input name="email" type="email" required maxLength={200} value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>}
+     {mode==='verify'&&<label>6-digit code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>}
+     {['login','signup','reset'].includes(mode)&&<label>Password<input name="password" type="password" required minLength={mode==='login'?undefined:12} maxLength={128} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
+     <button type="submit" disabled={busy||(mode==='signup'&&!registrationOpen)}>{busy?'Working…':{login:'Sign in',signup:'Register',verify:'Verify email',forgot:'Send password link',reset:'Save password'}[mode]}</button>
     </form>
-    {mode==='otp'&&otpSent&&<button className="account-link" type="button" onClick={()=>setOtpSent(false)}>Send a new code</button>}
-    {mode!=='otp'&&<button className="account-link" type="button" onClick={()=>{setMode('otp');setOtpSent(false);setError('');setNotice('Use the same email as your CircuitByte checkout account.');}}>Sign in with an email code</button>}
-    {registrationOpen?<button className="account-link" type="button" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');}}>{mode==='login'?'New member? Create account':'Already registered? Sign in'}</button>:<p className="account-muted">New UAT registration is currently closed. Existing members can still sign in to view their saved projects.</p>}
+    {mode==='verify'&&<button className="account-link" type="button" disabled={busy} onClick={resend}>Send a new code</button>}
+    {mode==='login'&&<button className="account-link" type="button" onClick={()=>changeMode('forgot')}>Forgot your password or used email-code sign-in before?</button>}
+    {mode==='login'&&registrationOpen&&<><button className="account-link" type="button" onClick={()=>changeMode('signup')}>Create an account</button> <button className="account-link" type="button" onClick={()=>changeMode('verify')}>Enter a registration code</button></>}
+    {mode!=='login'&&<button className="account-link" type="button" onClick={()=>changeMode('login')}>Back to sign in</button>}
   </section>:
   <div className="account-layout">
-   <section className="account-card"><div className="account-top"><div><h2>My orders</h2><p>Order progress and issued invoice references for this account.</p></div><a href="/catalog">Shop components →</a></div>
-    {orders.length?<ul className="account-projects">{orders.map(o=>{const stages=['Pending','Confirmed','Ready','Completed'],idx=stages.indexOf(o.status);return <li key={o.id}><div><strong>{o.reference} · {o.status}</strong><div aria-label={'Order progress: '+o.status} style={{display:'flex',gap:4,maxWidth:360,margin:'10px 0'}}>{o.status==='Cancelled'?<span style={{color:'#a33'}}>Cancelled</span>:stages.map((s,i)=><span key={s} title={s} style={{height:5,flex:1,borderRadius:5,background:i<=idx?'#258260':'#dce8e1'}}/>)}</div><span>{(o.items||[]).reduce((n,i)=>n+i.quantity,0)} items · ₱{(Number(o.total_cents)/100).toFixed(2)} · {new Date(o.created_at).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})}{o.customer_update?' · '+o.customer_update:''}{o.invoice_number?' · Invoice '+o.invoice_number:''}</span></div><div>{o.invoice_number?<strong>Invoice issued</strong>:null}</div></li>})}</ul>:<p className="account-muted">Orders placed with this verified email will appear here.</p>}
-   </section>
+   <OrderList orders={orders} onUpdate={load}/>
    <section className="account-card"><div className="account-top"><div><h2>My profile</h2><p>Signed in as <strong>{session.user.name}</strong> ({session.user.email})</p></div><button type="button" onClick={()=>auth.signOut()}>Sign out</button></div>
     <form onSubmit={saveProfile} className="account-form">
      <label>School / institution (optional)<input maxLength={120} value={profile.schoolName} onChange={e=>setProfile(p=>({...p,schoolName:e.target.value}))} placeholder="Official institution name"/></label>

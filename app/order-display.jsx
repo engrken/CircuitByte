@@ -1,0 +1,11 @@
+import './order-display.css';
+const stages=['Pending','Confirmed','Ready','Completed'];
+export const peso=cents=>new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP'}).format(Number(cents)/100);
+export const paymentLabel=method=>method==='qrph'?'QR Ph':'Cash at handover';
+export function OrderProgress({status}){
+ if(status==='Cancelled')return <p className="order-cancelled">Cancelled</p>;
+ const current=stages.indexOf(status);
+ return <ol className="order-progress" aria-label={'Order progress: '+status}>
+  {stages.map((stage,index)=><li key={stage} className={index<=current?'reached':''} aria-current={index===current?'step':undefined}>{stage}</li>)}
+ </ol>;
+}

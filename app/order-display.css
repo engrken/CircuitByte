@@ -1,0 +1,5 @@
+.order-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;list-style:none;padding:0;margin:14px 0}
+.order-progress li{border-top:4px solid #ccdcd5;padding-top:5px;font-size:.75rem;color:#52645a}
+.order-progress li.reached{border-color:#257a58;color:#155944}
+.order-progress li[aria-current=step]{font-weight:750}
+.order-cancelled{font-weight:700;color:#a12323}

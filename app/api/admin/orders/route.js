@@ -1,7 +1,55 @@
 import {requireAdmin,sameOrigin} from '../../../../lib/auth';
 import {db} from '../../../../lib/db';
 import {updateOrder,errorResponse,readBody} from '../../../../lib/orders';
+import {deliverOrderInvoice} from '../../../../lib/order-invoices.js';
 import {gmailConfigured,sendGmailMessage} from '../../../../lib/studio-email.mjs';
+
 export const dynamic='force-dynamic';
-export async function GET(req){try{await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:401});}try{const url=new URL(req.url),status=url.searchParams.get('status')||'',query=(url.searchParams.get('q')||'').slice(0,100),offset=Math.max(0,Math.min(100000,Number(url.searchParams.get('offset'))||0));const [{rows},{rows:counts}]=await Promise.all([db().query(`SELECT o.id,o.reference,o.customer_name,o.customer_email,o.invoice_customer_name,o.invoice_billing_address,o.invoice_tin,o.contact,o.proposed_location,o.confirmed_location,o.notes,o.customer_update,o.items,o.total_cents,o.status,o.version,o.created_at,o.updated_at,i.invoice_number,i.issued_at,i.customer_name AS invoice_issued_customer_name,i.customer_email AS invoice_email,i.billing_address AS invoice_address,i.customer_tin AS invoice_customer_tin,i.seller_name AS invoice_seller_name,i.seller_address AS invoice_seller_address,i.seller_tin AS invoice_seller_tin,i.items AS invoice_items,i.subtotal_cents AS invoice_subtotal_cents,i.notes AS invoice_notes FROM orders o LEFT JOIN order_invoices i ON i.order_id=o.id WHERE ($1='' OR o.status=$1) AND ($2='' OR o.reference ILIKE '%'||$2||'%' OR o.customer_name ILIKE '%'||$2||'%' OR o.customer_email ILIKE '%'||$2||'%') ORDER BY o.created_at DESC LIMIT 51 OFFSET $3`,[status,query,offset]),db().query(`SELECT COUNT(*)::int total,COUNT(*) FILTER(WHERE status='Pending')::int pending,COUNT(*) FILTER(WHERE status='Confirmed')::int confirmed,COUNT(*) FILTER(WHERE status='Ready')::int ready,COUNT(*) FILTER(WHERE status='Completed')::int completed,COUNT(*) FILTER(WHERE status='Cancelled')::int cancelled FROM orders`)]);return Response.json({orders:rows.slice(0,50),hasMore:rows.length>50,summary:counts[0]},{headers:{'Cache-Control':'no-store'}});}catch(e){return errorResponse(e);}}
-export async function POST(req){let user;try{sameOrigin(req);user=await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403});}try{const body=await readBody(req),updated=await updateOrder(body,user.email);if(updated.status!==body.originalStatus&&gmailConfigured()){try{const order=(await db().query('SELECT customer_email FROM orders WHERE id=$1',[body.id])).rows[0];if(order?.customer_email)await sendGmailMessage({to:order.customer_email,subject:`Order ${updated.reference} update · ${updated.status}`,body:`Your CircuitByte order ${updated.reference} is now ${updated.status}.\n\n${body.customer_update||'Sign in to your account to see the latest order details.'}\n\nTrack orders: ${process.env.BETTER_AUTH_URL||new URL(req.url).origin}/dashboard\n\nCircuitByte`});}catch(e){console.error('Customer status email failed:',e.message);}}return Response.json(updated);}catch(e){return errorResponse(e);}}
+const headers={'Cache-Control':'no-store'};
+const orderDetails=`SELECT o.id,o.reference,o.customer_name,o.customer_email,o.customer_user_id IS NULL AS guest,
+ o.invoice_customer_name,o.invoice_billing_address,o.invoice_tin,o.contact,o.proposed_location,o.confirmed_location,
+ o.notes,o.customer_update,o.items,o.total_cents,o.status,o.version,o.created_at,o.updated_at,
+ o.payment_method,o.payment_reference,o.payment_verified_at,
+ to_jsonb(i)-'email_claimed_at'-'issued_by' AS invoice
+ FROM orders o LEFT JOIN order_invoices i ON i.order_id=o.id`;
+
+export async function GET(req){
+ try{await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:401,headers});}
+ try{
+  const params=new URL(req.url).searchParams,status=params.get('status')||'',query=(params.get('q')||'').trim().slice(0,100);
+  const offset=Math.max(0,Math.min(100000,parseInt(params.get('offset'),10)||0));
+  const [{rows},{rows:[summary]}]=await Promise.all([
+   db().query(orderDetails+` WHERE ($1='' OR o.status=$1) AND ($2='' OR o.reference ILIKE '%'||$2||'%'
+    OR o.customer_name ILIKE '%'||$2||'%' OR o.customer_email ILIKE '%'||$2||'%')
+    ORDER BY o.created_at DESC,o.id DESC LIMIT 51 OFFSET $3`,[status,query,offset]),
+   db().query(`SELECT count(*)::int AS total,count(*) FILTER(WHERE status='Pending')::int AS pending,
+    count(*) FILTER(WHERE status='Confirmed')::int AS confirmed,count(*) FILTER(WHERE status='Ready')::int AS ready,
+    count(*) FILTER(WHERE status='Completed')::int AS completed,count(*) FILTER(WHERE status='Cancelled')::int AS cancelled
+    FROM orders`)
+  ]);
+  return Response.json({orders:rows.slice(0,50),hasMore:rows.length>50,summary},{headers});
+ }catch(e){return errorResponse(e);}
+}
+
+export async function POST(req){
+ let user;
+ try{sameOrigin(req);user=await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403,headers});}
+ try{
+  const body=await readBody(req),updated=await updateOrder(body,user.email);
+  const origin=process.env.BETTER_AUTH_URL||new URL(req.url).origin;
+  let delivery='';
+  if(updated.statusChanged&&updated.order.status==='Completed'&&updated.email){
+   try{delivery=await deliverOrderInvoice(body.id,origin);}
+   catch(e){console.error('Invoice delivery status unavailable:',e.code||e.name);delivery='failed';}
+  }else if(updated.statusChanged&&updated.email&&gmailConfigured()){
+   try{
+    await sendGmailMessage({
+     to:updated.email,subject:`CircuitByte order ${updated.order.reference} is ${updated.order.status}`,
+     body:`Your CircuitByte order ${updated.order.reference} is now ${updated.order.status}.\n\n${body.customer_update||''}\n\n${updated.order.payment_method==='qrph'&&updated.order.status==='Confirmed'?'Open My Orders to view the CircuitByte QR and submit your transfer reference.\n':''}${new URL('/dashboard',origin)}`
+    });
+   }catch(e){console.error('Order status email failed:',e.code||e.name);}
+  }
+  const {rows:[order]}=await db().query(orderDetails+' WHERE o.id=$1',[body.id]);
+  return Response.json({order,delivery},{headers});
+ }catch(e){return errorResponse(e);}
+}

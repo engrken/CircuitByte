@@ -1,17 +1,37 @@
 import {requireAdmin,sameOrigin} from '../../../../../lib/auth';
 import {db} from '../../../../../lib/db';
-import {gmailConfigured,sendGmailMessage} from '../../../../../lib/studio-email.mjs';
+import {transaction,readBody,errorResponse} from '../../../../../lib/orders';
+import {deliverOrderInvoice,issueOrderInvoice} from '../../../../../lib/order-invoices.js';
+import {OrderError} from '../../../../../lib/order-rules.mjs';
+
 export const dynamic='force-dynamic';
+const headers={'Cache-Control':'no-store'};
+
 export async function POST(req){
- let admin;try{sameOrigin(req);admin=await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403});}
- let body;try{body=await req.json();}catch{return Response.json({error:'Invalid request'},{status:400});}
- const id=typeof body.id==='string'?body.id:'',name=typeof body.name==='string'?body.name.trim().slice(0,160):'',address=typeof body.address==='string'?body.address.trim().slice(0,500):'',tin=typeof body.tin==='string'?body.tin.trim().slice(0,40):'',notes=typeof body.notes==='string'?body.notes.trim().slice(0,500):'';
- if(!/^[0-9a-f-]{36}$/i.test(id)||name.length<2||address.length<5)return Response.json({error:'Customer name and billing address are required to issue an invoice.'},{status:400});
- const c=await db().connect();try{await c.query('BEGIN');const order=(await c.query('SELECT * FROM orders WHERE id=$1 FOR UPDATE',[id])).rows[0];if(!order){await c.query('ROLLBACK');return Response.json({error:'Order not found'},{status:404});}if(order.status!=='Completed'){await c.query('ROLLBACK');return Response.json({error:'Invoice can be issued after an order is completed.'},{status:409});}const seller={name:process.env.INVOICE_BUSINESS_NAME||'CircuitByte',address:process.env.INVOICE_BUSINESS_ADDRESS||'',tin:process.env.INVOICE_BUSINESS_TIN||''};
-  const existing=(await c.query('SELECT * FROM order_invoices WHERE order_id=$1',[id])).rows[0];if(existing){await c.query('COMMIT');return Response.json({invoice:existing,seller:{name:existing.seller_name,address:existing.seller_address,tin:existing.seller_tin},alreadyIssued:true});}
-  await c.query('UPDATE orders SET invoice_customer_name=$1,invoice_billing_address=$2,invoice_tin=$3 WHERE id=$4',[name,address,tin,id]);
-  const invoiceNumber='CBI-'+order.reference.replace(/^CB-/,'');
-  const result=(await c.query(`INSERT INTO order_invoices(order_id,invoice_number,customer_name,customer_email,billing_address,customer_tin,seller_name,seller_address,seller_tin,items,subtotal_cents,notes,issued_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,[id,invoiceNumber,name,order.customer_email||'',address,tin,seller.name,seller.address,seller.tin,JSON.stringify(order.items),order.total_cents,notes,admin.email])).rows[0];
-  await c.query('COMMIT');let emailed=false;if(result.customer_email&&gmailConfigured()){try{const lines=order.items.map(i=>`${i.name}${i.option?` (${i.option_label||'option'}: ${i.option})`:''} × ${i.quantity} — ₱${(i.price_cents*i.quantity/100).toFixed(2)}`).join('\n');await sendGmailMessage({to:result.customer_email,subject:`CircuitByte invoice ${result.invoice_number}`,body:`Hello ${result.customer_name},\n\nYour completed order invoice is ready.\nInvoice: ${result.invoice_number}\nOrder: ${order.reference}\n\n${lines}\n\nTotal: ₱${(Number(result.subtotal_cents)/100).toFixed(2)}\nBilling address: ${result.billing_address}\n${result.customer_tin?'TIN: '+result.customer_tin+'\n':''}\nSeller: ${seller.name}\n${seller.address}\n${seller.tin?'TIN: '+seller.tin:''}\n\nYou can sign in to your CircuitByte dashboard to review order progress.\n\nCircuitByte`});emailed=true;}catch(e){console.error('Invoice email failed:',e.message);}}return Response.json({invoice:result,seller,emailed});
- }catch(e){await c.query('ROLLBACK');console.error('Invoice issuance failed:',e.code||e.name);return Response.json({error:'Invoice could not be issued. Please retry.'},{status:500});}finally{c.release();}
+ let admin;
+ try{sameOrigin(req);admin=await requireAdmin();}catch{return Response.json({error:'Unauthorized'},{status:403,headers});}
+ try{
+  const body=await readBody(req);
+  if(typeof body?.id!=='string'||!/^[0-9a-f-]{36}$/i.test(body.id))throw new OrderError('Invalid order');
+  const details={};
+  for(const [field,limit] of Object.entries({name:160,address:500,tin:40,notes:500})){
+   if(typeof body[field]==='string')details[field]=body[field].trim().slice(0,limit);
+  }
+  const email=typeof body.email==='string'?body.email.trim():undefined;
+  if(email!==undefined&&(email.length>200||(email&&!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email))))throw new OrderError('Enter a valid customer email.');
+  const invoice=await transaction(async c=>{
+   const {rows:[order]}=await c.query('SELECT * FROM orders WHERE id=$1 FOR UPDATE',[body.id]);
+   if(!order)throw new OrderError('Order not found',404);
+   if(order.status!=='Completed')throw new OrderError('Complete this order before issuing an invoice.',409);
+   if(email&&!order.customer_user_id&&!order.customer_email){
+    await c.query('UPDATE orders SET customer_email=$2,version=version+1 WHERE id=$1',[order.id,email]);
+    await c.query("UPDATE order_invoices SET customer_email=$2 WHERE order_id=$1 AND customer_email=''",[order.id,email]);
+    order.customer_email=email;
+   }
+   return issueOrderInvoice(c,order,admin.email,details);
+  });
+  const delivery=await deliverOrderInvoice(body.id,process.env.BETTER_AUTH_URL||new URL(req.url).origin);
+  const {rows:[latest]}=await db().query(`SELECT * FROM order_invoices WHERE order_id=$1`,[body.id]);
+  return Response.json({invoice:latest||invoice,delivery},{headers});
+ }catch(e){return errorResponse(e);}
 }

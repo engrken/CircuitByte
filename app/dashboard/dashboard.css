@@ -15,3 +15,12 @@
 .studio-knowledge-review-form label input,.studio-knowledge-review-form label textarea{display:block;margin-top:7px;padding:11px;border:1px solid #bfcebd;border-radius:7px;background:white;color:#183422;font:inherit;width:100%;min-width:0;box-sizing:border-box}
 .studio-review-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.studio-review-actions button{min-height:40px}
 @media(max-width:600px){.studio-knowledge-review-form{padding:12px}.studio-review-actions{flex-direction:column}}
+
+.account-projects.buyer-orders>li{display:block}
+.account-projects.buyer-orders>li p{margin:8px 0}
+.order-payment{margin:14px 0;padding:12px;background:#eff6f2;border-radius:10px}
+.order-payment summary{cursor:pointer;font-weight:650}
+.order-payment img{display:block;width:min(100%,330px);height:auto;margin:12px auto}
+.order-payment form{display:grid;gap:10px;margin-top:12px}
+
+.order-payment input{max-width:100%;padding:8px;border:1px solid #becfbe;border-radius:6px}

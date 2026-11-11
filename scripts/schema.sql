@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS orders (
  id uuid PRIMARY KEY, reference text UNIQUE NOT NULL, token_hash text UNIQUE NOT NULL,
  request_hash text NOT NULL, customer_name text NOT NULL, customer_email text NOT NULL DEFAULT '', customer_user_id text,
  invoice_customer_name text NOT NULL DEFAULT '', invoice_billing_address text NOT NULL DEFAULT '', invoice_tin text NOT NULL DEFAULT '',
- proposed_location text NOT NULL, confirmed_location text NOT NULL DEFAULT '',
+ contact text NOT NULL, proposed_location text NOT NULL, confirmed_location text NOT NULL DEFAULT '',
  notes text NOT NULL DEFAULT '', customer_update text NOT NULL DEFAULT '',
  items jsonb NOT NULL, total_cents bigint NOT NULL CHECK(total_cents>=0),
  status text NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending','Confirmed','Ready','Completed','Cancelled')),
@@ -76,3 +76,14 @@ CREATE TABLE IF NOT EXISTS studio_order_invites (
 );
 CREATE INDEX IF NOT EXISTS studio_order_invites_pending_idx ON studio_order_invites(created_at)
  WHERE state='pending';
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method text NOT NULL DEFAULT 'cash'
+ CHECK (payment_method IN ('cash','qrph'));
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_reference text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_verified_at timestamptz;
+CREATE UNIQUE INDEX IF NOT EXISTS orders_payment_reference_idx ON orders(payment_reference)
+ WHERE payment_reference IS NOT NULL;
+
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_sent_at timestamptz;
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_claimed_at timestamptz;
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_failed_at timestamptz;

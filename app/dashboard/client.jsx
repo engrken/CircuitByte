@@ -44,7 +44,7 @@ export default function StudioAccount(){
   try{
    const result=await auth.emailOtp.sendVerificationOtp({email:email.trim().toLowerCase(),type:'email-verification'});
    if(result.error)throw Error(result.error.message);
-   setNotice('If your account is awaiting verification, a new code has been sent.');
+   setNotice('If your account is awaiting verification, check your inbox or spam folder for a new code. The code expires in 5 minutes.');
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function login(e){
@@ -60,7 +60,7 @@ export default function StudioAccount(){
     const result=await auth.signUp.email({name:String(data.get('name')),email:address,password:String(data.get('password'))});
     if(result.error)throw Error(result.error.message);
     setEmail(address);setMode('verify');
-    setNotice('Enter the 6-digit registration code sent to your email. The code expires in 5 minutes.');
+    setNotice('Check your inbox or spam folder for a 6-digit code. It expires in 5 minutes. If it doesn’t arrive, select Send a new code below.');
    }else if(mode==='forgot'){
     const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+'/dashboard'+(checkout?'?checkout=1'+(qrCheckout?'&payment=qrph':''):'')});
     if(result.error)throw Error(result.error.message);

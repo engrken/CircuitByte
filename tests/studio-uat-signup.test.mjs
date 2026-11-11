@@ -10,8 +10,18 @@ process.env.BETTER_AUTH_URL='https://circuitbyte.vercel.app';
 mock.timers.enable({apis:['Date'],now:Date.parse('2026-12-01T00:00:00+08:00')});
 const pg=new PGlite();
 const query=(sql,args)=>pg.query(sql,args);
-const client={query,release(){}};
-const pool={query,connect:async()=>client,end:async()=>{}};
+let inTransaction=false;
+const client={async query(sql,args){
+ const result=await query(sql,args);
+ if(/^begin\b/i.test(sql))inTransaction=true;
+ if(/^(commit|rollback)\b/i.test(sql))inTransaction=false;
+ return result;
+},release(){}};
+const pool={async query(sql,args){
+ // A separate pooled connection cannot see the new user until sign-up commits.
+ if(inTransaction&&/^select\b/i.test(sql)&&/\bfrom "user"/i.test(sql))return {rows:[]};
+ return query(sql,args);
+},connect:async()=>client,end:async()=>{}};
 mock.module('../lib/db.js',{namedExports:{db:()=>pool}});
 const mail=[];
 let mailUnavailable=false;
@@ -76,6 +86,32 @@ function browser(ip){
   return response;
  };
 }
+
+test('a pending registration can recover from a delivery failure by requesting another code',async()=>{
+ const post=browser('192.0.2.6');
+ const member={name:'Retry Buyer',email:'retry@example.org',password:'test-only-retry-password'};
+ const resend={email:member.email,type:'email-verification'};
+ mailUnavailable=true;
+ try{
+  const signup=await post('/sign-up/email',member);
+  assert.equal(signup.status,200,await signup.clone().text());
+  assert.equal(signup.headers.get('set-cookie'),null);
+  mock.timers.tick(1000);
+  const failed=await post('/email-otp/send-verification-otp',resend);
+  assert.equal(failed.status,503,await failed.clone().text());
+  assert.match((await failed.json()).message,/Could not send a registration code/);
+ }finally{mailUnavailable=false;}
+
+ mock.timers.tick(1000);
+ const sent=await post('/email-otp/send-verification-otp',resend);
+ assert.equal(sent.status,200,await sent.clone().text());
+ const message=mail.at(-1);
+ assert.equal(message.to,member.email);
+ const otp=message.body.match(/\b\d{6}\b/)[0];
+ const verified=await post('/email-otp/verify-email',{email:member.email,otp});
+ assert.equal(verified.status,200,await verified.clone().text());
+ assert.equal((await post('/sign-in/email',{email:member.email,password:member.password})).status,200);
+});
 
 test('administrator setup and every sign-in require an email code before issuing a session',async()=>{
  const origin=process.env.BETTER_AUTH_URL;

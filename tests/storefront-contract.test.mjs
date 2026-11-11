@@ -21,6 +21,8 @@ test('both storefront entry points require a CircuitByte account for checkout', 
   assert.match(page, /<form id="checkout" hidden>/);
   assert.match(page, /href="\/dashboard\?checkout=1"/);
   assert.match(page, /name="paymentMethod"/);
+  assert.match(page, /href="\/catalog"[^>]*>Shop<\/a>/);
+  assert.match(page, /id="detail-wire-length"/);
   assert.match(page, /name="fulfillmentMethod"/);
   assert.match(page, /name="deliveryFeeAccepted"/);
   assert.match(page, /href="\/privacy"/);

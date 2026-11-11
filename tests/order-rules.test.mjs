@@ -22,3 +22,17 @@ test('completed and cancelled orders cannot transition again',()=>{
  assert.deepEqual(transitions.Completed,[]);
  assert.deepEqual(transitions.Cancelled,[]);
 });
+
+test('Dupont variants require a connector and length and share product stock',()=>{
+ const wire={...product,id:'cb-076',name:'Dupont Jump Wire',price_cents:700,stock:4,reserved_stock:0};
+ const line={id:wire.id,quantity:2,price_cents:wire.price_cents,option:'M-F'};
+ const short={...line,wireLengthCm:10},long={...line,wireLengthCm:30.5};
+ assert.throws(()=>snapshotItems(validateOrder({...order,items:[line]}).items,[wire]),/Choose the Dupont wire length/);
+ assert.throws(()=>validateOrder({...order,items:[{...short,option:'invalid'}]}),/connector type/);
+ assert.throws(()=>validateOrder({...order,items:[{...short,wireLengthCm:-10}]}),/valid Dupont wire length/);
+ assert.throws(()=>validateOrder({...order,items:[short,short]}),/Combine quantities/);
+ assert.throws(()=>validateOrder({...order,items:[{...order.items[0],wireLengthCm:10}]}),/valid Dupont wire length/);
+ const {items}=validateOrder({...order,items:[long,short]});
+ assert.deepEqual(snapshotItems(items,[wire]).map(i=>i.option),['M-F · 10 cm','M-F · 30.5 cm']);
+ assert.throws(()=>snapshotItems(items,[{...wire,stock:3}]),/Insufficient available stock/);
+});

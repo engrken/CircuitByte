@@ -28,3 +28,9 @@ test('Store handoff targets the storefront directly so the home redirect cannot 
  assert.ok(source.includes('/catalog?product='));
  assert.ok(source.includes('/catalog?cart=1'));
 });
+
+test('Studio handoff preserves saved wire types and lengths and respects their combined stock',()=>{
+ const existing=[{id:'cb-076',option:'M-F',wireLengthCm:10,quantity:1},{id:'cb-076',option:'M-F',wireLengthCm:20,quantity:1}];
+ const lines=studioShoppingLines({spec:{bom:[{id:'cb-076',qty:2}]},products:[{id:'cb-076',stock:3}]});
+ assert.deepEqual(addStudioCartItems(existing,lines),[...existing,{id:'cb-076',quantity:1}]);
+});

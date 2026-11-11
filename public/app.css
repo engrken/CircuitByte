@@ -78,3 +78,5 @@
 #maxim-checkout-note[hidden],#meetup-checkout-note[hidden]{display:none}
 #checkout .checkout-fee-check{display:flex;align-items:flex-start;gap:8px}
 #checkout .checkout-fee-check input{flex:none;width:18px;height:18px;margin-top:2px}
+
+#detail-wire-length-wrap{margin:18px 0}#detail-wire-length-wrap label{display:block;margin-bottom:7px;font-size:13px}

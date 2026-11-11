@@ -60,7 +60,9 @@ export default function Orders(){
    const data=await r.json();
    if(!r.ok)throw new Error(r.status===401?'Sign in through the inventory dashboard to view orders.':data.error);
    if(signal?.aborted)return;
-   setOrders(data.orders);setMore(data.hasMore);setSummary(data.summary);
+   setSummary(data.summary);
+   if(!data.orders.length&&offset>0){setOffset(offset-50);return;}
+   setOrders(data.orders);setMore(data.hasMore);
    return data.orders;
   }catch(e){
    if(e.name!=='AbortError'){setOrders([]);setError(e.message);}
@@ -117,8 +119,7 @@ export default function Orders(){
    setSelected(null);
    setNotice(restoring?`Order ${data.order.reference} restored to Cancelled.`:
     `Order ${data.order.reference} moved to Deleted. You can restore it from that tab.`);
-   if(offset>0&&orders.length===1)setOffset(offset-50);
-   else await load();
+   await load();
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function retryNotifications(){

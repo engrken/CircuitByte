@@ -1,5 +1,5 @@
-import {db} from '../../../../lib/db';
-import {requireAdmin,sameOrigin} from '../../../../lib/auth';
+import {db} from '../../../../lib/db.js';
+import {requireAdmin,sameOrigin} from '../../../../lib/auth.js';
 import {z} from 'zod';
 
 const schema=z.object({
@@ -54,7 +54,12 @@ export async function POST(req){
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,1)
    ON CONFLICT(id) DO UPDATE SET name=$2,description=$3,categories=$4,price_cents=$5,
     stock=$6,quantity_label=$7,active=$8,version=products.version+1,updated_at=now()
-   RETURNING *`,[p.id,p.name,p.description,p.categories,p.price_cents,p.stock,p.quantity_label,p.active]);
+   WHERE products.version=$9
+   RETURNING *`,[p.id,p.name,p.description,p.categories,p.price_cents,p.stock,p.quantity_label,p.active,p.version]);
+  if(!result.rows.length){
+   await client.query('ROLLBACK');transactionOpen=false;
+   return Response.json({error:'This product changed while saving. Refresh inventory and retry.'},{status:409});
+  }
   await client.query('INSERT INTO product_audit(product_id,actor,reason,before_data,after_data) VALUES($1,$2,$3,$4,$5)',[p.id,user.email,p.reason,JSON.stringify(before??null),JSON.stringify(result.rows[0])]);
   await client.query('COMMIT');transactionOpen=false;
   return Response.json(result.rows[0],{headers:{'Cache-Control':'no-store'}});

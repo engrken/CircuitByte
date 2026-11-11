@@ -53,3 +53,20 @@ test('Existing accounts are grandfathered and new accounts verify registration o
  assert.equal((await response.json()).user.emailVerified,true);
  assert.equal(mail.length,2);
 });
+
+test('token-authorized admin setup creates a verified account that can sign in',async()=>{
+ const origin=process.env.BETTER_AUTH_URL;
+ process.env.ADMIN_EMAIL='admin@example.org';
+ process.env.ADMIN_SETUP_TOKEN='test-only-setup-token';
+ const {POST:setup}=await import('../app/api/admin/setup/route.js');
+ const password='test-only-admin-password';
+ const request=(path,body)=>new Request(origin+path,{method:'POST',
+  headers:{'content-type':'application/json',origin,'x-forwarded-for':'192.0.2.2'},body:JSON.stringify(body)});
+ assert.equal((await setup(request('/api/admin/setup',{token:'wrong',password}))).status,403);
+ const created=await setup(request('/api/admin/setup',{token:process.env.ADMIN_SETUP_TOKEN,password}));
+ assert.equal(created.status,200,await created.clone().text());
+ assert.equal((await setup(request('/api/admin/setup',{token:process.env.ADMIN_SETUP_TOKEN,password}))).status,409);
+ const session=await auth().handler(request('/api/auth/sign-in/email',{email:process.env.ADMIN_EMAIL,password}));
+ assert.equal(session.status,200,await session.clone().text());
+ assert.equal((await session.json()).user.emailVerified,true);
+});

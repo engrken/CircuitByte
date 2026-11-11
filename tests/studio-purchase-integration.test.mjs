@@ -20,6 +20,13 @@ mock.module('../lib/studio-email.mjs',{namedExports:{
 }});
 const {createOrder,trackOrder,recordPaymentReference,updateOrder}=await import('../lib/orders.js');
 const {deliverOrderInvoice}=await import('../lib/order-invoices.js');
+const {deliverOrderNotifications}=await import('../lib/order-notifications.js');
+let activeUser;
+mock.module('../lib/auth.js',{namedExports:{requireUser:async()=>{
+ if(!activeUser)throw Error('Sign in required');
+ return activeUser;
+}}});
+const qrRoute=await import('../app/api/orders/my/qr/route.js');
 after(()=>pg.close());
 
 test('QR Ph reference belongs to the buyer and payment must be verified before completion',async()=>{
@@ -31,22 +38,59 @@ test('QR Ph reference belongs to the buyer and payment must be verified before c
  const body={name:'QA buyer',contact:'09171234567',location:'Roxas City plaza',city:'Roxas City, Capiz',notes:'',
   requestId:crypto.randomUUID(),token:'a'.repeat(64),items:[{id:'board',quantity:1,price_cents:25000}],
   paymentMethod:'qrph'};
- const order=await createOrder(body,'127.0.0.1',user);
+ const shopEmail='shop@example.org';
+ const order=await createOrder(body,'127.0.0.1',user,shopEmail);
  assert.equal(order.payment_method,'qrph');
  assert.equal((await createOrder(body,'127.0.0.1',user)).reference,order.reference);
  await assert.rejects(createOrder({...body,paymentMethod:'cash'},'127.0.0.1',user),/different details/);
  await assert.rejects(recordPaymentReference(body.requestId,'ABC123',user.id),/unavailable/);
- const update={id:body.requestId,version:1,status:'Confirmed',confirmed_location:'Roxas City plaza',customer_update:''};
- await updateOrder(update,'admin');
+ const origin='https://circuitbyte.vercel.app';
+ const qrRequest=new Request(origin+'/api/orders/my/qr?id='+body.requestId);
+ assert.equal((await qrRoute.GET(qrRequest)).status,401);
+ activeUser=user;
+ assert.equal((await qrRoute.GET(qrRequest)).status,404);
+ const update={id:body.requestId,version:1,status:'Pending',confirmed_location:'Roxas City plaza',customer_update:''};
+ await assert.rejects(updateOrder({...update,status:'Confirmed'},'admin'),/verify the transfer/);
+ const opened=await updateOrder({...update,openQrPayment:true},'admin');
+ assert.equal(opened.order.status,'Pending');
+ assert.equal(opened.paymentOpened,true);
+ assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,1);
+ const qr=await qrRoute.GET(qrRequest);
+ assert.equal(qr.status,200);
+ assert.equal(qr.headers.get('cache-control'),'private, no-store');
+ assert.equal(qr.headers.get('content-type'),'image/jpeg');
+ assert.ok(Buffer.from(await qr.arrayBuffer()).equals(await readFile(new URL('../assets/circuitbyte-qrph.jpg',import.meta.url))));
+ activeUser={id:'other-user'};
+ assert.equal((await qrRoute.GET(qrRequest)).status,404);
+ activeUser=user;
  await assert.rejects(recordPaymentReference(body.requestId,'ABC123','other-user'),/unavailable/);
- await recordPaymentReference(body.requestId,'ABC-123',user.id);
+ await recordPaymentReference(body.requestId,'ABC-123',user.id,shopEmail);
  assert.equal('payment_reference' in await trackOrder(body.token),false);
  assert.equal('customer_email' in await trackOrder(body.token),false);
- await updateOrder({...update,status:'Ready',version:3},'admin');
- await assert.rejects(updateOrder({...update,status:'Completed',version:4},'admin'),/Verify the QR Ph transfer/);
- await updateOrder({...update,status:'Completed',version:4,verifyPayment:true},'admin');
+ const verified=await updateOrder({...update,version:3,verifyPayment:true},'admin');
+ assert.equal(verified.order.status,'Confirmed');
+ assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,1);
+ assert.equal((await qrRoute.GET(qrRequest)).status,404);
+ await updateOrder({...update,status:'Ready',version:4},'admin');
+ await updateOrder({...update,status:'Completed',version:5},'admin');
+ assert.deepEqual((await query("SELECT stock,reserved_stock FROM products WHERE id='board'")).rows[0],{stock:4,reserved_stock:0});
 
- const origin='https://circuitbyte.vercel.app';
+ const cancelled={...body,requestId:crypto.randomUUID(),token:'b'.repeat(64)};
+ await createOrder(cancelled,'127.0.0.1',user,shopEmail);
+ await updateOrder({...update,id:cancelled.requestId,openQrPayment:true},'admin');
+ await updateOrder({...update,id:cancelled.requestId,status:'Cancelled',version:2},'admin');
+ assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,0);
+
+ mailUnavailable=true;
+ await deliverOrderNotifications(body.requestId,origin);
+ assert.equal((await query('SELECT count(*) FROM order_notifications WHERE order_id=$1 AND failed_at IS NOT NULL',[body.requestId])).rows[0].count,3);
+ mailUnavailable=false;
+ await deliverOrderNotifications(body.requestId,origin);
+ await deliverOrderNotifications(body.requestId,origin);
+ assert.deepEqual(sent.map(message=>message.to).sort(),[user.email,shopEmail,shopEmail].sort());
+ assert.ok(sent.every(message=>message.body.includes(order.reference)&&!message.body.includes('messenger.com')));
+ sent.length=0;
+
  mailUnavailable=true;
  assert.equal(await deliverOrderInvoice(body.requestId,origin),'failed');
  mailUnavailable=false;

@@ -9,7 +9,9 @@ const headers={'Cache-Control':'no-store'};
 const orderDetails=`SELECT o.id,o.reference,o.customer_name,o.customer_email,o.customer_user_id IS NULL AS guest,
  o.invoice_customer_name,o.invoice_billing_address,o.invoice_tin,o.contact,o.proposed_location,o.confirmed_location,
  o.notes,o.customer_update,o.items,o.total_cents,o.status,o.version,o.created_at,o.updated_at,
- o.payment_method,o.payment_reference,o.payment_verified_at,
+ o.payment_method,o.payment_reference,o.payment_verified_at,o.qr_payment_opened_at,
+ (SELECT jsonb_object_agg(n.kind,CASE WHEN n.sent_at IS NOT NULL THEN 'sent' WHEN n.failed_at IS NOT NULL THEN 'failed' ELSE 'pending' END)
+  FROM order_notifications n WHERE n.order_id=o.id) AS notifications,
  to_jsonb(i)-'email_claimed_at'-'issued_by' AS invoice
  FROM orders o LEFT JOIN order_invoices i ON i.order_id=o.id`;
 
@@ -41,11 +43,14 @@ export async function POST(req){
   if(updated.statusChanged&&updated.order.status==='Completed'&&updated.email){
    try{delivery=await deliverOrderInvoice(body.id,origin);}
    catch(e){console.error('Invoice delivery status unavailable:',e.code||e.name);delivery='failed';}
-  }else if(updated.statusChanged&&updated.email&&gmailConfigured()){
+  }else if((updated.statusChanged||updated.paymentOpened||updated.paymentVerified)&&updated.email&&gmailConfigured()){
    try{
+    const message=updated.paymentOpened?'QR Ph payment is now available. Open My Orders to see your total and payment code.':
+     updated.paymentVerified?'Your QR Ph payment is verified. Open My Orders for handover details.':
+      `Your CircuitByte order is now ${updated.order.status}.`;
     await sendGmailMessage({
-     to:updated.email,subject:`CircuitByte order ${updated.order.reference} is ${updated.order.status}`,
-     body:`Your CircuitByte order ${updated.order.reference} is now ${updated.order.status}.\n\n${body.customer_update||''}\n\n${updated.order.payment_method==='qrph'&&updated.order.status==='Confirmed'?'Open My Orders to view the CircuitByte QR and submit your transfer reference.\n':''}${new URL('/dashboard',origin)}`
+     to:updated.email,subject:`CircuitByte order update: ${updated.order.reference}`,
+     body:`${message}\n\n${body.customer_update||''}\n\n${new URL('/dashboard',origin)}`
     });
    }catch(e){console.error('Order status email failed:',e.code||e.name);}
   }

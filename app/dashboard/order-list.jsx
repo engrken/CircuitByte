@@ -3,7 +3,7 @@ import {useState} from 'react';
 import {OrderProgress,paymentLabel,peso} from '../order-display';
 
 function Payment({order,onUpdate}){
- const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
+ const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false),[showQr,setShowQr]=useState(false);
  async function submit(event){
   event.preventDefault();setBusy(true);setError('');setSaved(false);
   const reference=new FormData(event.currentTarget).get('reference');
@@ -17,13 +17,14 @@ function Payment({order,onUpdate}){
  }
  if(order.status==='Cancelled')return null;
  if(order.payment_verified_at)return <p className="account-status">QR Ph payment verified.</p>;
- if(order.status==='Pending')return <p>Payment opens after CircuitByte confirms stock.</p>;
- if(!['Confirmed','Ready'].includes(order.status))return null;
- return <details className="order-payment">
+ if(order.status==='Pending'&&!order.qr_payment_opened_at)return <p>Payment opens after CircuitByte checks stock.</p>;
+ if(!['Pending','Confirmed','Ready'].includes(order.status))return null;
+ const qrUrl='/api/orders/my/qr?id='+encodeURIComponent(order.id);
+ return <details className="order-payment" onToggle={e=>setShowQr(e.currentTarget.open)}>
   <summary>{order.payment_reference?'QR Ph reference submitted · awaiting verification':'Pay with QR Ph'}</summary>
   {!order.payment_reference&&<p>Scan the QR Ph code and pay <strong>{peso(order.total_cents)}</strong> to <strong>CircuitByte</strong>. Check the recipient and any fees displayed in your banking or wallet app before sending.</p>}
   {order.payment_reference&&<p>Reference on file: <strong>{order.payment_reference}</strong>. You can correct it below.</p>}
-  {!order.payment_reference&&<a href="/circuitbyte-qrph.jpg" download="CircuitByte-QR-Ph.jpg">Open or save the payment QR<img src="/circuitbyte-qrph.jpg" alt="CircuitByte QR Ph payment code and Netbank fee schedule" width="857" height="1536" loading="lazy"/></a>}
+  {showQr&&!order.payment_reference&&<a href={qrUrl} download="CircuitByte-QR-Ph.jpg">Save the payment QR<img src={qrUrl} alt="CircuitByte QR Ph payment code and Netbank fee schedule" width="857" height="1536" loading="lazy"/></a>}
   <form onSubmit={submit}>
    <label>Transfer reference<input name="reference" maxLength={100} required defaultValue={order.payment_reference||''}/></label>
    <button disabled={busy}>{busy?'Submitting…':'Submit transfer reference'}</button>

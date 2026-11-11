@@ -1,0 +1,13 @@
+.faq-page{max-width:900px;margin:auto;padding:clamp(24px,5vw,64px) 20px;color:#19372e}
+.faq-page h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.1;letter-spacing:-.035em;margin:0 0 14px}
+.faq-page>header p,.faq-contact p{margin:0 0 18px;color:#4d655b}
+.faq-page nav{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}
+.faq-page nav a{padding:8px 12px;border:1px solid #c4d8ca;border-radius:20px;color:#1b5943;text-decoration:none}
+.faq-page nav a:hover{background:#e5f2e9}
+.faq-group{margin:28px 0;scroll-margin-top:90px}
+.faq-group h2,.faq-contact h2{font-size:1.35rem;margin:0 0 12px}
+.faq-group details{border:1px solid #d6e4d9;border-radius:10px;background:#fff;margin:8px 0}
+.faq-group summary{cursor:pointer;padding:14px 16px;font-weight:650}
+.faq-group details p{margin:0;padding:0 16px 16px;line-height:1.6;color:#344c41}
+.faq-group details a{color:#195a43;text-decoration:underline}
+.faq-contact{margin:32px 0 0;background:#e9f4eb;border-radius:12px;padding:18px}

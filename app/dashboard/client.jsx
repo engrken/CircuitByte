@@ -11,15 +11,15 @@ const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.
 export default function StudioAccount(){
  const {data:session,isPending}=auth.useSession();
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
- const [email,setEmail]=useState(''),[checkout,setCheckout]=useState(false),[resetToken,setResetToken]=useState('');
+ const [email,setEmail]=useState(''),[checkout,setCheckout]=useState(false),[qrCheckout,setQrCheckout]=useState(false),[resetToken,setResetToken]=useState('');
  const [uat,setUat]=useState(null);
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]),[orders,setOrders]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
  useEffect(()=>{
   const params=new URLSearchParams(window.location.search);
-  setCheckout(params.get('checkout')==='1');
-  if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',params.get('checkout')==='1'?'/dashboard?checkout=1':'/dashboard');}
+  setCheckout(params.get('checkout')==='1');setQrCheckout(params.get('payment')==='qrph');
+  if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',params.get('checkout')==='1'?'/dashboard?checkout=1'+(params.get('payment')==='qrph'?'&payment=qrph':''):'/dashboard');}
   else if(params.get('error'))setError('That password link has expired. Request a new one.');
   else if(params.get('register')==='1')setMode('signup');
   fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{
@@ -32,7 +32,7 @@ export default function StudioAccount(){
   const result=await p.json(), saved=await q.json(),myOrders=await m.json();
   setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setOrders(myOrders.orders||[]);setIsAdmin(Boolean(result.isAdmin));
  }
- useEffect(()=>{if(!session?.user?.emailVerified)return;if(checkout&&mode!=='reset'){window.location.assign('/catalog?cart=1');return;}load().catch(e=>setError(e.message));},[session?.user?.id,session?.user?.emailVerified,checkout,mode]);
+ useEffect(()=>{if(!session?.user?.emailVerified)return;if(checkout&&mode!=='reset'){window.location.assign('/catalog?cart=1'+(qrCheckout?'&payment=qrph':''));return;}load().catch(e=>setError(e.message));},[session?.user?.id,session?.user?.emailVerified,checkout,qrCheckout,mode]);
  function changeMode(next){setMode(next);setError('');setNotice('');}
  async function resend(){
   setBusy(true);setError('');setNotice('');
@@ -57,13 +57,13 @@ export default function StudioAccount(){
     setEmail(address);setMode('verify');
     setNotice('Enter the 6-digit registration code sent to your email. The code expires in 5 minutes.');
    }else if(mode==='forgot'){
-    const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+'/dashboard'+(checkout?'?checkout=1':'')});
+    const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+'/dashboard'+(checkout?'?checkout=1'+(qrCheckout?'&payment=qrph':''):'')});
     if(result.error)throw Error(result.error.message);
     setNotice('If this is a verified account, check your inbox for a password link.');
    }else if(mode==='reset'){
     const result=await auth.resetPassword({token:resetToken,newPassword:String(data.get('password'))});
     if(result.error)throw Error(result.error.message);
-    window.history.replaceState(null,'',checkout?'/dashboard?checkout=1':'/dashboard');
+    window.history.replaceState(null,'',checkout?'/dashboard?checkout=1'+(qrCheckout?'&payment=qrph':''):'/dashboard');
     setMode('login');setNotice('Password saved. You can now sign in.');
    }else{
     const result=await auth.signIn.email({email:address,password:String(data.get('password'))});
@@ -71,7 +71,7 @@ export default function StudioAccount(){
      if(result.error.code==='EMAIL_NOT_VERIFIED'){setEmail(address);setMode('verify');}
      throw Error(result.error.message);
     }
-    if(checkout){window.location.assign('/catalog?cart=1');return;}
+    if(checkout){window.location.assign('/catalog?cart=1'+(qrCheckout?'&payment=qrph':''));return;}
    }
   }catch(e){setError(e.message||'Unable to authenticate.');}
   finally{setBusy(false);}

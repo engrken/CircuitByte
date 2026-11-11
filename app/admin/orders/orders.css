@@ -30,3 +30,5 @@
 .invoice-summary button{margin-right:8px}
 .order-editor .payment-check{display:flex;align-items:center;margin-bottom:0;gap:8px;text-transform:none}
 .order-editor .payment-check input{width:auto}
+
+.order-email-status{margin:14px 0}.order-email-status h3,.order-email-status p{margin:5px 0}.order-editor button[value=open-qr]{margin-left:8px}

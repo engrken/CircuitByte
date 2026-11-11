@@ -87,3 +87,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS orders_payment_reference_idx ON orders(payment
 ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_sent_at timestamptz;
 ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_claimed_at timestamptz;
 ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS email_failed_at timestamptz;
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS qr_payment_opened_at timestamptz;
+
+CREATE TABLE IF NOT EXISTS order_notifications (
+ order_id uuid NOT NULL REFERENCES orders(id),
+ kind text NOT NULL CHECK(kind IN ('customer','shop','payment_review')),
+ recipient text NOT NULL,
+ claimed_at timestamptz,
+ sent_at timestamptz,
+ failed_at timestamptz,
+ PRIMARY KEY(order_id,kind)
+);

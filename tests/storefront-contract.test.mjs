@@ -21,7 +21,9 @@ test('both storefront entry points require a CircuitByte account for checkout', 
   assert.match(page, /<form id="checkout" hidden>/);
   assert.match(page, /href="\/dashboard\?checkout=1"/);
   assert.match(page, /name="paymentMethod"/);
-  assert.doesNotMatch(page, /id="otp-request"/);
+  assert.doesNotMatch(page, /id="otp-request"|messenger\.com/i);
+  assert.match(page, /href="\/faq"/);
+  assert.match(page, /id="qr-checkout-note"[^>]+hidden/);
  }
 });
 

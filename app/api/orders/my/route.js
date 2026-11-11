@@ -1,3 +1,5 @@
+import {after} from 'next/server';
+import {deliverOrderNotifications} from '../../../../lib/order-notifications.js';
 import {requireUser,sameOrigin} from '../../../../lib/auth';
 import {errorResponse,listCustomerOrders,readBody,recordPaymentReference} from '../../../../lib/orders';
 
@@ -16,6 +18,11 @@ export async function POST(req){
  try{
   const body=await readBody(req);
   await recordPaymentReference(body?.id,body?.reference,user.id);
+  const origin=process.env.BETTER_AUTH_URL||new URL(req.url).origin;
+  after(async()=>{
+   try{await deliverOrderNotifications(body.id,origin);}
+   catch(error){console.error('Could not send payment review notification:',error.code||error.name);}
+  });
   return Response.json({ok:true},{headers});
  }catch(e){return errorResponse(e);}
 }

@@ -3,6 +3,7 @@ const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('en-PH',{sty
 const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;};
 let products=[],cart=[],category='all',detailId='',toastTimer,page=1,pageSize=12;
 const isCatalog=Boolean($('#products'));
+const cartParams=new URLSearchParams(location.search);
 if(!isCatalog&&(new URLSearchParams(location.search).has('product')||new URLSearchParams(location.search).has('cart')))location.replace('/catalog'+location.search);
 const labels={all:'All components',components:'Components',sensors:'Sensors',modules:'Modules',motors:'Motors',boards:'Boards',tools:'Tools & supplies'};
 function toast(t){clearTimeout(toastTimer);$('#toast').textContent=t;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3200);}
@@ -46,10 +47,19 @@ $('#change-checkout-account').onclick=async()=>{
  try{
   const response=await fetch('/api/auth/sign-out',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
   if(!response.ok)throw Error();
-  window.location.assign('/dashboard?checkout=1');
+  window.location.assign('/dashboard?checkout=1'+(paymentSelect.value==='qrph'?'&payment=qrph':''));
  }catch{toast('Could not sign out. Please try again.');}
 };
-$('#checkout select[name="paymentMethod"]').onchange=e=>{$('#qr-checkout-note').hidden=e.target.value!=='qrph';};
+const paymentSelect=$('#checkout select[name="paymentMethod"]');
+if(cartParams.get('payment')==='qrph'){
+ paymentSelect.value='qrph';
+ for(const link of $('#checkout-auth').querySelectorAll('a')){
+  const url=new URL(link.href);url.searchParams.set('payment','qrph');link.href=url;
+ }
+}
+function showPaymentDetails(){$('#qr-checkout-note').hidden=paymentSelect.value!=='qrph';}
+paymentSelect.onchange=showPaymentDetails;
+showPaymentDetails();
 let checkoutAttempt=null,placing=false;
 try{checkoutAttempt=JSON.parse(sessionStorage.getItem('circuitbyte.checkoutAttempt')||'null');}catch{}
 $('#checkout').onsubmit=async e=>{
@@ -67,8 +77,8 @@ $('#checkout').onsubmit=async e=>{
  checkoutAttempt=null;cart=[];save();renderCart();
  const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
  $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
- $('#order-message').value='Order '+data.reference+' — '+data.status+'\nTotal: '+money(data.total_cents/100)+'\nProposed meetup: '+data.proposed_location+'\nRoxas City, Capiz\n'+(data.payment_method==='qrph'?'QR Ph: Pay from My Orders after stock is confirmed.':'Cash at handover. Await stock and location confirmation.')+'\n\nPrivate tracking link (keep safe):\n'+link;
- let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});toast('Order recorded. Save your tracking link.');
+ $('#order-message').value='Order '+data.reference+' — '+data.status+'\nTotal: '+money(data.total_cents/100)+'\nProposed meetup: '+data.proposed_location+'\nRoxas City, Capiz\n'+(data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. Await stock and location confirmation.')+'\n\nPrivate tracking link (keep safe):\n'+link;
+ let a=$('#track-new-order');if(!a){a=el('a','primary','Track this order →');a.id='track-new-order';$('#order-result').prepend(a);}a.href=link;$('#order-result').hidden=false;$('#order-result').scrollIntoView({block:'nearest'});toast('Order recorded. Check your email for confirmation.');
  }catch(err){toast(err.message+' — Retry unchanged if the connection failed.');}finally{placing=false;$('#prepare').disabled=!cart.length;$('#prepare').textContent='Place order ↗';}
 };
 $('#copy-order').onclick=async()=>{try{await navigator.clipboard.writeText($('#order-message').value);toast('Order confirmation copied. Keep your tracking link safe.');}catch{$('#order-message').focus();$('#order-message').select();toast('Select and copy the message manually.');}};$('#year').textContent=new Date().getFullYear();

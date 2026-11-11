@@ -14,7 +14,7 @@ function paymentStatus(order){
  if(order.payment_method!=='qrph')return 'Cash at handover';
  if(order.payment_verified_at)return 'QR Ph · Verified';
  if(order.payment_reference)return 'QR Ph · Review transfer';
- return order.status==='Pending'?'QR Ph · Awaiting stock confirmation':'QR Ph · Awaiting payment';
+ return order.status==='Pending'&&!order.qr_payment_opened_at?'QR Ph · Awaiting stock review':'QR Ph · Awaiting payment';
 }
 
 function Invoice({order,busy,onIssue,onPrint}){
@@ -73,17 +73,30 @@ export default function Orders(){
   return '';
  }
  async function save(event){
-  event.preventDefault();setBusy(true);setError('');setNotice('');
+  event.preventDefault();
+  const openQrPayment=event.nativeEvent.submitter?.value==='open-qr';setBusy(true);setError('');setNotice('');
   try{
    const r=await fetch('/api/admin/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     id:selected.id,version:selected.version,status:selected.status,customer_email:selected.customer_email,
-    confirmed_location:selected.confirmed_location,customer_update:selected.customer_update,verifyPayment:selected.verifyPayment
+    confirmed_location:selected.confirmed_location,customer_update:selected.customer_update,verifyPayment:selected.verifyPayment,openQrPayment
    })});
    const data=await r.json();
    if(!r.ok)throw new Error(data.error);
    setSelected({...data.order,originalStatus:data.order.status});
-   setNotice('Order updated.'+(data.order.status==='Completed'?deliveryNotice(data.delivery,data.order.customer_email):''));
+   setNotice((openQrPayment?'QR Ph payment opened. Stock is held while the customer pays.':selected.verifyPayment?'Payment verified. The order reservation is confirmed.':'Order updated.')+(data.order.status==='Completed'?deliveryNotice(data.delivery,data.order.customer_email):''));
    await load();
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
+ async function retryNotifications(){
+  setBusy(true);setError('');setNotice('');
+  try{
+   const response=await fetch('/api/admin/orders/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:selected.id})});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error);
+   const rows=await load();
+   const updated=rows?.find(order=>order.id===selected.id);
+   if(updated)setSelected({...selected,notifications:updated.notifications});
+   setNotice('Order email delivery status refreshed.');
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function issue(details){
@@ -129,18 +142,24 @@ export default function Orders(){
      I matched this transfer reference and amount to the payment received.
     </label>}
    </div>
+   {selected.notifications&&<div className="order-email-status">
+    <h3>Order emails</h3>
+    {Object.entries(selected.notifications).map(([kind,state])=><p key={kind}>{kind==='payment_review'?'Payment review':kind==='shop'?'Shop':'Customer'} · {state==='sent'?'Sent':state==='failed'?'Delivery failed':'Pending'}</p>)}
+    {Object.values(selected.notifications).some(state=>state!=='sent')&&<button type="button" className="secondary" disabled={busy} onClick={retryNotifications}>Retry unsent emails</button>}
+   </div>}
    {closed(selected.originalStatus)?<>
     {selected.confirmed_location&&<p><strong>Handover:</strong> {selected.confirmed_location}</p>}
     {selected.customer_update&&<p>{selected.customer_update}</p>}
    </>:<>
     <label>Status<select disabled={busy} value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})}>
-     {options[selected.originalStatus].map(status=><option key={status}>{status}</option>)}
+     {options[selected.originalStatus].filter(status=>!(selected.originalStatus==='Pending'&&selected.payment_method==='qrph'&&status==='Confirmed')).map(status=><option key={status}>{status}</option>)}
     </select></label>
     <label>Confirmed meetup location in Roxas City<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
      value={selected.confirmed_location} onChange={e=>setSelected({...selected,confirmed_location:e.target.value})}/></label>
     <label>Update for customer<textarea maxLength={1000} placeholder="Agreed date, time or landmark"
      value={selected.customer_update} onChange={e=>setSelected({...selected,customer_update:e.target.value})}/></label>
-    <button disabled={busy}>{busy?'Saving…':'Save order update'}</button>
+    <button disabled={busy}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
+    {selected.payment_method==='qrph'&&selected.originalStatus==='Pending'&&selected.status==='Pending'&&!selected.qr_payment_opened_at&&<button className="secondary" type="submit" value="open-qr" disabled={busy}>Open QR Ph payment</button>}
    </>}
    {selected.originalStatus==='Completed'&&<Invoice order={selected} busy={busy} onIssue={issue} onPrint={()=>{
     try{printInvoice(selected.invoice,selected);}catch(e){setError(e.message);}

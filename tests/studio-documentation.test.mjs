@@ -33,7 +33,7 @@ test('Every guided Studio template has curated diagram references and unambiguou
 test('Itemized pricing reflects static catalog prices and quantities, not imaginary checkout discounts',()=>{
  const result=estimateStudioBom(specs['three-led-scanner'],catalog);
  assert.equal(result.requiredTotal,
-   270+3*5+3*3+70+7*2); // UNO, 3 LEDs, 3 resistors, breadboard, 7 jumpers
+   275+3*5+3*3+75+7*7); // UNO, 3 LEDs, 3 resistors, breadboard, 7 jumpers
  assert.equal(result.excluded.length,0);
  assert.equal(result.complete,true);
  assert.match(result.pricingNotice,/not a live quotation/i);

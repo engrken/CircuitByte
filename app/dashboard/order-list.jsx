@@ -35,6 +35,7 @@ function Payment({order,onUpdate}){
 }
 export default function OrderList({orders,onUpdate}){
  return <section className="account-card"><div className="account-top"><div><h2>My orders</h2></div><a href="/catalog">Shop components →</a></div>
+  {orders.length>0&&<p><a href="/faq#warranty">Warranty and replacement help</a></p>}
   {orders.length?<ul className="account-projects buyer-orders">{orders.map(order=><li key={order.id}>
    <strong>{order.reference}</strong>
    <OrderProgress status={order.status}/>

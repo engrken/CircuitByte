@@ -104,6 +104,23 @@ export default function Orders(){
    await load();
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
+ async function moveCancelledOrder(){
+  const restoring=Boolean(selected.deleted_at);
+  setBusy(true);setError('');setNotice('');
+  try{
+   const response=await fetch('/api/admin/orders',{
+    method:restoring?'PATCH':'DELETE',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id:selected.id,version:selected.version})
+   });
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||'Could not update the order.');
+   setSelected(null);
+   setNotice(restoring?`Order ${data.order.reference} restored to Cancelled.`:
+    `Order ${data.order.reference} moved to Deleted. You can restore it from that tab.`);
+   if(offset>0&&orders.length===1)setOffset(offset-50);
+   else await load();
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
  async function retryNotifications(){
   setBusy(true);setError('');setNotice('');
   try{
@@ -137,10 +154,10 @@ export default function Orders(){
    <input aria-label="Search orders" type="search" maxLength={100} placeholder="Search reference, customer or email" value={query} disabled={busy} onChange={e=>{setQuery(e.target.value);setOffset(0);setSelected(null);setError('');}}/>
    <button className="secondary" disabled={loading||busy} onClick={async()=>{setError('');await load();setSelected(null);}}>Refresh</button>
   </div>
-  <div className="status-tabs" aria-label="Filter orders by status">{['',...statuses].map(status=><button type="button" key={status} disabled={busy} aria-pressed={filter===status}
+  <div className="status-tabs" aria-label="Filter orders by status">{['',...statuses,'Deleted'].map(status=><button type="button" key={status} disabled={busy} aria-pressed={filter===status}
    onClick={()=>{setFilter(status);setOffset(0);setSelected(null);setError('');}}>{status||'All orders'} <b>{summary[status.toLowerCase()||'total']??'–'}</b></button>)}</div>
   {selected&&<form className="order-editor" key={selected.id} onSubmit={save}>
-   <div className="order-heading"><div><span className="status-pill">{selected.originalStatus}</span><h2>{selected.reference}</h2></div>
+   <div className="order-heading"><div><span className="status-pill">{selected.deleted_at?'Deleted':selected.originalStatus}</span><h2>{selected.reference}</h2></div>
     <button className="secondary" disabled={busy} type="button" onClick={()=>setSelected(null)}>Close</button></div>
    <OrderProgress status={selected.originalStatus}/>
    <p><strong>{selected.customer_name}</strong> · <a href={'tel:'+selected.contact.replace(/[^+\d]/g,'')}>{selected.contact}</a></p>
@@ -165,7 +182,7 @@ export default function Orders(){
    {selected.notifications&&<div className="order-email-status">
     <h3>Order emails</h3>
     {Object.entries(selected.notifications).map(([kind,state])=><p key={kind}>{kind==='payment_review'?'Payment review':kind==='shop'?'Shop':'Customer'} · {state==='sent'?'Sent':state==='failed'?'Delivery failed':'Pending'}</p>)}
-    {Object.values(selected.notifications).some(state=>state!=='sent')&&<button type="button" className="secondary" disabled={busy} onClick={retryNotifications}>Retry unsent emails</button>}
+    {!selected.deleted_at&&Object.values(selected.notifications).some(state=>state!=='sent')&&<button type="button" className="secondary" disabled={busy} onClick={retryNotifications}>Retry unsent emails</button>}
    </div>}
    {closed(selected.originalStatus)?<>
     {selected.confirmed_location&&<p><strong>Handover:</strong> {selected.confirmed_location}</p>}
@@ -183,12 +200,15 @@ export default function Orders(){
     <button disabled={busy}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
     {selected.payment_method==='qrph'&&selected.originalStatus==='Pending'&&selected.status==='Pending'&&!selected.qr_payment_opened_at&&<button className="secondary" type="submit" value="open-qr" disabled={busy}>Open QR Ph payment</button>}
    </>}
+   {selected.originalStatus==='Cancelled'&&<p><button type="button" className="secondary" disabled={busy} onClick={moveCancelledOrder}>
+    {selected.deleted_at?'Restore cancelled order':'Delete cancelled order'}
+   </button></p>}
    {selected.originalStatus==='Completed'&&<Invoice order={selected} busy={busy} onIssue={issue} onPrint={()=>{
     try{printInvoice(selected.invoice,selected);}catch(e){setError(e.message);}
    }}/>}
   </form>}
   {loading?<p role="status">Loading orders…</p>:<div className="order-grid">{orders.map(order=><article className="order-card" key={order.id}>
-   <div className="order-heading"><span className="status-pill">{order.status}</span><small>{date(order.created_at)}</small></div>
+   <div className="order-heading"><span className="status-pill">{order.deleted_at?'Deleted':order.status}</span><small>{date(order.created_at)}</small></div>
    <h2>{order.reference}</h2><strong>{fulfillmentLabel(order.fulfillment_method)}</strong>
    <OrderProgress status={order.status}/>
    <p>{order.item_count} items · {peso(order.total_cents)}</p>

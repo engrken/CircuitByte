@@ -103,3 +103,6 @@ CREATE TABLE IF NOT EXISTS order_notifications (
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_method text NOT NULL DEFAULT 'meetup'
  CHECK (fulfillment_method IN ('meetup','maxim'));
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_acknowledged_at timestamptz;
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS deleted_at timestamptz
+ CHECK (deleted_at IS NULL OR status='Cancelled');

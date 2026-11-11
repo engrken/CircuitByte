@@ -7,13 +7,13 @@ const pg=new PGlite();
 const query=(sql,args)=>sql.startsWith('SELECT pg_advisory_xact_lock')?Promise.resolve({rows:[]}):pg.query(sql,args);
 const connection={query,release(){}};
 mock.module('../lib/db.js',{namedExports:{db:()=>({query,connect:async()=>connection})}});
-const {createOrder,updateOrder,trackOrder,listCustomerOrders}=await import('../lib/orders.js');
+const {createOrder,updateOrder,trackOrder,listCustomerOrders,recordPaymentReference}=await import('../lib/orders.js');
 let adminSignedIn=false;
 mock.module('../lib/auth.js',{namedExports:{requireAdmin:async()=>{
  if(!adminSignedIn)throw new Error('Unauthorized');
  return {email:'admin@example.invalid'};
 },sameOrigin:()=>{}}});
-const {GET:adminOrders}=await import('../app/api/admin/orders/route.js');
+const {GET:adminOrders,DELETE:deleteOrder,PATCH:restoreOrder}=await import('../app/api/admin/orders/route.js');
 const schema=await readFile(new URL('../scripts/schema.sql',import.meta.url),'utf8');
 after(()=>pg.close());
 test('SQL migration and order lifecycle against isolated PostgreSQL engine',async()=>{
@@ -92,4 +92,56 @@ test('Maxim checkout records fee acknowledgment and limits delivery data to the 
  const confirmed=await updateOrder({...update,confirmed_location:address},'QA admin');
  assert.equal(confirmed.order.status,'Confirmed');
  assert.equal((await listCustomerOrders(buyer.id))[0].confirmed_location,address);
+});
+
+test('admins can delete and restore cancelled orders while retaining the payment and stock history',async()=>{
+ await pg.exec(schema);
+ await query("INSERT INTO products(id,name,categories,price_cents,stock) VALUES('cancel-fixture','Cancel item',ARRAY['boards'],5000,1)");
+ const origin='https://circuitbyte.vercel.app';
+ const buyer={id:'cancel-buyer',email:'cancel-buyer@example.invalid'};
+ const id=crypto.randomUUID(),token='9'.repeat(64);
+ const receipt=await createOrder({name:'Cancel Buyer',contact:'09170000001',location:'Test landmark, Roxas City',city:'Roxas City, Capiz',
+  notes:'',requestId:id,token,items:[{id:'cancel-fixture',quantity:1,price_cents:5000}],paymentMethod:'qrph'},'test',buyer);
+ const action=(method,version)=>new Request(origin+'/api/admin/orders',{
+  method,headers:{'Content-Type':'application/json'},body:JSON.stringify({id,version})
+ });
+ const list=async status=>{
+  const params=new URLSearchParams({status,q:receipt.reference});
+  const response=await adminOrders(new Request(origin+'/api/admin/orders?'+params));
+  assert.equal(response.status,200);
+  return response.json();
+ };
+ adminSignedIn=false;
+ assert.equal((await deleteOrder(action('DELETE',1))).status,403);
+ adminSignedIn=true;
+ assert.equal((await deleteOrder(action('DELETE',1))).status,409);
+ const update={id,version:1,status:'Pending',confirmed_location:'Test landmark, Roxas City',customer_update:''};
+ await updateOrder({...update,openQrPayment:true},'QA admin');
+ await recordPaymentReference(id,'ABC123456',buyer.id);
+ await updateOrder({...update,version:3,verifyPayment:true},'QA admin');
+ await updateOrder({...update,version:4,status:'Cancelled'},'QA admin');
+ const stock=()=>query("SELECT stock,reserved_stock FROM products WHERE id='cancel-fixture'").then(result=>result.rows[0]);
+ assert.deepEqual(await stock(),{stock:1,reserved_stock:0});
+ const cancelled=await list('Cancelled');
+ assert.equal(cancelled.orders.length,1);
+ assert.equal((await deleteOrder(action('DELETE',4))).status,409);
+ const deletion=await deleteOrder(action('DELETE',5));
+ assert.equal(deletion.status,200);
+ assert.ok((await deletion.json()).order.deleted_at);
+ assert.equal((await list('Cancelled')).orders.length,0);
+ assert.equal((await list('')).orders.length,0);
+ const deleted=await list('Deleted');
+ assert.equal(deleted.orders[0].id,id);
+ assert.equal(deleted.summary.cancelled,cancelled.summary.cancelled-1);
+ assert.equal(deleted.summary.deleted,cancelled.summary.deleted+1);
+ assert.equal((await trackOrder(token)).status,'Cancelled');
+ const [buyerOrder]=await listCustomerOrders(buyer.id);
+ assert.equal(buyerOrder.payment_reference,'ABC123456');
+ assert.ok(buyerOrder.payment_verified_at);
+ assert.deepEqual(await stock(),{stock:1,reserved_stock:0});
+ assert.equal((await restoreOrder(action('PATCH',6))).status,200);
+ assert.equal((await list('Deleted')).orders.length,0);
+ assert.equal((await list('Cancelled')).orders.length,1);
+ const audit=(await query("SELECT note FROM order_events WHERE order_id=$1 AND actor='admin@example.invalid' ORDER BY id",[id])).rows;
+ assert.deepEqual(audit.map(event=>event.note),['Deleted from admin orders','Restored to admin orders']);
 });

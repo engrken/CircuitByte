@@ -1,8 +1,8 @@
 'use client';
 import {useState,useEffect,useRef} from 'react';
 import './admin.css';
-import {createAuthClient} from 'better-auth/react';
-const auth=createAuthClient();
+import {auth,sendAdminCode} from '../account-auth-client';
+import AdminCodeForm from '../admin-code-form';
 const blank={id:'',name:'',description:'',categories:['components'],price_cents:0,stock:null,quantity_label:'',active:true,version:0,reason:''};
 const maxStock=1000000;
 const productDraft=item=>({...item,reason:'',priceInput:String(item.price_cents/100)});
@@ -44,6 +44,7 @@ const [signed,setSigned]=useState(null),[loading,setLoading]=useState(true),[que
 const [history,setHistory]=useState(null),[filter,setFilter]=useState('all'),[category,setCategory]=useState('all'),[page,setPage]=useState(1);
 const [orderSummary,setOrderSummary]=useState(null),[selectedPhoto,setSelectedPhoto]=useState(null),[preview,setPreview]=useState('');
 const [savedPhotoDraft,setSavedPhotoDraft]=useState(null);
+const [adminOtp,setAdminOtp]=useState(false);
 const editorHeading=useRef(null);
 const editing=Boolean(product);
 useEffect(()=>{if(editing)editorHeading.current?.focus();},[editing]);
@@ -84,6 +85,11 @@ async function login(e){
   const f=new FormData(e.currentTarget);
   const result=await auth.signIn.email({email:f.get('email'),password:f.get('password')});
   if(result.error)throw Error(result.error.message);
+  if(result.data?.twoFactorRedirect){
+   setAdminOtp(true);
+   await sendAdminCode();
+   return;
+  }
   await load(true);
  }catch(e){setError(e.message);}finally{setBusy(false);}
 }
@@ -209,7 +215,13 @@ return <main className="inventory-admin" id="main">
  {signed===null?(
   loading?<p role="status">Checking administrator access…</p>:
    <button type="button" onClick={()=>load()}>Retry inventory</button>
- ):!signed?(
+ ):!signed?adminOtp?(
+  <section className="inventory-admin-code">
+   <AdminCodeForm busy={busy} onBack={()=>{setError('');setAdminOtp(false);}} onVerified={async()=>{
+    setError('');setAdminOtp(false);await load(true);
+   }}/>
+  </section>
+ ):(
   <form onSubmit={login}>
    <h2>Administrator sign in</h2>
    <label>Email<input name="email" type="email" required autoComplete="username"/></label>

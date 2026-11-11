@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import pg from 'pg';
-import {databaseUrl} from '../lib/database-url.mjs';
+import {databaseUrl,runtimeDatabaseUrl,migrationDatabaseUrl} from '../lib/database-url.mjs';
 
 test('default pg aliases retain TLS verification and connection parameters', () => {
   for (const mode of ['require','prefer','verify-ca']) {
@@ -21,4 +21,21 @@ test('explicit modes, local sockets and libpq compatibility pass through', () =>
     assert.equal(databaseUrl(source), source);
   }
   assert.equal(databaseUrl('/tmp/postgres'), '/tmp/postgres');
+});
+
+test('production uses a restricted runtime connection and a separate direct migration connection',()=>{
+ const runtime='postgres://restricted@localhost/test?sslmode=verify-full';
+ const migration='postgres://owner@localhost/test?sslmode=verify-full';
+ const env={VERCEL_ENV:'production',CIRCUITBYTE_RUNTIME_DATABASE_URL:runtime,circuitbyte_DATABASE_URL_UNPOOLED:migration};
+ assert.equal(runtimeDatabaseUrl(env),runtime);
+ assert.equal(migrationDatabaseUrl(env),migration);
+ assert.throws(()=>runtimeDatabaseUrl({...env,CIRCUITBYTE_RUNTIME_DATABASE_URL:undefined}),/runtime database/);
+});
+
+test('Vercel previews require their own explicitly configured database',()=>{
+ const owner='postgres://owner@localhost/production';
+ const preview='postgres://preview@localhost/synthetic';
+ const env={VERCEL_ENV:'preview',DATABASE_URL:owner,circuitbyte_DATABASE_URL:owner,CIRCUITBYTE_RUNTIME_DATABASE_URL:owner};
+ assert.throws(()=>runtimeDatabaseUrl(env),/Preview database/);
+ assert.equal(runtimeDatabaseUrl({...env,CIRCUITBYTE_PREVIEW_DATABASE_URL:preview}),preview);
 });

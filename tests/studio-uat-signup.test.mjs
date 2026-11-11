@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
 import {getMigrations} from 'better-auth/db/migration';
+import {adminOtpSchema,requireAdminOtpEnrollment} from '../lib/admin-otp.mjs';
 
 process.env.BETTER_AUTH_SECRET='test-only-secret-for-better-auth-12345678';
 process.env.BETTER_AUTH_URL='https://circuitbyte.vercel.app';
@@ -13,12 +14,13 @@ const client={query,release(){}};
 const pool={query,connect:async()=>client,end:async()=>{}};
 mock.module('../lib/db.js',{namedExports:{db:()=>pool}});
 const mail=[];
-mock.module('../lib/studio-email.mjs',{namedExports:{gmailConfigured:()=>true,sendGmailMessage:async message=>mail.push(message)}});
+let mailUnavailable=false;
+mock.module('../lib/studio-email.mjs',{namedExports:{gmailConfigured:()=>true,sendGmailMessage:async message=>{if(mailUnavailable)throw Error('Fixture mail outage');mail.push(message);}}});
 const {auth,studioSignupEnabled}=await import('../lib/auth.js');
 after(()=>pg.close());
 
 test('Existing accounts are grandfathered and new accounts verify registration once after UAT closes',async()=>{
- const {runMigrations}=await getMigrations({database:pool,emailAndPassword:{enabled:true},rateLimit:{enabled:true,storage:'database'}});
+ const {runMigrations}=await getMigrations(adminOtpSchema(pool));
  await runMigrations();
  const origin=process.env.BETTER_AUTH_URL;
  const post=(path,body)=>auth().handler(new Request(origin+'/api/auth'+path,{
@@ -54,19 +56,96 @@ test('Existing accounts are grandfathered and new accounts verify registration o
  assert.equal(mail.length,2);
 });
 
-test('token-authorized admin setup creates a verified account that can sign in',async()=>{
+function browser(ip){
+ const cookies=new Map();
+ return async(path,body)=>{
+  const origin=process.env.BETTER_AUTH_URL;
+  const response=await auth().handler(new Request(origin+'/api/auth'+path,{
+   method:body===undefined?'GET':'POST',
+   headers:{'content-type':'application/json',origin,'x-forwarded-for':ip,cookie:[...cookies].map(([k,v])=>k+'='+v).join('; ')},
+   body:body===undefined?undefined:JSON.stringify(body)
+  }));
+  for(const cookie of response.headers.getSetCookie()){
+   const first=cookie.split(';')[0];
+   const delimiter=first.indexOf('=');
+   const key=first.slice(0,delimiter);
+   const value=first.slice(delimiter+1);
+   if(!value)cookies.delete(key);
+   else cookies.set(key,value);
+  }
+  return response;
+ };
+}
+
+test('administrator setup and every sign-in require an email code before issuing a session',async()=>{
  const origin=process.env.BETTER_AUTH_URL;
  process.env.ADMIN_EMAIL='admin@example.org';
  process.env.ADMIN_SETUP_TOKEN='test-only-setup-token';
  const {POST:setup}=await import('../app/api/admin/setup/route.js');
  const password='test-only-admin-password';
- const request=(path,body)=>new Request(origin+path,{method:'POST',
-  headers:{'content-type':'application/json',origin,'x-forwarded-for':'192.0.2.2'},body:JSON.stringify(body)});
- assert.equal((await setup(request('/api/admin/setup',{token:'wrong',password}))).status,403);
- const created=await setup(request('/api/admin/setup',{token:process.env.ADMIN_SETUP_TOKEN,password}));
+ const request=(token)=>new Request(origin+'/api/admin/setup',{method:'POST',
+  headers:{'content-type':'application/json',origin},body:JSON.stringify({token,password})});
+ assert.equal((await setup(request('wrong'))).status,403);
+ const created=await setup(request(process.env.ADMIN_SETUP_TOKEN));
  assert.equal(created.status,200,await created.clone().text());
- assert.equal((await setup(request('/api/admin/setup',{token:process.env.ADMIN_SETUP_TOKEN,password}))).status,409);
- const session=await auth().handler(request('/api/auth/sign-in/email',{email:process.env.ADMIN_EMAIL,password}));
- assert.equal(session.status,200,await session.clone().text());
- assert.equal((await session.json()).user.emailVerified,true);
+ assert.equal((await setup(request(process.env.ADMIN_SETUP_TOKEN))).status,409);
+
+ const post=browser('192.0.2.2');
+ const credentials={email:process.env.ADMIN_EMAIL,password};
+ const initial=await post('/sign-in/email',credentials);
+ assert.equal(initial.status,200,await initial.clone().text());
+ assert.deepEqual(await initial.json(),{twoFactorRedirect:true,twoFactorMethods:['otp']});
+ assert.equal(await (await post('/get-session')).json(),null);
+ assert.equal((await post('/two-factor/disable',{password})).status,404);
+ const anotherBrowser=browser('192.0.2.3');
+ mailUnavailable=true;
+ const unsent=await post('/two-factor/send-otp',{});
+ mailUnavailable=false;
+ assert.equal(unsent.status,503,await unsent.clone().text());
+ mock.timers.tick(2000);
+ const sent=await post('/two-factor/send-otp',{});
+ assert.equal(sent.status,200,await sent.clone().text());
+ const message=mail.at(-1);
+ assert.equal(message.to,process.env.ADMIN_EMAIL);
+ assert.match(message.subject,/administrator sign-in/);
+ const code=message.body.match(/\b\d{6}\b/)[0];
+ assert.equal((await anotherBrowser('/two-factor/verify-otp',{code})).status,401);
+ assert.equal((await post('/two-factor/verify-otp',{code,trustDevice:true})).status,400);
+ assert.equal((await post('/two-factor/verify-otp',{code:code==='000000'?'000001':'000000'})).status,401);
+ assert.equal(await (await post('/get-session')).json(),null);
+ const verified=await post('/two-factor/verify-otp',{code});
+ assert.equal(verified.status,200,await verified.clone().text());
+ const session=await (await post('/get-session')).json();
+ assert.equal(session.user.emailVerified,true);
+ assert.equal(session.session.adminOtpVerified,true);
+
+ // Simulate an existing administrator moving from password-only sessions.
+ await pg.query('UPDATE "user" SET "twoFactorEnabled"=false WHERE id=$1',[session.user.id]);
+ await pg.query('UPDATE "session" SET "adminOtpVerified"=false WHERE id=$1',[session.session.id]);
+ await requireAdminOtpEnrollment(pool,process.env.ADMIN_EMAIL);
+ assert.equal(await (await post('/get-session')).json(),null);
+ const next=await anotherBrowser('/sign-in/email',credentials);
+ assert.equal((await next.json()).twoFactorRedirect,true);
+ assert.equal(await (await anotherBrowser('/get-session')).json(),null);
+});
+
+test('customers can change a strong password and revoke other or all sessions',async()=>{
+ const email='existing@example.org',password='test-only-existing-password';
+ const nextPassword='fixture customer new passphrase';
+ const first=browser('192.0.2.4'),second=browser('192.0.2.5');
+ const signIn=(client,value=password)=>client('/sign-in/email',{email,password:value});
+ assert.equal((await signIn(first)).status,200);
+ assert.equal((await signIn(second)).status,200);
+ assert.equal((await first('/change-password',{currentPassword:password,newPassword:'a'.repeat(20)})).status,400);
+ const changed=await first('/change-password',{currentPassword:password,newPassword:nextPassword,revokeOtherSessions:false});
+ assert.equal(changed.status,200,await changed.clone().text());
+ assert.equal(await (await second('/get-session')).json(),null);
+ assert.ok((await (await first('/get-session')).json()).user);
+ assert.equal((await signIn(second,nextPassword)).status,200);
+ assert.equal((await first('/revoke-other-sessions',{})).status,200);
+ assert.equal(await (await second('/get-session')).json(),null);
+ assert.equal((await signIn(second,nextPassword)).status,200);
+ assert.equal((await first('/revoke-sessions',{})).status,200);
+ assert.equal(await (await first('/get-session')).json(),null);
+ assert.equal(await (await second('/get-session')).json(),null);
 });

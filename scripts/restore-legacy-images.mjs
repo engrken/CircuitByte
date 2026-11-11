@@ -1,8 +1,8 @@
-import {databaseUrl} from '../lib/database-url.mjs';
+import {migrationDatabaseUrl} from '../lib/database-url.mjs';
 import fs from 'node:fs/promises';
 import pg from 'pg';
 const images=JSON.parse(await fs.readFile(new URL('./legacy-images.json',import.meta.url),'utf8'));
-const client=new pg.Client({connectionString:databaseUrl()});
+const client=new pg.Client({connectionString:migrationDatabaseUrl()});
 await client.connect();
 let restored=0;
 try{

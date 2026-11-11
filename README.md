@@ -5,7 +5,7 @@ Next.js catalog and administration rebuild. Deployment uses the Vercel project c
 ## Included
 
 - Database API for the public catalog; 101 original products preserved in the import file.
-- Admin sign-in using Better Auth; public registration disabled. Server-side email allowlist protects all inventory and photo mutations.
+- Better Auth supports email-verified customer registration and administrator sign-in with an email code. Administrator authorization protects inventory and photo mutations.
 - Create/edit/archive products, prices in integer centavos, nullable stock, category and description editing.
 - Optimistic version checks prevent silently overwriting another edit; product writes and audit records share a transaction.
 - Authenticated JPEG/PNG/WebP uploads (3 MB maximum) to public Vercel Blob, with signature checks.
@@ -18,7 +18,7 @@ Next.js catalog and administration rebuild. Deployment uses the Vercel project c
 2. Connect Blob store `circuitbyte-products` (`store_u6P24Z7EQvBXiYyH`). Ensure `BLOB_READ_WRITE_TOKEN` is set on the project; store creation alone does not verify its environment binding.
 3. Copy `.env.example` to `.env.local`; enter the database URL and Blob token, generate a random 32+ byte `BETTER_AUTH_SECRET`, and confirm `ADMIN_EMAIL`. Do not commit secrets. Use separate databases and credentials for preview and production.
 4. Run `npm ci`, then `npm run db:seed` to create inventory tables and import the catalog without overwriting existing rows. Imported stock is NULL (uncounted); legacy quantity labels remain separate.
-5. Provide `INITIAL_ADMIN_PASSWORD` locally, then run `node --env-file=.env.local scripts/setup-auth.mjs`. This creates auth tables and the initial administrator. Remove the initial password variable afterward. Public sign-up stays disabled in the deployed app.
+5. Provide `INITIAL_ADMIN_PASSWORD` locally, then run `node --env-file=.env.local scripts/setup-auth.mjs`. This creates auth tables and the initial administrator. Remove the initial password variable afterward. Public sign-up requires a configured email sender and email verification.
 6. `npm run build`; run locally with `npm run dev`. Set the local auth URL to the local origin while testing.
 7. Link this repository to the existing Vercel project in its Git settings, use Next.js framework and repository root, and clear the previous static output directory override. Deploy only after integration validation.
 
@@ -31,7 +31,9 @@ Before production, verify: anonymous mutation rejected; allowed admin login/logo
 ## First administrator
 The owner receives a private one-time setup link. Its token is stored only in Vercel, not this repository. Set a password with at least 12 characters. Setup refuses to create another administrator after the configured account exists. The standard public auth handler keeps registration disabled.
 
-Database variable fallback: DATABASE_URL or circuitbyte_DATABASE_URL. Production migrations use the same connection and never treat legacy quantity labels as inventory counts.
+Production uses a pooled `CIRCUITBYTE_RUNTIME_DATABASE_URL` for requests and a direct `CIRCUITBYTE_MIGRATION_DATABASE_URL` or `circuitbyte_DATABASE_URL_UNPOOLED` for schema changes. The runtime role needs read/write privileges on the application schema and sequence access. The production build rejects a runtime role with schema creation privileges. Local development accepts `DATABASE_URL` or `circuitbyte_DATABASE_URL`. Vercel previews show the repository catalog with sample availability. For preview account and order testing, set `CIRCUITBYTE_PREVIEW_DATABASE_URL` to a separate database seeded with synthetic data. Inventory migrations preserve existing stock counts.
+
+Administrators sign in with their password and a five-minute code sent to the configured administrator email. The Gmail sender must be configured for administrator sign-in. Customers can change their password and sign out other or all devices in **My Dashboard → Account security**.
 
 ### Catalog photos and administration
 

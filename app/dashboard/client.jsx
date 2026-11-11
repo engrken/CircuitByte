@@ -1,11 +1,12 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {createAuthClient} from 'better-auth/react';
-import {emailOTPClient} from 'better-auth/client/plugins';
+import {auth,sendAdminCode} from '../account-auth-client';
+import AdminCodeForm from '../admin-code-form';
+import AccountSecurity from './account-security';
+import {minimumPasswordLength,maximumPasswordLength} from '../../lib/account-policy.mjs';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {StudioKnowledgeReview} from './knowledge-review';
 import OrderList from './order-list';
-const auth=createAuthClient({plugins:[emailOTPClient()]});
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
 export default function StudioAccount(){
@@ -22,6 +23,10 @@ export default function StudioAccount(){
   if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',params.get('checkout')==='1'?'/dashboard?checkout=1'+(params.get('payment')==='qrph'?'&payment=qrph':''):'/dashboard');}
   else if(params.get('error'))setError('That password link has expired. Request a new one.');
   else if(params.get('register')==='1')setMode('signup');
+  else if(params.get('signedOut')==='all'){
+   setNotice('You signed out of all CircuitByte devices.');
+   window.history.replaceState(null,'','/dashboard');
+  }
   fetch('/api/studio/access',{cache:'no-store'}).then(r=>r.json()).then(d=>{
    setUat(d.uat||null);setRegistrationOpen(Boolean(d.registrationOpen));setRegistrationNotice(d.notice||'');
   }).catch(()=>{});
@@ -71,6 +76,11 @@ export default function StudioAccount(){
      if(result.error.code==='EMAIL_NOT_VERIFIED'){setEmail(address);setMode('verify');}
      throw Error(result.error.message);
     }
+    if(result.data?.twoFactorRedirect){
+     setMode('admin-otp');
+     await sendAdminCode();
+     return;
+    }
     if(checkout){window.location.assign('/catalog?cart=1'+(qrCheckout?'&payment=qrph':''));return;}
    }
   }catch(e){setError(e.message||'Unable to authenticate.');}
@@ -110,7 +120,9 @@ export default function StudioAccount(){
   {uat&&<section className="account-card account-uat" aria-label="Student Hobby UAT access"><h2>{uat.active?'Student / Hobby UAT — Free':'Student / Hobby UAT closed'}</h2><p>{uat.message}</p><a href="/studio/pricing">View UAT dates and allowances →</a></section>}
   {error&&<p className="account-error" role="alert">{error}</p>}
   {notice&&<p className="account-notice" role="status">{notice}</p>}
-  {session?.user && !session.user.emailVerified ? <section className="account-card account-login">
+  {mode==='admin-otp'?<section className="account-card account-login">
+   <AdminCodeForm busy={busy} onBack={()=>changeMode('login')} onVerified={()=>changeMode('login')}/>
+  </section>:session?.user && !session.user.emailVerified ? <section className="account-card account-login">
     <h2>Verify your email</h2><p>Enter your registration code to activate your CircuitByte account.</p>
     <button type="button" onClick={async()=>{await auth.signOut();setEmail(session.user.email);changeMode('verify');}}>Verify email</button>
   </section> :
@@ -121,9 +133,10 @@ export default function StudioAccount(){
      {mode==='signup'&&<label>Full name<input name="name" required maxLength={100} autoComplete="name"/></label>}
      {mode!=='reset'&&<label>Email address<input name="email" type="email" required maxLength={200} value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>}
      {mode==='verify'&&<label>6-digit code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>}
-     {['login','signup','reset'].includes(mode)&&<label>Password<input name="password" type="password" required minLength={mode==='login'?undefined:12} maxLength={128} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
+     {['login','signup','reset'].includes(mode)&&<label>Password<input name="password" type="password" required minLength={mode==='login'?undefined:minimumPasswordLength} maxLength={maximumPasswordLength} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
      <button type="submit" disabled={busy||(mode==='signup'&&!registrationOpen)}>{busy?'Working…':{login:'Sign in',signup:'Register',verify:'Verify email',forgot:'Send password link',reset:'Save password'}[mode]}</button>
     </form>
+    {['signup','reset'].includes(mode)&&<p>Use at least {minimumPasswordLength} characters.</p>}
     {mode==='signup'&&<p>See the <a href="/privacy">Privacy Notice</a> for how we use and protect your account details.</p>}
     {mode==='verify'&&<button className="account-link" type="button" disabled={busy} onClick={resend}>Send a new code</button>}
     {mode==='login'&&<button className="account-link" type="button" onClick={()=>changeMode('forgot')}>Forgot your password or used email-code sign-in before?</button>}
@@ -143,6 +156,7 @@ export default function StudioAccount(){
      <button type="submit" disabled={busy}>Save profile</button>
     </form>
    </section>
+   <AccountSecurity/>
    <section className="account-card"><div className="account-top"><div><h2>Saved Arduino projects</h2><p>{projects.length} of 10 project slots used.</p></div><a href="/studio">Open Studio →</a></div>
     {projects.length? <ul className="account-projects">{projects.map(p=><li key={p.id}><div><strong>{p.title}</strong><span>{studioBoardName(p.board)} · {new Date(p.updated_at).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'})} · revision {p.revision||1}{Array.isArray(p.acceptance_record?.criteria)&&p.acceptance_record.criteria.length?' · Private, user-reported hardware test record saved':''}</span></div><div><a href={'/studio?project='+encodeURIComponent(p.id)}>Open in Studio</a><button type="button" disabled={busy} onClick={()=>deleteProject(p.id)}>Delete</button></div></li>)}</ul>:<p className="account-muted">No cloud projects yet. Generate a project in Studio and choose “Save to dashboard.”</p>}
    </section>

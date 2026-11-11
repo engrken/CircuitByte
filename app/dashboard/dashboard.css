@@ -24,3 +24,8 @@
 .order-payment form{display:grid;gap:10px;margin-top:12px}
 
 .order-payment input{max-width:100%;padding:8px;border:1px solid #becfbe;border-radius:6px}
+
+.account-security summary { cursor: pointer; font-weight: 650; padding: 12px 0; }
+.account-security .account-form p { margin: 0; }
+.account-security-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.account-security-actions button { min-height: 44px; }

@@ -165,3 +165,7 @@
   .inventory-actions button { padding-inline: 9px; font-size: .875rem; }
   .inventory-pager span { width: 100%; order: 3; text-align: center; }
 }
+
+.inventory-admin-code { max-width: 650px; margin-top: 24px; }
+.inventory-admin-code form { margin-top: 12px; }
+.inventory-admin-code .account-security-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }

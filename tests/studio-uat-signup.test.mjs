@@ -10,69 +10,69 @@ process.env.BETTER_AUTH_URL='https://circuitbyte.vercel.app';
 mock.timers.enable({apis:['Date'],now:Date.parse('2026-12-01T00:00:00+08:00')});
 const pg=new PGlite();
 const query=(sql,args)=>pg.query(sql,args);
-let inTransaction=false;
-const client={async query(sql,args){
- const result=await query(sql,args);
- if(/^begin\b/i.test(sql))inTransaction=true;
- if(/^(commit|rollback)\b/i.test(sql))inTransaction=false;
- return result;
-},release(){}};
-const pool={async query(sql,args){
- // A separate pooled connection cannot see the new user until sign-up commits.
- if(inTransaction&&/^select\b/i.test(sql)&&/\bfrom "user"/i.test(sql))return {rows:[]};
- return query(sql,args);
-},connect:async()=>client,end:async()=>{}};
+const client={query,release(){}};
+const pool={query,connect:async()=>client,end:async()=>{}};
 mock.module('../lib/db.js',{namedExports:{db:()=>pool}});
+let currentHeaders=new Headers();
+mock.module('next/headers.js',{namedExports:{headers:async()=>currentHeaders}});
 const mail=[];
 let mailUnavailable=false;
 mock.module('../lib/studio-email.mjs',{namedExports:{gmailConfigured:()=>true,sendGmailMessage:async message=>{if(mailUnavailable)throw Error('Fixture mail outage');mail.push(message);}}});
-const {auth,studioSignupEnabled}=await import('../lib/auth.js');
+const {auth,requireUser,studioSignupEnabled}=await import('../lib/auth.js');
 after(()=>pg.close());
 
-test('Existing accounts are grandfathered and new accounts verify registration once after UAT closes',async()=>{
+test('Legacy accounts stay active and new accounts sign in to a pending dashboard until verified',async()=>{
  const {runMigrations}=await getMigrations(adminOtpSchema(pool));
  await runMigrations();
- const origin=process.env.BETTER_AUTH_URL;
- const post=(path,body)=>auth().handler(new Request(origin+'/api/auth'+path,{
-  method:'POST',headers:{'content-type':'application/json',origin,'x-forwarded-for':'192.0.2.1'},body:JSON.stringify(body)
- }));
+ const post=browser('192.0.2.1'),legacyBrowser=browser('192.0.2.8'),guest=browser('192.0.2.9');
  const verifyMigration=await readFile(new URL('../scripts/account-verification.sql',import.meta.url),'utf8');
  const legacy={name:'Existing Buyer',email:'existing@example.org',password:'test-only-existing-password'};
  const member={name:'New Buyer',email:'new@example.org',password:'test-only-new-password'};
  assert.equal(studioSignupEnabled(),true);
 
- let response=await post('/sign-up/email',legacy);
+ let response=await legacyBrowser('/sign-up/email',legacy);
  assert.equal(response.status,200,await response.clone().text());
  await pg.exec(verifyMigration);
- response=await post('/sign-in/email',{email:legacy.email,password:legacy.password});
+ response=await legacyBrowser('/sign-in/email',{email:legacy.email,password:legacy.password});
  assert.equal(response.status,200,await response.clone().text());
  assert.equal((await response.json()).user.emailVerified,true);
 
  response=await post('/sign-up/email',member);
  assert.equal(response.status,200,await response.clone().text());
  assert.equal(response.headers.get('set-cookie'),null);
- assert.equal(mail.length,2);
- const otp=mail[1].body.match(/\b\d{6}\b/)[0];
+ assert.equal(mail.length,0);
  await pg.exec(verifyMigration);
  response=await post('/sign-in/email',{email:member.email,password:member.password});
- assert.equal(response.status,403,await response.clone().text());
- assert.equal(response.headers.get('set-cookie'),null);
+ assert.equal(response.status,200,await response.clone().text());
+ assert.equal((await (await post('/get-session')).json()).user.emailVerified,false);
+ await assert.rejects(requireUser(),/Verify your email/);
+ const {GET:libraries}=await import('../app/api/studio/libraries/route.js');
+ const lookup=new Request(process.env.BETTER_AUTH_URL+'/api/studio/libraries');
+ assert.equal((await libraries(lookup)).status,401);
+ const send={email:member.email,type:'email-verification'};
+ assert.equal((await guest('/email-otp/send-verification-otp',send)).status,401);
+ assert.equal((await legacyBrowser('/email-otp/send-verification-otp',send)).status,403);
+ response=await post('/email-otp/send-verification-otp',send);
+ assert.equal(response.status,200,await response.clone().text());
+ assert.equal(mail.length,1);
+ const otp=mail.at(-1).body.match(/\b\d{6}\b/)[0];
  assert.equal((await post('/sign-in/email-otp',{email:member.email,otp})).status,404);
+ assert.equal((await guest('/email-otp/verify-email',{email:member.email,otp})).status,401);
  response=await post('/email-otp/verify-email',{email:member.email,otp});
  assert.equal(response.status,200,await response.clone().text());
- response=await post('/sign-in/email',{email:member.email,password:member.password});
- assert.equal(response.status,200,await response.clone().text());
- assert.equal((await response.json()).user.emailVerified,true);
- assert.equal(mail.length,2);
+ assert.equal((await (await post('/get-session')).json()).user.emailVerified,true);
+ assert.equal((await requireUser()).email,member.email);
+ assert.equal((await libraries(lookup)).status,200);
 });
 
 function browser(ip){
  const cookies=new Map();
+ const cookieHeader=()=>[...cookies].map(([k,v])=>k+'='+v).join('; ');
  return async(path,body)=>{
   const origin=process.env.BETTER_AUTH_URL;
   const response=await auth().handler(new Request(origin+'/api/auth'+path,{
    method:body===undefined?'GET':'POST',
-   headers:{'content-type':'application/json',origin,'x-forwarded-for':ip,cookie:[...cookies].map(([k,v])=>k+'='+v).join('; ')},
+   headers:{'content-type':'application/json',origin,'x-forwarded-for':ip,cookie:cookieHeader()},
    body:body===undefined?undefined:JSON.stringify(body)
   }));
   for(const cookie of response.headers.getSetCookie()){
@@ -83,6 +83,7 @@ function browser(ip){
    if(!value)cookies.delete(key);
    else cookies.set(key,value);
   }
+  currentHeaders=new Headers({cookie:cookieHeader()});
   return response;
  };
 }
@@ -96,6 +97,8 @@ test('a pending registration can recover from a delivery failure by requesting a
   const signup=await post('/sign-up/email',member);
   assert.equal(signup.status,200,await signup.clone().text());
   assert.equal(signup.headers.get('set-cookie'),null);
+  assert.equal((await post('/sign-in/email',member)).status,200);
+  assert.equal((await post('/send-verification-email',{email:member.email})).status,503);
   mock.timers.tick(1000);
   const failed=await post('/email-otp/send-verification-otp',resend);
   assert.equal(failed.status,503,await failed.clone().text());
@@ -111,6 +114,31 @@ test('a pending registration can recover from a delivery failure by requesting a
  const verified=await post('/email-otp/verify-email',{email:member.email,otp});
  assert.equal(verified.status,200,await verified.clone().text());
  assert.equal((await post('/sign-in/email',{email:member.email,password:member.password})).status,200);
+});
+
+test('verification links activate only the matching signed-in account and preserve the cart return',async()=>{
+ const post=browser('192.0.2.10'),guest=browser('192.0.2.11'),other=browser('192.0.2.12');
+ const member={name:'Link Buyer',email:'link@example.org',password:'test-only-link-password'};
+ const callbackURL='/dashboard?checkout=1&payment=qrph&emailVerification=link';
+ assert.equal((await post('/sign-up/email',member)).status,200);
+ assert.equal((await post('/sign-in/email',member)).status,200);
+ assert.equal((await guest('/send-verification-email',{email:member.email,callbackURL})).status,401);
+ const sent=await post('/send-verification-email',{email:member.email,callbackURL});
+ assert.equal(sent.status,200,await sent.clone().text());
+ const message=mail.at(-1);
+ assert.equal(message.to,member.email);
+ const url=new URL(message.body.split('\n')[1]);
+ assert.equal(url.origin,process.env.BETTER_AUTH_URL);
+ const link=url.pathname.slice('/api/auth'.length)+url.search;
+ assert.equal((await guest(link)).headers.get('location'),'/dashboard?emailVerification=sign-in');
+ assert.equal((await other('/sign-in/email',{email:'existing@example.org',password:'test-only-existing-password'})).status,200);
+ assert.equal((await other(link)).status,403);
+ assert.equal((await (await post('/get-session')).json()).user.emailVerified,false);
+ const verified=await post(link);
+ assert.equal(verified.status,302,await verified.clone().text());
+ assert.equal(verified.headers.get('location'),callbackURL);
+ assert.equal((await (await post('/get-session')).json()).user.emailVerified,true);
+ assert.equal((await requireUser()).email,member.email);
 });
 
 test('administrator setup and every sign-in require an email code before issuing a session',async()=>{

@@ -10,17 +10,40 @@ import OrderList from './order-list';
 const empty={schoolName:'',program:'',role:'student',publicConsent:false};
 const normalize=p=>p?{schoolName:p.school_name||'',program:p.program||'',role:p.role_name||'student',publicConsent:Boolean(p.public_consent)}:empty;
 export default function StudioAccount(){
- const {data:session,isPending}=auth.useSession();
+ const {data:session,isPending,refetch}=auth.useSession();
  const [mode,setMode]=useState('login'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
- const [email,setEmail]=useState(''),[checkout,setCheckout]=useState(false),[qrCheckout,setQrCheckout]=useState(false),[resetToken,setResetToken]=useState('');
+ const [email,setEmail]=useState(''),[resetToken,setResetToken]=useState('');
+ const [returnTo,setReturnTo]=useState(null),[dashboardPath,setDashboardPath]=useState('/dashboard');
  const [uat,setUat]=useState(null);
  const [registrationOpen,setRegistrationOpen]=useState(false),[registrationNotice,setRegistrationNotice]=useState('');
  const [profile,setProfile]=useState(empty),[original,setOriginal]=useState(null),[projects,setProjects]=useState([]),[orders,setOrders]=useState([]);
  const [adminQueue,setAdminQueue]=useState(null),[isAdmin,setIsAdmin]=useState(false);
  useEffect(()=>{
   const params=new URLSearchParams(window.location.search);
-  setCheckout(params.get('checkout')==='1');setQrCheckout(params.get('payment')==='qrph');
-  if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',params.get('checkout')==='1'?'/dashboard?checkout=1'+(params.get('payment')==='qrph'?'&payment=qrph':''):'/dashboard');}
+  const context=new URLSearchParams();
+  let destination='';
+  if(params.get('checkout')==='1'){
+   const qr=params.get('payment')==='qrph';
+   context.set('checkout','1');if(qr)context.set('payment','qrph');
+   destination='/catalog?cart=1'+(qr?'&payment=qrph':'');
+  }else if(params.has('studio')){
+   try{
+    const url=new URL(params.get('studio'),window.location.origin);
+    if(url.origin===window.location.origin&&url.pathname==='/studio'){
+     destination=url.pathname+url.search;context.set('studio',destination);
+    }
+   }catch{/* An invalid return address leaves the user on the dashboard. */}
+  }
+  const path='/dashboard'+(context.size?'?'+context:'');
+  setDashboardPath(path);setReturnTo(destination);
+  if(params.get('token')){setResetToken(params.get('token'));setMode('reset');window.history.replaceState(null,'',path);}
+  else if(params.get('emailVerification')==='sign-in'){
+   setNotice('Sign in to your CircuitByte account, then reopen the verification link from your email.');
+   window.history.replaceState(null,'',path);
+  }else if(params.get('emailVerification')==='link'){
+   if(params.has('error'))setError('That verification link is invalid or expired. Request a new link or code.');
+   window.history.replaceState(null,'',path);
+  }
   else if(params.get('error'))setError('That password link has expired. Request a new one.');
   else if(params.get('register')==='1')setMode('signup');
   else if(params.get('signedOut')==='all'){
@@ -37,51 +60,63 @@ export default function StudioAccount(){
   const result=await p.json(), saved=await q.json(),myOrders=await m.json();
   setOriginal(result.profile);setProfile(normalize(result.profile));setProjects(saved.projects||[]);setOrders(myOrders.orders||[]);setIsAdmin(Boolean(result.isAdmin));
  }
- useEffect(()=>{if(!session?.user?.emailVerified)return;if(checkout&&mode!=='reset'){window.location.assign('/catalog?cart=1'+(qrCheckout?'&payment=qrph':''));return;}load().catch(e=>setError(e.message));},[session?.user?.id,session?.user?.emailVerified,checkout,qrCheckout,mode]);
+ useEffect(()=>{
+  if(returnTo===null||!session?.user?.emailVerified||mode==='reset')return;
+  if(returnTo){window.location.assign(returnTo);return;}
+  load().catch(e=>setError(e.message));
+ },[session?.user?.id,session?.user?.emailVerified,returnTo,mode]);
  function changeMode(next){setMode(next);setError('');setNotice('');}
- async function resend(){
+ async function sendVerification(method){
   setBusy(true);setError('');setNotice('');
   try{
-   const result=await auth.emailOtp.sendVerificationOtp({email:email.trim().toLowerCase(),type:'email-verification'});
+   const address=session.user.email;
+   const callback=new URL(dashboardPath,window.location.origin);
+   callback.searchParams.set('emailVerification','link');
+   const result=method==='link'
+    ?await auth.sendVerificationEmail({email:address,callbackURL:callback.pathname+callback.search})
+    :await auth.emailOtp.sendVerificationOtp({email:address,type:'email-verification'});
    if(result.error)throw Error(result.error.message);
-   setNotice('If your account is awaiting verification, check your inbox or spam folder for a new code. The code expires in 5 minutes.');
+   setNotice(method==='link'?'Check your inbox or spam folder for the verification link. Open it within 30 minutes while signed in to this account.':'Check your inbox or spam folder for the 6-digit code. It expires in 5 minutes.');
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
+ async function verifyCode(e){
+  e.preventDefault();setBusy(true);setError('');setNotice('');
+  const otp=String(new FormData(e.currentTarget).get('otp')).trim();
+  try{
+   const result=await auth.emailOtp.verifyEmail({email:session.user.email,otp});
+   if(result.error)throw Error(result.error.message);
+   await refetch();
+   setNotice('Email verified. You can now place orders and use Project Studio.');
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function login(e){
   e.preventDefault();setBusy(true);setError('');setNotice('');
   const data=new FormData(e.currentTarget),address=email.trim().toLowerCase();
   try{
-   if(mode==='verify'){
-    const result=await auth.emailOtp.verifyEmail({email:address,otp:String(data.get('otp')).trim()});
-    if(result.error)throw Error(result.error.message);
-    setMode('login');setNotice('Email verified. Sign in with your password.');
-   }else if(mode==='signup'){
-    if(!registrationOpen)throw Error('New accounts are temporarily unavailable.');
-    const result=await auth.signUp.email({name:String(data.get('name')),email:address,password:String(data.get('password'))});
-    if(result.error)throw Error(result.error.message);
-    setEmail(address);setMode('verify');
-    setNotice('Check your inbox or spam folder for a 6-digit code. It expires in 5 minutes. If it doesn’t arrive, select Send a new code below.');
-   }else if(mode==='forgot'){
-    const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+'/dashboard'+(checkout?'?checkout=1'+(qrCheckout?'&payment=qrph':''):'')});
+   if(mode==='forgot'){
+    const result=await auth.requestPasswordReset({email:address,redirectTo:window.location.origin+dashboardPath});
     if(result.error)throw Error(result.error.message);
     setNotice('If this is a verified account, check your inbox for a password link.');
    }else if(mode==='reset'){
     const result=await auth.resetPassword({token:resetToken,newPassword:String(data.get('password'))});
     if(result.error)throw Error(result.error.message);
-    window.history.replaceState(null,'',checkout?'/dashboard?checkout=1'+(qrCheckout?'&payment=qrph':''):'/dashboard');
+    window.history.replaceState(null,'',dashboardPath);
     setMode('login');setNotice('Password saved. You can now sign in.');
    }else{
-    const result=await auth.signIn.email({email:address,password:String(data.get('password'))});
-    if(result.error){
-     if(result.error.code==='EMAIL_NOT_VERIFIED'){setEmail(address);setMode('verify');}
-     throw Error(result.error.message);
+    const password=String(data.get('password'));
+    if(mode==='signup'){
+     if(!registrationOpen)throw Error('New accounts are temporarily unavailable.');
+     const created=await auth.signUp.email({name:String(data.get('name')),email:address,password});
+     if(created.error)throw Error(created.error.message);
     }
+    const result=await auth.signIn.email({email:address,password});
+    if(result.error)throw Error(result.error.message);
     if(result.data?.twoFactorRedirect){
      setMode('admin-otp');
      await sendAdminCode();
      return;
     }
-    if(checkout){window.location.assign('/catalog?cart=1'+(qrCheckout?'&payment=qrph':''));return;}
+    setMode('login');
    }
   }catch(e){setError(e.message||'Unable to authenticate.');}
   finally{setBusy(false);}
@@ -122,25 +157,31 @@ export default function StudioAccount(){
   {notice&&<p className="account-notice" role="status">{notice}</p>}
   {mode==='admin-otp'?<section className="account-card account-login">
    <AdminCodeForm busy={busy} onBack={()=>changeMode('login')} onVerified={()=>changeMode('login')}/>
-  </section>:session?.user && !session.user.emailVerified ? <section className="account-card account-login">
-    <h2>Verify your email</h2><p>Enter your registration code to activate your CircuitByte account.</p>
-    <button type="button" onClick={async()=>{await auth.signOut();setEmail(session.user.email);changeMode('verify');}}>Verify email</button>
+  </section>:session?.user && !session.user.emailVerified && mode!=='reset' ? <section className="account-card account-login">
+    <div className="account-top"><div><h2>Pending verification</h2><p>Signed in as <strong>{session.user.email}</strong></p></div><button type="button" onClick={async()=>{await auth.signOut();changeMode('login');}}>Sign out</button></div>
+    <p>Verify your email to place an order or use Project Studio. You can add items to your cart while your account is pending.</p>
+    <div className="account-verification-actions">
+     <button type="button" disabled={busy} onClick={()=>sendVerification('link')}>Send verification link</button>
+     <button type="button" disabled={busy} onClick={()=>sendVerification('code')}>Send 6-digit code</button>
+    </div>
+    <form onSubmit={verifyCode}>
+     <label>Verification code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>
+     <button type="submit" disabled={busy}>Verify account</button>
+    </form>
   </section> :
   !session?.user||mode==='reset'?<section className="account-card account-login">
-    <h2>{{login:'Sign in',signup:'Create an account',verify:'Verify your email',forgot:'Get a password link',reset:'Set your password'}[mode]}</h2>
-    {mode==='login'&&<p>{checkout?'Sign in to return to your cart.':registrationNotice}</p>}
+    <h2>{{login:'Sign in',signup:'Create an account',forgot:'Get a password link',reset:'Set your password'}[mode]}</h2>
+    {mode==='login'&&<p>{returnTo?.startsWith('/catalog?')?'Sign in and verify your email to check out.':returnTo?.startsWith('/studio')?'Sign in and verify your email to use Project Studio.':registrationNotice}</p>}
     <form key={mode} onSubmit={login}>
      {mode==='signup'&&<label>Full name<input name="name" required maxLength={100} autoComplete="name"/></label>}
      {mode!=='reset'&&<label>Email address<input name="email" type="email" required maxLength={200} value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>}
-     {mode==='verify'&&<label>6-digit code<input name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required maxLength={6}/></label>}
      {['login','signup','reset'].includes(mode)&&<label>Password<input name="password" type="password" required minLength={mode==='login'?undefined:minimumPasswordLength} maxLength={maximumPasswordLength} autoComplete={mode==='login'?'current-password':'new-password'}/></label>}
-     <button type="submit" disabled={busy||(mode==='signup'&&!registrationOpen)}>{busy?'Working…':{login:'Sign in',signup:'Register',verify:'Verify email',forgot:'Send password link',reset:'Save password'}[mode]}</button>
+     <button type="submit" disabled={busy||(mode==='signup'&&!registrationOpen)}>{busy?'Working…':{login:'Sign in',signup:'Register',forgot:'Send password link',reset:'Save password'}[mode]}</button>
     </form>
     {['signup','reset'].includes(mode)&&<p>Use at least {minimumPasswordLength} characters.</p>}
     {mode==='signup'&&<p>See the <a href="/privacy">Privacy Notice</a> for how we use and protect your account details.</p>}
-    {mode==='verify'&&<button className="account-link" type="button" disabled={busy} onClick={resend}>Send a new code</button>}
     {mode==='login'&&<button className="account-link" type="button" onClick={()=>changeMode('forgot')}>Forgot your password or used email-code sign-in before?</button>}
-    {mode==='login'&&registrationOpen&&<><button className="account-link" type="button" onClick={()=>changeMode('signup')}>Create an account</button> <button className="account-link" type="button" onClick={()=>changeMode('verify')}>Enter a registration code</button></>}
+    {mode==='login'&&registrationOpen&&<button className="account-link" type="button" onClick={()=>changeMode('signup')}>Create an account</button>}
     {mode!=='login'&&<button className="account-link" type="button" onClick={()=>changeMode('login')}>Back to sign in</button>}
   </section>:
   <div className="account-layout">

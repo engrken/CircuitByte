@@ -6,8 +6,8 @@
 <dialog id="cart-dialog" class="cart-dialog"><div class="dialog-head"><div><p class="eyebrow">YOUR NEXT BUILD</p><h2>Your cart</h2></div><button class="icon-button" data-close aria-label="Close cart">×</button></div><div id="cart-lines"></div><div class="cart-total"><span>Subtotal</span><strong id="subtotal"></strong></div><p class="muted">Stock is reserved after CircuitByte confirms your order.</p>
 <section id="checkout-auth" class="checkout-studio-intro">
  <strong>Sign in to place an order</strong>
- <p>Your CircuitByte account works in the Shop and Project Studio. New members verify their email once during registration.</p>
- <div class="actions"><a class="primary btn btn-primary" href="/dashboard?checkout=1">Sign in</a><a href="/dashboard?register=1&amp;checkout=1">Create account</a></div>
+ <p>Verify your CircuitByte account from My Dashboard before placing an order.</p>
+ <div class="actions"><a class="primary btn btn-primary" id="checkout-sign-in" href="/dashboard?checkout=1">Sign in</a><a id="checkout-register" href="/dashboard?register=1&amp;checkout=1">Create account</a></div>
  <p id="checkout-session" class="muted" role="status"></p>
 </section><form id="checkout" hidden><p id="checkout-account" class="muted"></p><label>Your name<input name="name" autocomplete="name" maxlength="100" required></label><label>Contact number<input name="contact" type="tel" autocomplete="tel" maxlength="40" required></label><label>How would you like to receive your order?
  <select name="fulfillmentMethod" required><option value="meetup">Meetup in Roxas City</option><option value="maxim">Maxim door-to-door delivery</option></select>

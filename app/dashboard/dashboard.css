@@ -29,3 +29,5 @@
 .account-security .account-form p { margin: 0; }
 .account-security-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .account-security-actions button { min-height: 44px; }
+.account-verification-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.account-verification-actions button { min-height: 44px; padding: 8px 12px; border: 1px solid #9ab6a5; border-radius: 8px; background: #f4f9f5; color: #204c39; font-weight: 700; cursor: pointer; }

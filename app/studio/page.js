@@ -1,16 +1,27 @@
 import { EducationShell } from '../education/shell';
+import { redirect } from 'next/navigation';
 import catalog from '../../scripts/catalog.json';
 import specs from '../../content/studio-project-specs.json';
+import { requireUser } from '../../lib/auth';
 import { StudioWorkspace } from './workspace';
 import './studio.css';
 import './avr-emulator.css';
 
+export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Arduino Project Studio | CircuitByte',
   description: 'Choose real electronic parts, describe a circuit idea, get an editable Arduino sketch, pin map and controlled multi-board compilation.'
 };
 
-export default function StudioPage() {
+export default async function StudioPage({searchParams}) {
+  try{await requireUser();}catch{
+    const query=new URLSearchParams();
+    const params=await searchParams;
+    for(const key of ['project','parts']){
+      if(typeof params?.[key]==='string')query.set(key,params[key]);
+    }
+    redirect('/dashboard?'+new URLSearchParams({studio:'/studio'+(query.size?'?'+query:'')}));
+  }
   const parts = catalog.map(item=>({id:item.id,name:item.name,description:String(item.description||'').slice(0,150),category:item.categories?.[0]||'components',price:Number.isFinite(item.price)?item.price:null}));
   return <EducationShell active="studio">
     <section className="studio-hero studio-hero-compact">

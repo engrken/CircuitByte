@@ -176,6 +176,8 @@ async function openCart(){
  const dialog=$('#cart-dialog');
  if(!dialog.open)dialog.showModal();
  const status=$('#checkout-session');
+ const signIn=$('#checkout-sign-in'),register=$('#checkout-register');
+ signIn.textContent='Sign in';register.hidden=false;
  status.textContent='Checking your account…';
  try{
   const response=await fetch('/api/auth/get-session',{cache:'no-store'});
@@ -189,7 +191,10 @@ async function openCart(){
    const name=$('#checkout input[name="name"]');
    if(!name.value)name.value=checkoutUser.name||'';
   }
-  status.textContent='';
+  const pending=session?.user&&!session.user.emailVerified;
+  signIn.textContent=pending?'Verify account':'Sign in';
+  register.hidden=Boolean(pending);
+  status.textContent=pending?'Your account is pending verification. Open My Dashboard to activate it.':'';
  }catch{
   checkoutUser=null;$('#checkout').hidden=true;$('#checkout-auth').hidden=false;
   status.textContent='Your session could not be checked. Sign in or reopen the cart.';

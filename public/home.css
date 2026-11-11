@@ -37,6 +37,7 @@
 .home-button-primary:hover { color: #162820; background: #e6f9b1; }
 .home-button-outline { color: #f3f8f4; border-color: #789b89; }
 .home-button-outline:hover { color: #fff; background: #21453a; }
+.home-arrow { display: inline-block; flex: none; width: .58em; height: .58em; margin-inline-start: .22em; vertical-align: .12em; border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; background: linear-gradient(135deg, transparent 44%, currentColor 45% 54%, transparent 55%); }
 .home-search { display: flex; min-width: 0; width: min(100%, 482px); margin-top: 20px; padding: 5px; border: 1px solid #9cb4a7; border-radius: 10px; background: #fff; }
 .home-search input { flex: 1; width: 0; min-width: 0; border: 0; border-radius: 5px; padding: 8px 9px; background: #fff; color: #16352d; font-size: 16px; }
 .home-search button { min-height: 42px; padding: 7px 13px; border: 0; border-radius: 6px; color: #f7fbf8; background: #285648; font-weight: 750; }

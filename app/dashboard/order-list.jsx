@@ -38,11 +38,13 @@ export default function OrderList({orders,onUpdate}){
   {orders.length?<ul className="account-projects buyer-orders">{orders.map(order=><li key={order.id}>
    <strong>{order.reference}</strong>
    <OrderProgress status={order.status}/>
-   <p>{order.items.reduce((n,item)=>n+item.quantity,0)} items · {peso(order.total_cents)} · {paymentLabel(order.payment_method)}</p>
+   <p>{order.items.reduce((n,item)=>n+item.quantity,0)} items · {peso(order.total_cents)} · {paymentLabel(order.payment_method,order.total_cents)}</p>
+   {order.promotion&&<p>Promo <strong>{order.promotion.code}</strong>{order.promotion.discount_cents>0&&` · −${peso(order.promotion.discount_cents)}`}
+    {order.promotion.gift&&` · ${order.promotion.gift.quantity} × ${order.promotion.gift.name} free`}</p>}
    <p><strong>{fulfillmentLabel(order.fulfillment_method)}</strong></p>
    {order.fulfillment_method==='maxim'?<>
     <p>{order.confirmed_location?'Confirmed delivery address':'Requested delivery address'}: {order.confirmed_location||order.proposed_location}</p>
-    <p>You pay the Maxim courier fee separately. CircuitByte confirms the delivery arrangements before booking.</p>
+    <p>{order.promotion?.free_maxim?'CircuitByte covers the Maxim courier fee.':'You pay the Maxim courier fee separately.'} CircuitByte confirms the delivery arrangements before booking.</p>
    </>:<p>{order.confirmed_location?'Confirmed meetup':'Requested meetup'}: {order.confirmed_location||order.proposed_location}</p>}
    {order.customer_update&&<p>{order.customer_update}</p>}
    {order.invoice_number&&<p>Order invoice <strong>{order.invoice_number}</strong></p>}

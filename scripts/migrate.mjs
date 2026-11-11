@@ -25,7 +25,17 @@ if(process.env.ADMIN_EMAIL){
 await import('./seed.mjs');
 await import('./restore-legacy-images.mjs');
 const pool=new pg.Pool({connectionString:migrationConnection});
-try{const {runMigrations}=await getMigrations(adminOtpSchema(pool));await runMigrations();console.log('Auth schema ready');await requireAdminOtpEnrollment(pool,process.env.ADMIN_EMAIL);await pool.query(await fs.readFile(new URL('./account-verification.sql',import.meta.url),'utf8'));await pool.query(await fs.readFile(new URL('./studio-schema.sql',import.meta.url),'utf8'));console.log('Studio schema ready');await pool.query(await fs.readFile(new URL('./studio-usage-schema.sql',import.meta.url),'utf8'));console.log('Studio usage schema ready');await pool.query(await fs.readFile(new URL('./studio-knowledge-schema.sql',import.meta.url),'utf8'));console.log('Studio adaptive knowledge schema ready');}finally{await pool.end();}
+try{
+ const {runMigrations}=await getMigrations(adminOtpSchema(pool));
+ await runMigrations();
+ await requireAdminOtpEnrollment(pool,process.env.ADMIN_EMAIL);
+ for(const schema of ['account-verification.sql','manual-account-verification.sql','studio-schema.sql','studio-usage-schema.sql','studio-knowledge-schema.sql']){
+  await pool.query(await fs.readFile(new URL(`./${schema}`,import.meta.url),'utf8'));
+ }
+ const runtimeRole=pg.escapeIdentifier(decodeURIComponent(new URL(runtimeConnection).username));
+ await pool.query('GRANT SELECT, INSERT, UPDATE ON TABLE public.shop_promotions, public.account_manual_verifications TO '+runtimeRole);
+ console.log('Auth, Shop promotions and Studio schemas ready');
+}finally{await pool.end();}
 
 const runtime=new pg.Client({connectionString:runtimeConnection});
 try{
@@ -36,7 +46,10 @@ try{
   has_table_privilege('public."user"','SELECT') AND has_table_privilege('public."user"','UPDATE') AND
   has_table_privilege('public."session"','INSERT') AND has_table_privilege('public."session"','DELETE') AND
   has_table_privilege('public."twoFactor"','SELECT') AND has_table_privilege('public.verification','INSERT') AND
-  has_table_privilege('public.verification','DELETE') AND has_table_privilege('public.products','UPDATE') AS app_permissions`);
+  has_table_privilege('public.verification','DELETE') AND has_table_privilege('public.products','UPDATE') AND
+  has_table_privilege('public.shop_promotions','SELECT') AND has_table_privilege('public.shop_promotions','INSERT') AND
+  has_table_privilege('public.shop_promotions','UPDATE') AND has_table_privilege('public.account_manual_verifications','SELECT') AND
+  has_table_privilege('public.account_manual_verifications','INSERT') AND has_table_privilege('public.account_manual_verifications','UPDATE') AS app_permissions`);
  if(permissions.elevated||permissions.can_create||!permissions.app_permissions){
   throw Error('Production runtime database permissions failed verification.');
  }

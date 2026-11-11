@@ -9,7 +9,7 @@ const headers={'Cache-Control':'private, no-store'};
 const orderIdPattern=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const orderDetails=`SELECT o.id,o.reference,o.customer_name,o.customer_email,o.customer_user_id IS NULL AS guest,
  o.invoice_customer_name,o.invoice_billing_address,o.invoice_tin,o.contact,o.proposed_location,o.confirmed_location,
- o.notes,o.customer_update,o.items,o.total_cents,o.status,o.version,o.created_at,o.updated_at,
+ o.notes,o.customer_update,o.items,o.total_cents,o.promotion,o.status,o.version,o.created_at,o.updated_at,
  o.payment_method,o.payment_reference,o.payment_verified_at,o.qr_payment_opened_at,
  o.fulfillment_method,o.delivery_fee_acknowledged_at,o.deleted_at,
  (SELECT jsonb_object_agg(n.kind,CASE WHEN n.sent_at IS NOT NULL THEN 'sent' WHEN n.failed_at IS NOT NULL THEN 'failed' ELSE 'pending' END)

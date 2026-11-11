@@ -1,0 +1,20 @@
+.management{max-width:1020px;margin:auto;padding:32px 18px 64px;color:#17372e}
+.management-header,.management-row,.management-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.management-header h1,.management-section h2{margin:0 0 8px}
+.management-header p,.management-section p{line-height:1.5}
+.management a{color:#235f47}
+.management-section{background:#fff;border:1px solid #d7e3da;border-radius:14px;padding:clamp(14px,3vw,24px);margin-top:20px}
+.management-row{border-top:1px solid #e6eee8;padding:13px 0;overflow-wrap:anywhere}
+.management-row p{margin:5px 0}
+.management-actions{justify-content:flex-start;margin-top:12px}
+.management form{display:grid;gap:13px;margin-top:16px}
+.management label{display:grid;gap:5px;font-weight:600}
+.management :is(input:not([type=checkbox]),select,textarea){width:100%;border:1px solid #a9beb2;border-radius:7px;background:#fff;color:#17372e;font:inherit;padding:9px}
+.management label.management-check{display:flex;align-items:flex-start;gap:8px}
+.management-check input{margin-top:4px}
+.management button{min-height:42px;border:1px solid #85a795;border-radius:8px;background:#f0f8f2;color:#214c39;padding:8px 13px;font:inherit;font-weight:650;cursor:pointer}
+.management button.primary{color:white;background:#235f47;border-color:#235f47}
+.management button:disabled{opacity:.55;cursor:default}
+.management-message{padding:12px;border-radius:8px;background:#e8f5e9;color:#205739}
+.management-message.error{background:#fff0ec;color:#943e32}
+.management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}

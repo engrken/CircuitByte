@@ -106,3 +106,17 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_acknowledged_at timesta
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS deleted_at timestamptz
  CHECK (deleted_at IS NULL OR status='Cancelled');
+
+CREATE TABLE IF NOT EXISTS shop_promotions (
+ id uuid PRIMARY KEY,
+ code text NOT NULL UNIQUE CHECK (code ~ '^[A-Z0-9][A-Z0-9_-]{2,31}$'),
+ kind text NOT NULL CHECK (kind IN ('percent','fixed','maxim','bundle')),
+ rules jsonb NOT NULL CHECK (jsonb_typeof(rules)='object'),
+ expires_at timestamptz NOT NULL,
+ enabled boolean NOT NULL DEFAULT true,
+ version integer NOT NULL DEFAULT 1,
+ updated_by text NOT NULL,
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS promotion jsonb;
+ALTER TABLE order_invoices ADD COLUMN IF NOT EXISTS promotion jsonb;

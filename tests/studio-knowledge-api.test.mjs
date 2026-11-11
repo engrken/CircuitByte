@@ -23,6 +23,7 @@ function request(path,body,origin='https://circuitbyte.vercel.app'){
  });
 }
 test('Unauthenticated, cross-origin and non-admin knowledge operations fail closed',async()=>{
+ assert.equal((await lookup.GET(new Request('https://circuitbyte.vercel.app/api/studio/knowledge'))).status,401);
  assert.equal((await submissions.GET()).status,401);
  assert.equal((await submissions.POST(request('/api/studio/knowledge/submissions',{topic:'SIM900A',details:'Please check this 2G modem UART board.'}))).status,403);
  assert.equal((await research.POST(request('/api/studio/knowledge/research',{topic:'SIM900A'}))).status,403);
@@ -49,8 +50,8 @@ test('Knowledge submissions stay user-scoped and private until moderator approva
  currentMember='member-b';
  assert.deepEqual((await (await submissions.GET()).json()).submissions,[]);
  currentMember='member-a';
- const publicBefore=await (await lookup.GET(new Request('https://circuitbyte.vercel.app/api/studio/knowledge?q=SIM900A'))).json();
- assert.deepEqual(publicBefore.reviewed,[]);
+ const beforeApproval=await (await lookup.GET(new Request('https://circuitbyte.vercel.app/api/studio/knowledge?q=SIM900A'))).json();
+ assert.deepEqual(beforeApproval.reviewed,[]);
  administrator=true;
  const queue=await (await moderator.GET()).json();
  assert.equal(queue.pending[0].id,id);

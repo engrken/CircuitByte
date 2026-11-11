@@ -8,11 +8,11 @@ export const metadata={
 
 const groups=[
  {id:'account',title:'Account',questions:[
-  ['Can I use one account for Shop and Studio?',<>Yes. <a href="/dashboard?register=1">Create a CircuitByte account</a>, verify your email with the six-digit registration code, then use that email and password to sign in to both.</>],
-  ['What if the email code expires or I forget my password?',<>From <a href="/dashboard">My Dashboard</a>, choose <strong>Enter a registration code</strong> to request another code, or use the password link to reset your password. Check your spam folder if the email is delayed.</>]
+  ['Can I use one account for Shop and Studio?',<>Yes. <a href="/dashboard?register=1">Create a CircuitByte account</a>, then request a verification link or six-digit code in My Dashboard. Once verified, you can place orders and use Project Studio.</>],
+  ['What if my verification link or code expires?',<>Sign in to <a href="/dashboard">My Dashboard</a> and request a new link or code. Check your spam folder if the email is delayed. Open verification links while signed in to the account that requested them.</>]
  ]},
  {id:'orders',title:'Orders and handover',questions:[
-  ['How do I order components?',<>Add parts and any required variants to your cart, sign in, choose a payment method, and submit your order. We email an order confirmation. You can also buy components from the parts list in <a href="/studio">Project Studio</a>.</>],
+  ['How do I order components?',<>Add parts and any required variants to your cart. Sign in with a verified account, choose a payment method, and submit your order. We email an order confirmation. You can also buy components from the parts list in <a href="/studio">Project Studio</a>.</>],
   ['Where can I receive my order?',<>Choose a meetup in Roxas City, Capiz or request Maxim door-to-door delivery in the city. CircuitByte confirms the arrangements before handover or booking. For Maxim, you pay the courier fee separately.</>],
   ['Where do I track an order?',<>Open <a href="/dashboard">My Dashboard</a> and look under <strong>My orders</strong> for progress, handover details, and invoice references. If you have a private tracking link from an earlier order, use the <a href="/track.html">tracking page</a> to see the order reference and status.</>],
   ['How do I change or cancel an order?',<>Message the <a href="https://www.facebook.com/circuitbyteph" target="_blank" rel="noopener noreferrer">CircuitByte page</a> with your order reference. Include the requested change and whether you have already paid.</>]

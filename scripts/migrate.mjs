@@ -2,7 +2,6 @@ import {migrationDatabaseUrl,runtimeDatabaseUrl} from '../lib/database-url.mjs';
 import fs from 'node:fs/promises';
 import pg from 'pg';
 import {adminOtpSchema,requireAdminOtpEnrollment} from '../lib/admin-otp.mjs';
-import {gmailMethod,verifyGmailSender} from '../lib/studio-email.mjs';
 import {getMigrations} from 'better-auth/db/migration';
 if(process.env.VERCEL_ENV!=='production'){console.log('Skipping database initialization outside production');process.exit(0);}
 const migrationConnection=migrationDatabaseUrl();
@@ -12,15 +11,6 @@ if(!URL.canParse(migrationConnection)||!URL.canParse(runtimeConnection)){
 }
 if(new URL(migrationConnection).username===new URL(runtimeConnection).username){
  throw Error('Production migrations and application queries must use different database roles.');
-}
-if(process.env.ADMIN_EMAIL){
- const method=gmailMethod();
- if(!method)throw Error('Administrator sign-in requires a configured Gmail sender.');
- if(method==='app-password'){
-  try{await verifyGmailSender();}
-  catch{throw Error('Administrator sign-in sender could not authenticate to Gmail.');}
- }
- console.log('Administrator sign-in sender verified');
 }
 await import('./seed.mjs');
 await import('./restore-legacy-images.mjs');
@@ -37,21 +27,4 @@ try{
  console.log('Auth, Shop promotions and Studio schemas ready');
 }finally{await pool.end();}
 
-const runtime=new pg.Client({connectionString:runtimeConnection});
-try{
- await runtime.connect();
- const {rows:[permissions]}=await runtime.query(`SELECT
-  pg_has_role(current_user,'neon_superuser','MEMBER') AS elevated,
-  has_schema_privilege('public','CREATE') AS can_create,
-  has_table_privilege('public."user"','SELECT') AND has_table_privilege('public."user"','UPDATE') AND
-  has_table_privilege('public."session"','INSERT') AND has_table_privilege('public."session"','DELETE') AND
-  has_table_privilege('public."twoFactor"','SELECT') AND has_table_privilege('public.verification','INSERT') AND
-  has_table_privilege('public.verification','DELETE') AND has_table_privilege('public.products','UPDATE') AND
-  has_table_privilege('public.shop_promotions','SELECT') AND has_table_privilege('public.shop_promotions','INSERT') AND
-  has_table_privilege('public.shop_promotions','UPDATE') AND has_table_privilege('public.account_manual_verifications','SELECT') AND
-  has_table_privilege('public.account_manual_verifications','INSERT') AND has_table_privilege('public.account_manual_verifications','UPDATE') AS app_permissions`);
- if(permissions.elevated||permissions.can_create||!permissions.app_permissions){
-  throw Error('Production runtime database permissions failed verification.');
- }
- console.log('Restricted runtime database role verified');
-}finally{await runtime.end();}
+await import('./verify-production-runtime.mjs');

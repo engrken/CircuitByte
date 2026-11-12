@@ -8,8 +8,9 @@
     "build": "next build",
     "start": "next start",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
-    "build:vercel": "node --test tests/interactive-lab.test.mjs tests/studio-circuit-builder.test.mjs tests/studio-dc-simulator.test.mjs tests/studio-laboratory.test.mjs tests/studio-intel-hex.test.mjs tests/studio-logic-trace.test.mjs tests/studio-progress.test.mjs tests/studio-request.test.mjs tests/studio-acceptance.test.mjs tests/studio-sketch-preflight.test.mjs tests/studio-compile-diagnostics.test.mjs && node scripts/migrate.mjs && node scripts/verify-studio-compiler.mjs && node scripts/verify-student-uat.mjs && node scripts/verify-studio-diagram.mjs && next build",
-    "test": "node --experimental-test-module-mocks --test tests/*.test.mjs"
+    "build:vercel": "node --test tests/interactive-lab.test.mjs tests/studio-circuit-builder.test.mjs tests/studio-dc-simulator.test.mjs tests/studio-laboratory.test.mjs tests/studio-intel-hex.test.mjs tests/studio-logic-trace.test.mjs tests/studio-progress.test.mjs tests/studio-request.test.mjs tests/studio-acceptance.test.mjs tests/studio-sketch-preflight.test.mjs tests/studio-compile-diagnostics.test.mjs && node scripts/verify-production-runtime.mjs && node scripts/verify-studio-compiler.mjs && node scripts/verify-student-uat.mjs && node scripts/verify-studio-diagram.mjs && next build",
+    "test": "node --experimental-test-module-mocks --test tests/*.test.mjs",
+    "db:migrate:production": "VERCEL_ENV=production node scripts/migrate.mjs"
   },
   "keywords": [],
   "author": "",

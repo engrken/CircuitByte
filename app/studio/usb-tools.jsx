@@ -1,5 +1,6 @@
 'use client';
 import {StudioEspUpload} from './esp-upload';
+import {StudioUsbDriverHelp} from './usb-driver-help';
 import {uploadProfile} from '../../lib/studio-upload-profiles.mjs';
 import {studioBoardName} from '../../lib/studio-boards.mjs';
 import {useEffect,useRef,useState} from 'react';
@@ -154,6 +155,7 @@ export function StudioUsbTools({compiledHex,firmwareImages,board='arduino:avr:un
   const descriptor=selectedPort?describeSerialPort(selectedPort.getInfo?.()||{}):null;
   return <section className="studio-usb-panel" aria-label="Arduino IDE USB hardware tools">
     <div className="studio-usb-heading"><div><span className="edu-kicker">HARDWARE TOOLS / WEB SERIAL</span><h3>USB board connection &amp; Serial Monitor</h3><p>Connect a permitted USB serial port to monitor your board. Browser flashing is available for Uno, classic Nano, ESP8266, ESP32/S3/C3 and M5Stack Core. Select the exact board and bootloader.</p></div><span className="studio-board">Multi-board USB tools</span></div>
+    <StudioUsbDriverHelp descriptor={descriptor}/>
     {supported===null?<p className="studio-help">Checking this browser for Web Serial support…</p>:supported===false?<div className="studio-warning"><strong>Direct USB serial is not supported in this browser.</strong><p>Use HTTPS in a Web Serial-capable browser (typically desktop Chrome or Edge), and connect a USB data cable. Android support depends on browser, OTG and USB drivers. Safari and many embedded browsers do not provide this feature. Arduino code editing and downloads remain available.</p></div>:<div className="studio-usb-columns">
       <div className="studio-usb-controls">
         <div className="studio-usb-buttons"><button type="button" onClick={requestDevice} disabled={disabled||uploading||monitor}>Connect / Choose USB port</button><button type="button" onClick={refreshPorts} disabled={disabled||uploading||monitor}>Refresh permitted ports</button></div>

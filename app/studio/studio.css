@@ -323,3 +323,17 @@
 .studio-coach-diagnostics li{font-size:.89rem;line-height:1.55;overflow-wrap:anywhere}
 .studio-coach-diagnostics li p{margin:4px 0}
 @media(max-width:700px){.studio-compatibility,.studio-coach-diagnostics{padding:12px}}
+
+
+/* USB port and operating-system driver guidance */
+.studio-usb-driver-guide{border:1px solid #d4e0d3;border-radius:10px;background:#f8fbf6;margin:0 0 18px;padding:14px 16px;color:#294533}
+.studio-usb-driver-guide summary{cursor:pointer;font-size:13px;font-weight:800;color:#24553a}
+.studio-usb-driver-guide>p{font-size:12px;line-height:1.7;color:#53685a;margin:12px 0}
+.studio-usb-driver-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:9px}
+.studio-usb-driver-card{display:grid;gap:6px;align-content:start;border:1px solid #dce6d8;border-radius:8px;background:#fff;padding:12px;font-size:12px}
+.studio-usb-driver-card span{color:#657568;line-height:1.55}
+.studio-usb-driver-card div{display:flex;flex-wrap:wrap;gap:9px;margin-top:3px}
+.studio-usb-driver-card a{font-weight:700;color:#17633d}
+.studio-usb-driver-steps{padding-left:20px;margin:14px 0;color:#465a4c;font-size:12px;line-height:1.75}
+.studio-usb-driver-footnote{border-top:1px solid #e0e8dc;padding-top:10px!important;margin-bottom:0!important}
+.studio-usb-driver-hint{background:#edf5e8;padding:9px 11px;border-radius:7px}

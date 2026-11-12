@@ -101,7 +101,9 @@ CREATE TABLE IF NOT EXISTS order_notifications (
 );
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_method text NOT NULL DEFAULT 'meetup'
- CHECK (fulfillment_method IN ('meetup','maxim'));
+ CHECK (fulfillment_method IN ('meetup','maxim','lbc'));
+ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_fulfillment_method_check;
+ALTER TABLE orders ADD CONSTRAINT orders_fulfillment_method_check CHECK (fulfillment_method IN ('meetup','maxim','lbc'));
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_acknowledged_at timestamptz;
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS deleted_at timestamptz

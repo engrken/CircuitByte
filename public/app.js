@@ -215,26 +215,42 @@ if(cartParams.get('payment')==='qrph'){
   const url=new URL(link.href);url.searchParams.set('payment','qrph');link.href=url;
  }
 }
-function showPaymentDetails(){$('#qr-checkout-note').hidden=paymentSelect.value!=='qrph';}
-paymentSelect.onchange=showPaymentDetails;
-showPaymentDetails();
 const fulfillmentSelect=$('#checkout select[name="fulfillmentMethod"]');
+function showPaymentDetails(){
+ const lbc=fulfillmentSelect.value==='lbc';
+ const noItemPayment=(appliedPromo?.total_cents??total())===0;
+ paymentSelect.options[0].disabled=lbc&&!noItemPayment;
+ paymentSelect.options[0].textContent=noItemPayment?'No item payment due':lbc?'Cash at handover (local meetup only)':'Cash at handover';
+ paymentSelect.options[1].disabled=noItemPayment;
+ if(lbc&&!noItemPayment)paymentSelect.value='qrph';
+ else if(noItemPayment)paymentSelect.value='cash';
+ $('#qr-checkout-note').hidden=paymentSelect.value!=='qrph';
+}
+paymentSelect.onchange=showPaymentDetails;
 const checkoutLocation=$('#checkout input[name="location"]');
 const deliveryFeeAccepted=$('#checkout input[name="deliveryFeeAccepted"]');
 const promoInput=$('#shop-coupon'),promoStatus=$('#promo-status'),applyPromoButton=$('#apply-promo');
 let appliedPromo=null,quotingPromo=false,promoRevision=0;
 function showFulfillmentDetails(){
- const maxim=fulfillmentSelect.value==='maxim';
+ const method=fulfillmentSelect.value;
+ const maxim=method==='maxim',lbc=method==='lbc';
  const free=Boolean(appliedPromo?.promotion.free_maxim);
- $('#maxim-checkout-note').hidden=!maxim;
- $('#meetup-checkout-note').hidden=maxim;
- deliveryFeeAccepted.required=maxim&&!free;
- deliveryFeeAccepted.disabled=!maxim||free;
- deliveryFeeAccepted.closest('label').hidden=free;
- $('#maxim-fee-message').textContent=free?'CircuitByte covers the Maxim courier fee with this promo.':'You pay the Maxim courier fee separately. CircuitByte confirms delivery arrangements before booking.';
- $('#checkout-location-label').textContent=maxim?'Delivery address in Roxas City':'Preferred meetup point / landmark';
- checkoutLocation.placeholder=maxim?'House number, street, barangay and landmark':'Barangay, street or landmark in Roxas City';
- checkoutLocation.autocomplete=maxim?'street-address':'off';
+ const feeRequired=lbc||(maxim&&!free);
+ $('#courier-checkout-note').hidden=!feeRequired;
+ $('#lbc-checkout-note').hidden=!lbc;
+ $('#meetup-checkout-note').hidden=maxim||lbc;
+ deliveryFeeAccepted.required=feeRequired;
+ deliveryFeeAccepted.disabled=!feeRequired;
+ deliveryFeeAccepted.closest('label').hidden=!feeRequired;
+ $('#courier-fee-message').textContent=lbc
+  ?'The LBC shipping fee is not included in the item total. CircuitByte will confirm the current quote; the buyer pays it separately.'
+  :free?'CircuitByte covers the Maxim courier fee with this promo.':'You pay the Maxim courier fee separately. CircuitByte confirms delivery arrangements before booking.';
+ $('#courier-fee-ack-text').textContent=lbc?'I understand that I will pay the separately quoted LBC shipping fee.':'I will pay the Maxim courier fee separately.';
+ $('#checkout-location-label').textContent=lbc?'LBC delivery address in the Philippines':maxim?'Delivery address in Roxas City':'Preferred meetup point / landmark';
+ checkoutLocation.placeholder=lbc?'House/building, street, barangay, city, province and postal code':maxim?'House number, street, barangay and landmark':'Barangay, street or landmark in Roxas City';
+ checkoutLocation.autocomplete=maxim||lbc?'street-address':'off';
+ checkoutLocation.minLength=lbc?15:5;
+ showPaymentDetails();
 }
 fulfillmentSelect.onchange=()=>{if(appliedPromo||quotingPromo)clearPromotion('Delivery method changed. Apply the promo code again.');else showFulfillmentDetails();};
 showFulfillmentDetails();
@@ -314,15 +330,18 @@ $('#checkout').onsubmit=async e=>{
  if(cart.some(i=>products.find(p=>p.id===i.id)?.options?.wireLengthsCm&&!validWireLength(i.wireLengthCm))){toast('Choose a length for each Dupont wire in your cart.');return;}
  if(!checkoutUser?.emailVerified){toast('Verify your email before placing an order.');return;}
  if(promoInput.value.trim()&&!appliedPromo){promoStatus.textContent=quotingPromo?'Wait for the promotion to finish checking.':'Apply the promo code or clear it before placing your order.';promoInput.focus();return;}
- const maxim=f.get('fulfillmentMethod')==='maxim';
+ const fulfillmentMethod=String(f.get('fulfillmentMethod')||'meetup');
+ const maxim=fulfillmentMethod==='maxim',lbc=fulfillmentMethod==='lbc';
  const freeDelivery=appliedPromo?.promotion.free_maxim;
- if(maxim&&!freeDelivery&&f.get('deliveryFeeAccepted')!=='yes'){toast('Please acknowledge the separate Maxim delivery fee.');return;}
+ if((lbc||(maxim&&!freeDelivery))&&f.get('deliveryFeeAccepted')!=='yes'){toast(lbc?'Please acknowledge that the separately quoted LBC shipping fee is paid by the buyer.':'Please acknowledge the separate Maxim delivery fee.');return;}
+ if(lbc&&String(f.get('location')||'').trim().length<15){toast('Enter the full LBC delivery address, including the city, province, and postal code.');return;}
+ if(lbc&&f.get('paymentMethod')!=='qrph'&&(appliedPromo?.total_cents??total())>0){toast('LBC orders require QR Ph payment for the item total before dispatch.');return;}
  const payload={
   name:String(f.get('name')),contact:String(f.get('contact')),location:String(f.get('location')),
-  city:'Roxas City, Capiz',paymentMethod:String(f.get('paymentMethod')),notes:String(f.get('notes')||''),
+  ...(lbc?{}:{city:'Roxas City, Capiz'}),paymentMethod:String(f.get('paymentMethod')),notes:String(f.get('notes')||''),
   invoice:{name:String(f.get('invoiceName')||''),address:String(f.get('invoiceAddress')||''),tin:String(f.get('invoiceTin')||'')},
   items:cartOrderItems(),
-  ...(maxim?{fulfillmentMethod:'maxim',deliveryFeeAccepted:!freeDelivery}:{}),
+  ...(fulfillmentMethod!=='meetup'?{fulfillmentMethod,deliveryFeeAccepted:f.get('deliveryFeeAccepted')==='yes'}:{}),
   ...(appliedPromo?{couponCode:appliedPromo.promotion.code,couponId:appliedPromo.promotion.id,
    couponVersion:appliedPromo.promotion.version,couponTotalCents:appliedPromo.total_cents}:{})
  };
@@ -350,7 +369,7 @@ $('#checkout').onsubmit=async e=>{
   checkoutAttempt=null;cart=[];promoInput.value='';clearPromotion();save();renderCart();
   const purchasedIds=payload.items.map(item=>item.id).filter(id=>/^cb-\d{3}$/.test(id)).slice(0,16);
   $('#studio-build-order').href='/studio?parts='+encodeURIComponent(purchasedIds.join(','));
-  const handover=data.fulfillment_method==='maxim'?(data.promotion?.free_maxim?'Maxim door-to-door. CircuitByte covers the courier fee.':'Maxim door-to-door. You pay the courier fee separately.'):'Meetup in Roxas City, Capiz.';
+  const handover=data.fulfillment_method==='maxim'?(data.promotion?.free_maxim?'Maxim door-to-door. CircuitByte covers the courier fee.':'Maxim door-to-door. You pay the courier fee separately.'):data.fulfillment_method==='lbc'?'LBC shipping to your address. The actual LBC fee is quoted separately and paid by the buyer.':'Meetup in Roxas City, Capiz.';
   const payment=data.total_cents===0?'No item payment due.':data.payment_method==='qrph'?'QR Ph: View the QR in My Orders when CircuitByte opens payment.':'Cash at handover. CircuitByte will confirm the arrangements.';
   const promo=data.promotion?`\nPromo code: ${data.promotion.code}${data.promotion.discount_cents?' (−'+money(data.promotion.discount_cents/100)+')':''}${data.promotion.gift?'\nFree gift: '+data.promotion.gift.quantity+' × '+data.promotion.gift.name:''}`:'';
   $('#order-message').value=`Order ${data.reference} — ${data.status}\nItems total: ${money(data.total_cents/100)}${promo}\n${handover}\n${payment}\n\nPrivate tracking link (keep safe):\n${link}`;

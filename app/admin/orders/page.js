@@ -167,10 +167,12 @@ export default function Orders(){
    <p><strong>{selected.customer_name}</strong> · <a href={'tel:'+selected.contact.replace(/[^+\d]/g,'')}>{selected.contact}</a></p>
    {selected.guest&&!closed(selected.originalStatus)?<label>Customer email (optional)<input type="email" maxLength={200} value={selected.customer_email} onChange={e=>setSelected({...selected,customer_email:e.target.value})}/></label>:<p>{selected.customer_email}</p>}
    <p><strong>{fulfillmentLabel(selected.fulfillment_method)}</strong></p>
-   <p><strong>{selected.fulfillment_method==='maxim'?'Requested delivery address:':'Requested meetup:'}</strong> {selected.proposed_location}</p>
+   <p><strong>{selected.fulfillment_method==='meetup'?'Requested meetup:':'Requested delivery address:'}</strong> {selected.proposed_location}</p>
    {selected.fulfillment_method==='maxim'&&<p>{selected.promotion?.free_maxim?'CircuitByte pays the courier fee. Arrange payment with Maxim before booking.':'Customer pays the courier fee separately. Confirm the quote and handover arrangements before booking.'}
     {selected.payment_method==='cash'&&Number(selected.total_cents)>0?' Confirm how the buyer will pay for the items before dispatch.':''} Share only the name, contact number and drop-off details needed for delivery.</p>}
+   {selected.fulfillment_method==='lbc'&&<p>The buyer pays the current LBC shipping quote separately. Confirm the quote and payment arrangement before dispatch. Add the carrier tracking number to the customer update after booking. <a href="https://www.lbcexpress.com/rates/" target="_blank" rel="noopener noreferrer">Check LBC rates ↗</a></p>}
    {selected.fulfillment_method==='maxim'&&!closed(selected.originalStatus)&&<p><a href="https://taximaxim.com/ph/en/8445-roxas/order-a-taxi-online" target="_blank" rel="noopener noreferrer">Open Maxim Roxas ↗</a></p>}
+   {selected.fulfillment_method==='lbc'&&!closed(selected.originalStatus)&&<p><a href="https://www.lbcexpress.com/track/" target="_blank" rel="noopener noreferrer">Open LBC tracking ↗</a></p>}
    {selected.notes&&<p><strong>Customer message:</strong> {selected.notes}</p>}
    <ul className="order-items">{selected.items.map((item,index)=><li key={item.id+'-'+index}>
     {item.name}{item.promotion_gift?' (free gift)':''}{item.option?` — ${item.option_label||'Variant'}: ${item.option}`:''} × {item.quantity} — {peso(item.price_cents*item.quantity)}
@@ -196,11 +198,11 @@ export default function Orders(){
     <label>Status<select disabled={busy} value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})}>
      {options[selected.originalStatus].filter(status=>!(selected.originalStatus==='Pending'&&selected.payment_method==='qrph'&&status==='Confirmed')).map(status=><option key={status}>{status}</option>)}
     </select></label>
-    <label>{selected.fulfillment_method==='maxim'?'Confirmed delivery address in Roxas City':'Confirmed meetup location in Roxas City'}<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
+    <label>{selected.fulfillment_method==='maxim'?'Confirmed delivery address in Roxas City':selected.fulfillment_method==='lbc'?'Confirmed LBC delivery address':'Confirmed meetup location in Roxas City'}<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
      value={selected.confirmed_location} onChange={e=>setSelected({...selected,confirmed_location:e.target.value})}/></label>
-    {selected.fulfillment_method==='maxim'&&<button className="secondary" type="button" disabled={busy}
+    {(selected.fulfillment_method==='maxim'||selected.fulfillment_method==='lbc')&&<button className="secondary" type="button" disabled={busy}
      onClick={()=>setSelected({...selected,confirmed_location:selected.proposed_location})}>Use requested address</button>}
-    <label>Update for customer<textarea maxLength={1000} placeholder="Agreed date, time or landmark"
+    <label>Update for customer<textarea maxLength={1000} placeholder={selected.fulfillment_method==='lbc'?'Shipping quote/payment details and LBC tracking number':'Agreed date, time or landmark'}
      value={selected.customer_update} onChange={e=>setSelected({...selected,customer_update:e.target.value})}/></label>
     <button disabled={busy}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
     {selected.payment_method==='qrph'&&selected.originalStatus==='Pending'&&selected.status==='Pending'&&!selected.qr_payment_opened_at&&<button className="secondary" type="submit" value="open-qr" disabled={busy}>Open QR Ph payment</button>}

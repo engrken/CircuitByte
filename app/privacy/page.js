@@ -10,7 +10,7 @@ export default function PrivacyNotice(){
  return <EducationShell active="privacy"><article className="privacy-notice">
   <header>
    <h1>CircuitByte Privacy Notice</h1>
-   <p>CircuitByte, based in Roxas City, Capiz, manages the personal data used to run the CircuitByte Shop and Project Studio. This notice explains how we handle your data and how to exercise your rights under the Philippine Data Privacy Act of 2012.</p>
+   <p>CircuitByte manages the personal data used to run the CircuitByte Shop and Project Studio. This notice explains how we handle your data and how to exercise your rights under the Philippine Data Privacy Act of 2012.</p>
    <p><a href="https://privacy.gov.ph/data-privacy-act-/">Read Republic Act No. 10173 at the National Privacy Commission</a></p>
   </header>
   <section>
@@ -25,7 +25,7 @@ export default function PrivacyNotice(){
   </section>
   <section>
    <h2>Who receives your information</h2>
-   <p>CircuitByte uses hosting, database, and email service providers to operate the website and send service messages. If you request Maxim delivery, CircuitByte shares only the name, contact number, drop-off address, and directions needed for the handover with the delivery provider or rider.</p>
+   <p>CircuitByte uses hosting, database, and email service providers to operate the website and send service messages. If you request Maxim delivery or LBC shipping, CircuitByte shares only the name, contact number, and delivery address details needed to fulfill the handover with the selected provider. LBC shipping is arranged manually; the current carrier fee is quoted separately and paid by the buyer.</p>
    <p>QR Ph transfers take place in your bank or wallet and are received through Peddlr Kankolek. CircuitByte uses the transfer reference to match the payment to your order. Enter banking credentials only in your bank or wallet.</p>
   </section>
   <section>

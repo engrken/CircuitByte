@@ -3,7 +3,7 @@
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
- <meta name="description" content="Shop electronics components in Roxas City, Capiz. Find Arduino boards, sensors, modules and tools, or plan your build in CircuitByte Project Studio.">
+ <meta name="description" content="Shop electronics components, Arduino boards, sensors, modules, and tools, or plan your build in CircuitByte Project Studio.">
  <meta name="theme-color" content="#102e28">
  <title>CircuitByte | Electronics Shop &amp; Project Studio</title>
  <link rel="stylesheet" href="/bootstrap.css">
@@ -32,8 +32,7 @@
   <section class="home-hero" aria-labelledby="home-title">
    <div class="home-width home-hero-grid">
     <div class="home-hero-copy">
-     <p class="home-location">Roxas City, Capiz</p>
-     <h1 id="home-title">Electronics for your <span>next build.</span></h1>
+          <h1 id="home-title">Electronics for your <span>next build.</span></h1>
      <p>Shop boards, sensors, modules, and tools. Learn the basics or plan your own Arduino or ESP32 project.</p>
      <div class="home-hero-actions">
       <a class="home-button home-button-primary" href="/catalog">Shop components <span class="home-arrow" aria-hidden="true"></span></a>
@@ -52,7 +51,7 @@
   </section>
   <section class="home-services" aria-label="Ordering information">
    <div class="home-width home-services-grid">
-    <a href="/faq#orders"><strong>Roxas City pickup or delivery</strong><span>Meet up locally or request Maxim.</span></a>
+    <a href="/faq#orders"><strong>Pickup or delivery</strong><span>Meet up locally, request Maxim, or ship nationwide with LBC.</span></a>
     <a href="/faq#warranty"><strong>3-day replacement warranty</strong><span>For defects, starting when you receive the item.</span></a>
     <button type="button" id="how"><strong>How to order</strong><span>Sign in with a verified account to check out.</span></button>
    </div>
@@ -98,7 +97,7 @@
  </main>
  <footer class="home-footer">
   <div class="home-width home-footer-grid">
-   <div><a class="brand" href="/">Circuit<span>Byte</span></a><p>Roxas City, Capiz</p></div>
+   <div><a class="brand" href="/">Circuit<span>Byte</span></a><p>Electronics for your next build.</p></div>
    <nav aria-label="Support"><a href="/track.html">Track order</a><a href="/faq">FAQs &amp; support</a><a href="https://www.facebook.com/circuitbyteph" target="_blank" rel="noopener noreferrer">Message CircuitByte</a><a href="/privacy">Privacy Notice</a></nav>
    <span>© <span id="year"></span> CircuitByte</span>
   </div>
@@ -112,14 +111,15 @@
  <div class="actions"><a class="primary btn btn-primary" id="checkout-sign-in" href="/dashboard?checkout=1">Sign in</a><a id="checkout-register" href="/dashboard?register=1&amp;checkout=1">Create account</a></div>
  <p id="checkout-session" class="muted" role="status"></p>
 </section><form id="checkout" hidden><p id="checkout-account" class="muted"></p><label>Your name<input name="name" autocomplete="name" maxlength="100" required></label><label>Contact number<input name="contact" type="tel" autocomplete="tel" maxlength="40" required></label><label>How would you like to receive your order?
- <select name="fulfillmentMethod" required><option value="meetup">Meetup in Roxas City</option><option value="maxim">Maxim door-to-door delivery</option></select>
+ <select name="fulfillmentMethod" required><option value="meetup">Meetup in Roxas City</option><option value="maxim">Maxim door-to-door delivery</option><option value="lbc">LBC shipping (Philippines)</option></select>
 </label>
 <label><span id="checkout-location-label">Preferred meetup point / landmark</span><input name="location" minlength="5" maxlength="300" placeholder="Barangay, street or landmark in Roxas City" required></label>
 <p id="meetup-checkout-note" class="muted">CircuitByte will contact you to confirm the meetup point and schedule.</p>
-<div id="maxim-checkout-note" hidden>
- <p class="muted" id="maxim-fee-message">You pay the Maxim courier fee separately. CircuitByte confirms delivery arrangements before booking.</p>
- <label class="checkout-fee-check"><input name="deliveryFeeAccepted" type="checkbox" value="yes" disabled> I will pay the Maxim delivery fee separately.</label>
+<div id="courier-checkout-note" hidden>
+ <p class="muted" id="courier-fee-message"></p>
+ <label class="checkout-fee-check"><input name="deliveryFeeAccepted" type="checkbox" value="yes" disabled> <span id="courier-fee-ack-text">I will pay the courier fee separately.</span></label>
 </div>
+<p id="lbc-checkout-note" class="muted" hidden>Any item balance is paid via QR Ph before dispatch. The LBC shipping charge is separate from the item total; CircuitByte confirms the current quote and payment arrangement before shipping. Rates depend on destination and parcel details. <a href="https://www.lbcexpress.com/rates/" target="_blank" rel="noopener noreferrer">Check LBC rates ↗</a></p>
 <label>Optional message about your order<textarea name="notes" maxlength="1000" rows="3" placeholder="Add any instructions or questions about your order."></textarea></label><label>Payment method<select name="paymentMethod" required><option value="cash">Cash at handover</option><option value="qrph">QR Ph (bank or e-wallet)</option></select></label>
 <p id="qr-checkout-note" class="muted" hidden>When CircuitByte opens payment, My Orders will show your items total, the payment QR and transfer reference form. Peddlr’s Kolek fee applies to QR payments.</p>
 <section class="checkout-promotion" aria-label="Shop promotion"><label for="shop-coupon">Promo code</label><div class="checkout-promo-controls"><input id="shop-coupon" type="text" maxlength="32" autocomplete="off" autocapitalize="characters"><button type="button" id="apply-promo">Apply</button><button type="button" id="remove-promo" hidden>Remove</button></div><p id="promo-status" class="muted" role="status" aria-live="polite"></p><div id="promo-total" class="cart-total" hidden><span>Items total after promotion</span><strong></strong></div></section>
@@ -128,4 +128,4 @@
 <p id="detail-quantity" class="muted"></p><strong id="detail-price"></strong><div id="detail-option-wrap" hidden><label for="detail-option" id="detail-option-label"></label><select id="detail-option" class="form-select" required></select></div><div id="detail-wire-length-wrap" hidden><label for="detail-wire-length">Wire length (cm)</label>
  <input id="detail-wire-length" type="number" inputmode="decimal" min="0" step="any" list="wire-length-suggestions" class="form-control">
  <p class="muted">Choose a suggested length or enter your preferred length. CircuitByte confirms availability for the selected type and length.</p>
-</div><datalist id="wire-length-suggestions"></datalist><p><button class="primary btn btn-primary" id="detail-add">Add to cart +</button></p></dialog><dialog id="how-dialog"><div class="dialog-head"><h2>From catalog to project.</h2><button class="icon-button" data-close aria-label="Close instructions">×</button></div><ol><li>Browse the catalog and add parts to your cart.</li><li>Sign in with your email and password. New customers can verify their email from My Dashboard.</li><li>Choose a meetup point or request Maxim delivery within Roxas City, Capiz. A free Maxim code covers the courier fee. Otherwise, you pay it separately.</li><li>Apply your promo code in the cart before placing the order.</li><li>Save your private tracking link. Your order starts as Pending.</li><li>Use the same verified CircuitByte account for your order history and Project Studio.</li><li>Choose cash at handover or pay with QR Ph once your order is confirmed.</li></ol><p>CircuitByte confirms the meetup schedule or Maxim delivery arrangements after receiving your order.</p></dialog><div id="toast" role="status"></div></body></html>
+</div><datalist id="wire-length-suggestions"></datalist><p><button class="primary btn btn-primary" id="detail-add">Add to cart +</button></p></dialog><dialog id="how-dialog"><div class="dialog-head"><h2>From catalog to project.</h2><button class="icon-button" data-close aria-label="Close instructions">×</button></div><ol><li>Browse the catalog and add parts to your cart.</li><li>Sign in with your email and password. New customers can verify their email from My Dashboard.</li><li>Choose a local meetup, Maxim delivery, or LBC shipping within the Philippines. LBC rates vary by destination and parcel details; the buyer pays the separately confirmed fee.</li><li>Apply your promo code in the cart before placing the order.</li><li>Save your private tracking link. Your order starts as Pending.</li><li>Use the same verified CircuitByte account for your order history and Project Studio.</li><li>Choose cash at handover or pay with QR Ph once your order is confirmed.</li></ol><p>CircuitByte confirms the meetup schedule or Maxim delivery arrangements after receiving your order.</p></dialog><div id="toast" role="status"></div></body></html>

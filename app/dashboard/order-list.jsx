@@ -46,6 +46,10 @@ export default function OrderList({orders,onUpdate}){
    {order.fulfillment_method==='maxim'?<>
     <p>{order.confirmed_location?'Confirmed delivery address':'Requested delivery address'}: {order.confirmed_location||order.proposed_location}</p>
     <p>{order.promotion?.free_maxim?'CircuitByte covers the Maxim courier fee.':'You pay the Maxim courier fee separately.'} CircuitByte confirms the delivery arrangements before booking.</p>
+   </>:order.fulfillment_method==='lbc'?<>
+    <p>{order.confirmed_location?'Confirmed LBC delivery address':'Requested LBC delivery address'}: {order.confirmed_location||order.proposed_location}</p>
+    <p>The LBC shipping fee is separate from your item total and is paid by the buyer after the quote is confirmed. Check your customer update below for booking and tracking details.</p>
+    <p><a href="https://www.lbcexpress.com/track/" target="_blank" rel="noopener noreferrer">Track with LBC ↗</a></p>
    </>:<p>{order.confirmed_location?'Confirmed meetup':'Requested meetup'}: {order.confirmed_location||order.proposed_location}</p>}
    {order.customer_update&&<p>{order.customer_update}</p>}
    {order.invoice_number&&<p>Order invoice <strong>{order.invoice_number}</strong></p>}

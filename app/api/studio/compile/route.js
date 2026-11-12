@@ -19,8 +19,15 @@ export async function POST(request) {
   let payload;
   try{payload=await request.json();}catch{return Response.json({error:'Invalid request.'},{status:400});}
   const code=typeof payload?.code==='string'?payload.code:'';
+  if(payload?.runLabWiredSimulation!==undefined&&typeof payload.runLabWiredSimulation!=='boolean')
+    return Response.json({error:'LabWired simulation selection must be true or false.'},{status:400});
   const board=String(payload?.board||'');
   const profile=Object.hasOwn(BOARD_PROFILES,board)?BOARD_PROFILES[board]:null;
+  const runLabWiredSimulation=payload?.runLabWiredSimulation===true;
+  if(runLabWiredSimulation&&profile?.fqbn!=='esp32:esp32:esp32c3')
+    return Response.json({error:'The LabWired pilot currently supports only the ESP32-C3 board profile.'},{status:422});
+  if(runLabWiredSimulation&&process.env.STUDIO_LABWIRED_ENABLED==='false')
+    return Response.json({error:'LabWired simulation is disabled by the Studio service configuration.'},{status:503});
   if(!profile||code.length<10||code.length>15000||
     !/\bvoid\s+setup\s*\(/.test(code)||!/\bvoid\s+loop\s*\(/.test(code)){
     return Response.json({error:'Choose a supported board and provide a valid 10–15,000 character sketch containing setup() and loop().'}, {status:400});
@@ -54,7 +61,7 @@ export async function POST(request) {
   let quota;try{quota=await reserveStudentQuota(user.id,'compile');}catch{return Response.json({error:'Compilation usage ledger unavailable; compilation is temporarily disabled.'},{status:503});}
   if(!quota.allowed)return Response.json({error:'Monthly compilation capacity is full (50 successful builds, including pending reservations).',quota},{status:429});
   let result;
-  try{result=await compileStudioSketch({code,profile,dependencies,customLibrary});}
+  try{result=await compileStudioSketch({code,profile,dependencies,customLibrary,runLabWiredSimulation});}
   catch{result={ok:false,stage:'service',error:'Compilation could not complete. No build credit was deducted.'};}
   let creditCharged=false;
   try{creditCharged=await settleStudentQuota(quota,result.ok===true);}

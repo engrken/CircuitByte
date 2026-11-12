@@ -337,3 +337,17 @@
 .studio-usb-driver-steps{padding-left:20px;margin:14px 0;color:#465a4c;font-size:12px;line-height:1.75}
 .studio-usb-driver-footnote{border-top:1px solid #e0e8dc;padding-top:10px!important;margin-bottom:0!important}
 .studio-usb-driver-hint{background:#edf5e8;padding:9px 11px;border-radius:7px}
+
+/* Optional ESP32-C3 LabWired smoke run */
+.studio-labwired-option{display:flex;align-items:flex-start;gap:10px;margin:14px 0;padding:12px 14px;border:1px solid #c5dacf;border-radius:10px;background:#f4faf5;color:#264b37}
+.studio-labwired-option input{width:18px;height:18px;flex:none;margin:2px 0 0;accent-color:#26734d}
+.studio-labwired-option span{display:grid;gap:4px}
+.studio-labwired-option strong{font-size:13px}
+.studio-labwired-option small{font-size:12px;line-height:1.55;color:#53695a}
+.studio-labwired-result{margin:14px 0;padding:14px;border:1px solid #c8d9cf;border-radius:10px;background:#f7faf8;color:#29463a;overflow-wrap:anywhere}
+.studio-labwired-result h4{margin:0 0 8px;font-size:15px}
+.studio-labwired-result>strong{display:inline-block;margin:2px 0 6px}
+.studio-labwired-result p{font-size:12px;line-height:1.6;margin:7px 0}
+.studio-labwired-result details{margin-top:9px}
+.studio-labwired-result summary{cursor:pointer;font-size:12px;font-weight:700}
+.studio-labwired-result pre{max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:10px;border-radius:7px;background:#17221b;color:#e5eee7;font-size:11px}

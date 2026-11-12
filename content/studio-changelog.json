@@ -1,5 +1,17 @@
 [
   {
+    "id": "studio-labwired-esp32c3-20261112",
+    "date": "2026-11-12",
+    "title": "Optional LabWired ESP32-C3 firmware smoke test",
+    "type": "Studio",
+    "highlights": [
+      "After a successful ESP32-C3 compile, users can opt into a bounded LabWired virtual firmware execution in the same isolated Sandbox.",
+      "LabWired is pinned to v0.25.0; its CLI release archive is SHA-256 verified, execution is limited to 800,000 steps and 30 seconds, and user firmware runs with network access disabled.",
+      "The LabWired report is separate from the Arduino compile result. Compilation credit rules are unchanged; the optional simulation adds execution time but no separate build credit.",
+      "This pilot covers only the ESP32-C3 DevKit profile and reports a firmware smoke test. It does not model the Studio wiring diagram, certify electrical safety, or validate physical hardware."
+    ]
+  },
+  {
     "id": "circuitbyte-usb-driver-help-20261112",
     "date": "2026-11-12",
     "title": "USB port and driver setup help",

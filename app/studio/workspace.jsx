@@ -55,6 +55,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const [compile,setCompile]=useState(null);
+  const [labWiredRequested,setLabWiredRequested]=useState(false);
   const [mode,setMode]=useState('guide');
   const [aiProvider,setAiProvider]=useState('gateway');
   const [tab,setTab]=useState('code');
@@ -124,6 +125,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     return '';
   }
   const aiReason=serviceReason('ai'),compileReason=services&&!services.compileBoards?.includes(board)?'Cloud compilation is unavailable for this board.':serviceReason('compile');
+  const labWiredEligible=Boolean(services?.labWiredEnabled&&services?.labWiredBoards?.includes(board));
   async function chooseTemplate(build){
     checkpoint();setCloudProjectId('');setCloudRevision(0);
     setError('');setNotice('');setCompile(null);setProject(null);setCode('');setLoading(true);
@@ -192,6 +194,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   async function runCompile(){
     if(!passed.slice(0,5).every(Boolean)||!compatibility.canCompile)return;
     if(reuseSuccessfulCompilation(compile,compiledKey,buildKey)){
+      if(labWiredRequested&&!compile?.labWiredSimulation){setNotice('LabWired must be selected before the original compile. Rebuilding would use another successful-build credit.');setStep(6);return;}
       setError('');
       setNotice('This exact board, sketch and library configuration has already compiled. Reuse the existing firmware or edit the sketch before recompiling; no new Sandbox run or build credit was used.');
       setStep(6);
@@ -199,7 +202,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     }
     setError('');setCompile(null);setBusy(true);
     try{
-      const result=await studioRequest('/api/studio/compile',{code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries},{timeoutMs:280000});
+      const result=await studioRequest('/api/studio/compile',{code,board,parts:selected,customLibrary:customLibrary?.base64,manualLibraries,runLabWiredSimulation:labWiredRequested&&labWiredEligible},{timeoutMs:280000});
       setCompile(result);setCompiledKey(buildKey);
     }catch(e){setError(e.message||'Compilation unavailable.');}
     finally{setBusy(false);refreshServices();}
@@ -478,10 +481,14 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
             {project.guideUrl&&<a href={project.guideUrl}>Full DIY guide ↗</a>}
           </div></details>
           <div hidden={visibleStep!==5} className="studio-compile">
-            <div><h4>Compile your sketch</h4><p>Check the sketch for your selected board. Compilation does not verify physical wiring.</p></div>
-            <button type="button" disabled={working||!passed.slice(0,5).every(Boolean)||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':'Compile for '+studioBoardName(board)}</button>
-          </div>
+             <div><h4>Compile your sketch</h4><p>Check the sketch for your selected board. Compilation does not verify physical wiring.</p>
+             {labWiredEligible&&<label className="studio-labwired-option"><input type="checkbox" checked={labWiredRequested} disabled={working||Boolean(compile?.ok&&compiledKey===buildKey)} onChange={e=>setLabWiredRequested(e.target.checked)}/><span><strong>Run LabWired after compilation</strong><small>ESP32-C3 only. Adds a bounded server-side firmware check in the same Sandbox, so it uses extra execution time. No separate compile credit. Select before compiling.</small></span></label>}
+             {board==='esp32:esp32:esp32c3'&&compile?.ok&&compiledKey===buildKey&&!compile?.labWiredSimulation&&!labWiredRequested&&<p className="studio-help">LabWired was not selected before this successful build. It cannot be run on the existing build without another compilation.</p>}
+             </div>
+             <button type="button" disabled={working||!passed.slice(0,5).every(Boolean)||Boolean(compileReason)} onClick={runCompile}>{busy?'Compiling…':(labWiredRequested&&labWiredEligible?'Compile & simulate for ':'Compile for ')+studioBoardName(board)}</button>
+           </div>
           {visibleStep===5&&compileReason&&<p className="studio-help">{compileReason}</p>}
+          {visibleStep===5&&compile?.labWiredSimulation&&<section className="studio-labwired-result" aria-live="polite"><h4>LabWired firmware execution smoke test</h4><strong>{compile.labWiredSimulation.status==='completed'?'Simulation run completed':compile.labWiredSimulation.status==='failed'?'Simulation run reported an issue':'Simulation unavailable'}</strong><p>{compile.labWiredSimulation.scope||compile.labWiredSimulation.reason} {compile.labWiredSimulation.version&&'LabWired '+compile.labWiredSimulation.version+'.'} The report describes a virtual execution only; it does not validate wiring, electrical safety, or physical hardware.</p>{compile.labWiredSimulation.uartLog&&<details><summary>UART output</summary><pre>{compile.labWiredSimulation.uartLog}</pre></details>}{compile.labWiredSimulation.output&&<details><summary>Simulator details</summary><pre>{compile.labWiredSimulation.output}</pre></details>}</section>}
           {visibleStep===5&&compile&&<div role="status" className={compile.ok?'studio-compile-result success':'studio-compile-result'}><strong>{compile.ok?'Compilation passed':'Compilation failed'}</strong><p>Build target: {compile.fqbn||compile.board}</p><pre>{compile.output}</pre>{compile.ok&&compile.firmwareHex&&<button type="button" onClick={()=>downloadText('CircuitByteSketch.ino.hex',compile.firmwareHex,'text/plain')}>Download compiled .hex</button>}{compile.ok&&compile.firmwareImages?.map((file,i)=><button type="button" key={i} onClick={async()=>{try{downloadText(file.name,await decodeEspImage(file),'application/octet-stream');}catch(e){setError(e.message);}}}>Download flash package · {file.name}</button>)}{compile.ok&&compile.firmwareBin&&<><button type="button" onClick={()=>{const bytes=Uint8Array.from(atob(compile.firmwareBin),char=>char.charCodeAt(0));downloadText('CircuitByteSketch.application.bin',bytes,'application/octet-stream');}}>Download application .bin</button><p>ESP application image only. Use the matching board's bootloader, partition layout and vendor upload tools; this is not a complete merged flash image.</p></>}{compile.ok&&!compile.artifactAvailable&&<p>Build completed, but no firmware artifact is available for download.</p>}</div>}
 {visibleStep===5&&board==='arduino:avr:uno'&&<StudioAvrEmulator key={buildKey} firmwareHex={compile?.ok&&compile?.board===board?(compile.firmwareHex||''):''} board={board}/>}
           {visibleStep===5&&<section className="studio-ide-verify"><h4>Or compile in Arduino IDE</h4><button type="button" onClick={()=>downloadText((project.slug||'CircuitByteProject')+'.ino',code)}>Download this sketch</button><p>Install the board package and required libraries, select {studioBoardName(board)}, then click Verify. Fix every error before confirming.</p><label><input type="checkbox" checked={ideVerified===buildKey} onChange={e=>setIdeVerified(e.target.checked?buildKey:'')}/> Arduino IDE successfully verified this exact sketch for my selected board (self-reported).</label></section>}

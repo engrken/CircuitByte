@@ -1,5 +1,16 @@
 [
   {
+    "id": "circuitbyte-usb-driver-help-20261112",
+    "date": "2026-11-12",
+    "title": "USB port and driver setup help",
+    "type": "Studio",
+    "highlights": [
+      "The USB hardware panel now links to official WCH, Silicon Labs, FTDI, and Arduino port troubleshooting resources.",
+      "Guidance separates computer-installed USB drivers, browser permission for Web Serial, and board/port selection in Arduino IDE.",
+      "USB vendor identity is shown only as a hint; the browser does not install drivers or claim to identify the exact board or bootloader."
+    ]
+  },
+  {
     "id": "circuitbyte-guided-virtual-lab-20261105",
     "date": "2026-11-05",
     "title": "Guided Virtual Electronics Laboratory and experiment evidence",

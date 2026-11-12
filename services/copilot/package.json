@@ -7,6 +7,9 @@
     "test": "node --test bridge.test.mjs"
   },
   "dependencies": {
-    "@github/copilot-sdk": "1.0.28"
+    "@github/copilot-sdk": "1.0.31"
+  },
+  "overrides": {
+    "zod": "4.6.7"
   }
 }

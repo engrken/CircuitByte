@@ -18,6 +18,24 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Skip unrelated web-quality work safely
+          command: |
+            set -euo pipefail
+            if bash scripts/ci/check-impact.sh web-quality; then
+              echo 'CI impact: job is required.'
+            else
+              status=$?
+              if [ "$status" -eq 10 ]; then
+                echo 'CI impact: no relevant changes; complete required status without heavy work.'
+                circleci-agent step halt
+              else
+                exit "$status"
+              fi
+            fi
+      - run:
+          name: Validate the change selection policy
+          command: bash scripts/ci/test-impact.sh
+      - run:
           name: Confirm CircleCI GitHub trigger and checked-out commit
           command: |
             echo "CircleCI project: ${CIRCLE_PROJECT_REPONAME:-unknown}"
@@ -50,12 +68,19 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Skip Arduino CLI installation for unrelated commits
+          name: Skip unrelated arduino-uno-compile work safely
           command: |
-            if bash scripts/ci/uno-affected.sh; then
-              echo 'export CIRCUITBYTE_RUN_UNO=1' >> "$BASH_ENV"
+            set -euo pipefail
+            if bash scripts/ci/check-impact.sh arduino-uno-compile; then
+              echo 'CI impact: job is required.'
             else
-              echo 'export CIRCUITBYTE_RUN_UNO=0' >> "$BASH_ENV"
+              status=$?
+              if [ "$status" -eq 10 ]; then
+                echo 'CI impact: no relevant changes; complete required status without heavy work.'
+                circleci-agent step halt
+              else
+                exit "$status"
+              fi
             fi
       - run:
           name: Download and verify Arduino CLI v1.5.1

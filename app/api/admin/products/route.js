@@ -14,7 +14,7 @@ const schema=z.object({
 
 // Reprice only unreviewed lines of unpaid Pending orders, atomically with the catalog edit.
 // A confirmed line is a price commitment, even when the overall order is still Pending.
-async function synchronizePendingPrices(client,productId,newPrice,actor){
+export async function synchronizePendingPrices(client,productId,newPrice,actor){
  const {rows:orders}=await client.query(`SELECT id,reference,items,total_cents,promotion FROM orders
   WHERE status='Pending' AND qr_payment_opened_at IS NULL
    AND payment_reference IS NULL AND payment_verified_at IS NULL

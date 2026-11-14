@@ -109,6 +109,24 @@ export default function Orders(){
    await load();
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
+ async function reviewItem(index,action){
+  const item=selected.items[index];
+  const reason=action==='remove'?window.prompt('Reason for removing '+item.name+' (e.g. out of stock or buyer request):','Out of stock'): '';
+  if(reason===null)return;
+  if(action==='remove'&&!window.confirm('Remove '+item.name+' × '+item.quantity+' from this order and recalculate the total?'))return;
+  setBusy(true);setError('');setNotice('');
+  try{
+   const response=await fetch('/api/admin/orders/items',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    id:selected.id,version:selected.version,index,action,reason:reason||''
+   })});
+   const data=await response.json();
+   if(!response.ok)throw Error(data.error||'Could not review item.');
+   const updated=await fetchOrder(selected.id);
+   setSelected({...updated,originalStatus:updated.status});
+   setNotice(action==='remove'?'Item removed; total updated. Notify the buyer of the revised order.':'Item confirmed in stock.');
+   await load();
+  }catch(e){setError(e.message);}finally{setBusy(false);}
+ }
  async function moveCancelledOrder(){
   const restoring=Boolean(selected.deleted_at);
   setBusy(true);setError('');setNotice('');
@@ -175,8 +193,18 @@ export default function Orders(){
    {selected.fulfillment_method==='lbc'&&!closed(selected.originalStatus)&&<p><a href="https://www.lbcexpress.com/track/" target="_blank" rel="noopener noreferrer">Open LBC tracking ↗</a></p>}
    {selected.notes&&<p><strong>Customer message:</strong> {selected.notes}</p>}
    <ul className="order-items">{selected.items.map((item,index)=><li key={item.id+'-'+index}>
+    <div>
     {item.name}{item.promotion_gift?' (free gift)':''}{item.option?` — ${item.option_label||'Variant'}: ${item.option}`:''} × {item.quantity} — {peso(item.price_cents*item.quantity)}
+    </div>
+    <div className="item-review-controls">
+     <small>{item.review_status==='confirmed'?'✓ Confirmed in stock':'Awaiting item confirmation'}</small>
+     {selected.originalStatus==='Pending'&&!selected.deleted_at&&<>
+      {item.review_status!=='confirmed'&&<button type="button" className="secondary" disabled={busy} onClick={()=>reviewItem(index,'confirm')}>Confirm item</button>}
+      <button type="button" className="secondary" disabled={busy||Boolean(selected.qr_payment_opened_at||selected.payment_reference||selected.promotion)} onClick={()=>reviewItem(index,'remove')}>Remove item</button>
+     </>}
+    </div>
    </li>)}</ul>
+   {selected.originalStatus==='Pending'&&selected.items.some(item=>item.review_status!=='confirmed')&&<p role="status">Confirm each item before opening QR payment or confirming this order. Promotional items cannot be removed without recalculating the promotion.</p>}
    <div className="payment-review">
     {selected.promotion&&<p>Promo <strong>{selected.promotion.code}</strong>{selected.promotion.discount_cents>0&&` · ${peso(selected.promotion.subtotal_cents)} − ${peso(selected.promotion.discount_cents)}`}</p>}
     <strong>{peso(selected.total_cents)} · {paymentStatus(selected)}</strong>

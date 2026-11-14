@@ -146,7 +146,8 @@ async function save(e){
    }
   }
   closeEditor();
-  setError(selectedPhoto?'Product and photo saved successfully.':'Product saved successfully.');
+  const count=Number(saved.repriced_orders)||0;
+  setError((selectedPhoto?'Product and photo saved successfully.':'Product saved successfully.')+(count?' Updated prices in '+count+' pending order(s); confirmed items and orders were preserved.':''));
  }catch(e){setError(e.message||'Product could not be saved. Please retry.');}finally{setBusy(false);}
 }
 function photo(e){const file=e.target.files?.[0];if(!file){setSelectedPhoto(null);return;}if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3000000){setError('Choose a JPEG, PNG or WebP image under 3 MB.');e.target.value='';setSelectedPhoto(null);return;}setSelectedPhoto(file);setError('');}

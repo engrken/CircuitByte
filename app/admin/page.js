@@ -171,6 +171,17 @@ async function restock(item,rawQuantity){
  finally{setBusy(false);}
 }
 
+async function reconcilePendingPrices(){
+ if(busy)return;
+ setBusy(true);setError('');
+ try{
+  const response=await fetch('/api/admin/products/reconcile',{method:'POST'});
+  const data=await response.json().catch(()=>null);
+  if(!response.ok)throw Error(data?.error||'Reconciliation failed.');
+  setError('Price reconciliation complete. Updated '+data.repricedOrders+' pending order item price(s) across '+data.productsChecked+' products.');
+ }catch(e){setError(e.message);}finally{setBusy(false);}
+}
+
 async function toggleHistory(){
  if(history){setHistory(null);return;}
  try{
@@ -195,7 +206,7 @@ const pageCount=Math.max(1,Math.ceil(filteredItems.length/pageSize));
 const currentPage=Math.min(page,pageCount);
 const visibleItems=filteredItems.slice((currentPage-1)*pageSize,currentPage*pageSize);
 const stockView=filter==='out'||filter==='unknown';
-const success=error.startsWith('Product saved')||error.startsWith('Product and photo saved')||error.startsWith('Stock saved');
+const success=error.startsWith('Price reconciliation complete')||error.startsWith('Product saved')||error.startsWith('Product and photo saved')||error.startsWith('Stock saved');
 const notice=<p className={success?'inventory-notice success':'inventory-notice'} role={success?'status':'alert'} aria-live="polite">{error}</p>;
 
 return <main className="inventory-admin" id="main">
@@ -265,6 +276,7 @@ return <main className="inventory-admin" id="main">
   </div>
 
   {notice}
+ {signed&&<button type="button" disabled={busy} onClick={reconcilePendingPrices}>Sync prices in existing Pending orders</button>}
   {product?(
    <form onSubmit={save} className="inventory-editor">
     <h2 ref={editorHeading} tabIndex={-1}>{product.version?'Edit product':'New product'}</h2>

@@ -11,6 +11,44 @@ const schema=z.object({
  quantity_label:z.string().max(200),active:z.boolean(),
  version:z.number().int().min(0),reason:z.string().trim().min(1).max(500)
 });
+
+// Reprice only unreviewed lines of unpaid Pending orders, atomically with the catalog edit.
+// A confirmed line is a price commitment, even when the overall order is still Pending.
+async function synchronizePendingPrices(client,productId,newPrice,actor){
+ const {rows:orders}=await client.query(`SELECT id,reference,items,total_cents,promotion FROM orders
+  WHERE status='Pending' AND deleted_at IS NULL AND qr_payment_opened_at IS NULL
+   AND payment_reference IS NULL AND payment_verified_at IS NULL
+   AND items @> $1::jsonb ORDER BY id FOR UPDATE`,[JSON.stringify([{id:productId}])]);
+ let changed=0;
+ for(const order of orders){
+  let modified=false;
+  const items=order.items.map(item=>{
+   if(item.id!==productId||item.review_status==='confirmed'||item.promotion_gift||item.price_cents===newPrice)return item;
+   modified=true;return {...item,price_cents:newPrice};
+  });
+  if(!modified)continue;
+  const subtotal=items.reduce((sum,item)=>sum+item.price_cents*item.quantity,0);
+  let promotion=order.promotion,discount=0;
+  if(promotion){
+   if(promotion.kind==='percent'){
+    const oldSubtotal=Number(promotion.subtotal_cents)||0;
+    // Preserve the agreed effective discount rate without querying a potentially edited promotion.
+    discount=oldSubtotal>0?Math.min(subtotal,Math.round(subtotal*Number(promotion.discount_cents)/oldSubtotal)):0;
+   }else if(promotion.kind==='fixed'){
+    discount=Math.min(subtotal,Number(promotion.discount_cents)||0);
+   }
+   promotion={...promotion,subtotal_cents:subtotal,discount_cents:discount};
+  }
+  const total=subtotal-discount;
+  await client.query('UPDATE orders SET items=$2,total_cents=$3,promotion=$4,version=version+1,updated_at=now() WHERE id=$1',
+   [order.id,JSON.stringify(items),total,promotion?JSON.stringify(promotion):null]);
+  await client.query('INSERT INTO order_events(order_id,status,actor,note) VALUES($1,$2,$3,$4)',
+   [order.id,'Pending',actor,'Catalog price updated for unconfirmed item; revised order total: PHP '+(total/100).toFixed(2)]);
+  changed++;
+ }
+ return changed;
+}
+
 export const dynamic='force-dynamic';
 
 export async function GET(){
@@ -61,8 +99,10 @@ export async function POST(req){
    return Response.json({error:'This product changed while saving. Refresh inventory and retry.'},{status:409});
   }
   await client.query('INSERT INTO product_audit(product_id,actor,reason,before_data,after_data) VALUES($1,$2,$3,$4,$5)',[p.id,user.email,p.reason,JSON.stringify(before??null),JSON.stringify(result.rows[0])]);
+  const repricedOrders=before&&before.price_cents!==p.price_cents
+   ?await synchronizePendingPrices(client,p.id,p.price_cents,user.email):0;
   await client.query('COMMIT');transactionOpen=false;
-  return Response.json(result.rows[0],{headers:{'Cache-Control':'no-store'}});
+  return Response.json({...result.rows[0],repriced_orders:repricedOrders},{headers:{'Cache-Control':'no-store'}});
  }catch(e){
   if(transactionOpen&&client)await client.query('ROLLBACK').catch(()=>{});
   console.error('Admin product save failed:',e.code||e.name);

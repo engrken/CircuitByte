@@ -133,7 +133,7 @@ export default function Orders(){
    if(!response.ok)throw new Error(data.error);
    const updated=await fetchOrder(selected.id);
    setSelected({...selected,notifications:updated.notifications});
-   setNotice('Order email delivery status refreshed.');
+   setNotice(Object.values(data.notifications||{}).every(v=>v==='sent')?'Order emails sent successfully.':'Some emails are still unsent. Check Gmail sender settings and try again.');
   }catch(e){setError(e.message);}finally{setBusy(false);}
  }
  async function issue(details){

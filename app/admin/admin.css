@@ -169,3 +169,17 @@
 .inventory-admin-code { max-width: 650px; margin-top: 24px; }
 .inventory-admin-code form { margin-top: 12px; }
 .inventory-admin-code .account-security-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Keep all administrative navigation and actions reachable on narrow touch screens. */
+@media(max-width:767px){
+ .inventory-header{align-items:stretch}
+ .inventory-admin .inventory-nav{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .inventory-admin .inventory-nav a,.inventory-admin .inventory-nav button{display:flex;align-items:center;justify-content:center;text-align:center;min-width:0;width:100%;min-height:44px;padding:10px 8px;border:1px solid var(--inventory-line);border-radius:10px;background:#fff;overflow-wrap:anywhere}
+ .inventory-admin .inventory-nav button{background:var(--inventory-accent);color:#fff}
+ .inventory-admin .inventory-nav a:focus-visible{outline:3px solid #b6d780;outline-offset:2px}
+ .inventory-list-heading .inventory-actions{width:100%}
+ .inventory-list-heading .inventory-actions button{flex:1 1 130px}
+ .inventory-admin .inventory-table tbody tr{min-width:0}
+ .inventory-admin .inventory-table tbody :is(th,td){min-width:0;overflow-wrap:anywhere}
+}
+@media(max-width:360px){.inventory-admin .inventory-nav{grid-template-columns:minmax(0,1fr)}}

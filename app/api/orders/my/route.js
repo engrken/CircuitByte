@@ -1,7 +1,7 @@
 import {after} from 'next/server';
 import {deliverOrderNotifications} from '../../../../lib/order-notifications.js';
 import {requireUser,sameOrigin} from '../../../../lib/auth';
-import {errorResponse,listCustomerOrders,readBody,recordPaymentReference} from '../../../../lib/orders';
+import {errorResponse,listCustomerOrders,readBody,recordPaymentReference,cancelCustomerOrder} from '../../../../lib/orders';
 
 export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
@@ -24,5 +24,15 @@ export async function POST(req){
    catch(error){console.error('Could not send payment review notification:',error.code||error.name);}
   });
   return Response.json({ok:true},{headers});
+ }catch(e){return errorResponse(e);}
+}
+
+export async function DELETE(req){
+ let user;
+ try{sameOrigin(req);user=await requireUser();}catch{return Response.json({error:'Sign in with a verified account.'},{status:403,headers});}
+ try{
+  const body=await readBody(req);
+  const order=await cancelCustomerOrder(body?.id,user.id,body?.reason??'');
+  return Response.json({ok:true,order},{headers});
  }catch(e){return errorResponse(e);}
 }

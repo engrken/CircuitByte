@@ -16,7 +16,7 @@ export async function POST(req){
     if(!gmailConfigured())notification='not_configured';
     else try{
      await sendGmailMessage({to:order.customer_email,subject:'CircuitByte order revised: '+order.reference,
-      body:'An item was removed from your order: '+result.item+'\\nReason: '+(body.reason||'Order adjustment')+'\\nUpdated items total: PHP '+(result.order.total_cents/100).toFixed(2)+'\\nPlease review your updated order in My Orders.\\n'+new URL('/dashboard',process.env.BETTER_AUTH_URL||new URL(req.url).origin)});
+      body:'An item was removed from your order: '+result.item+'\nReason: '+(body.reason||'Order adjustment')+'\nUpdated items total: PHP '+(result.order.total_cents/100).toFixed(2)+'\nPlease review your updated order in My Orders.\n'+new URL('/dashboard',process.env.BETTER_AUTH_URL||new URL(req.url).origin)});
      notification='sent';
     }catch(e){notification='failed';console.error('Item removal notification failed:',e.code||e.name);}
    }

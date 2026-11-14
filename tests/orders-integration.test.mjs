@@ -7,7 +7,7 @@ const pg=new PGlite();
 const query=(sql,args)=>sql.startsWith('SELECT pg_advisory_xact_lock')?Promise.resolve({rows:[]}):pg.query(sql,args);
 const connection={query,release(){}};
 mock.module('../lib/db.js',{namedExports:{db:()=>({query,connect:async()=>connection})}});
-const {createOrder,updateOrder,trackOrder,listCustomerOrders,recordPaymentReference}=await import('../lib/orders.js');
+const {createOrder,updateOrder,trackOrder,listCustomerOrders,recordPaymentReference,cancelCustomerOrder}=await import('../lib/orders.js');
 let adminSignedIn=false;
 mock.module('../lib/auth.js',{namedExports:{requireAdmin:async()=>{
  if(!adminSignedIn)throw new Error('Unauthorized');
@@ -144,4 +144,27 @@ test('admins can delete and restore cancelled orders while retaining the payment
  assert.equal((await list('Cancelled')).orders.length,1);
  const audit=(await query("SELECT note FROM order_events WHERE order_id=$1 AND actor='admin@example.invalid' ORDER BY id",[id])).rows;
  assert.deepEqual(audit.map(event=>event.note),['Deleted from admin orders','Restored to admin orders']);
+});
+
+test('buyer cancellation is ownership-scoped, pending-only, and releases a QR stock hold',async()=>{
+ await pg.exec(schema);
+ await query("INSERT INTO products(id,name,categories,price_cents,stock) VALUES('buyer-cancel-fixture','Buyer cancellation',ARRAY['boards'],2200,3)");
+ const buyer={id:'buyer-cancel-owner',email:'buyer-cancel@example.invalid'};
+ const create=async(token)=>{const id=crypto.randomUUID();await createOrder({name:'Buyer Cancellation',contact:'09171112222',location:'Roxas City test landmark',city:'Roxas City, Capiz',notes:'',requestId:id,token,items:[{id:'buyer-cancel-fixture',quantity:1,price_cents:2200}],paymentMethod:'qrph'},'test',buyer);return id;};
+ const first=await create('a'.repeat(64));
+ await assert.rejects(cancelCustomerOrder(first,'other-user'),/not found/);
+ const cancelled=await cancelCustomerOrder(first,buyer.id,'Changed my mind');
+ assert.equal(cancelled.status,'Cancelled');
+ assert.equal((await query('SELECT status FROM orders WHERE id=$1',[first])).rows[0].status,'Cancelled');
+ await assert.rejects(cancelCustomerOrder(first,buyer.id),/pending/);
+ const second=await create('b'.repeat(64));
+ await updateOrder({id:second,version:1,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
+ assert.equal((await query("SELECT reserved_stock FROM products WHERE id='buyer-cancel-fixture'")).rows[0].reserved_stock,1);
+ await cancelCustomerOrder(second,buyer.id,'No longer needed');
+ assert.equal((await query("SELECT reserved_stock FROM products WHERE id='buyer-cancel-fixture'")).rows[0].reserved_stock,0);
+ const third=await create('c'.repeat(64));
+ await updateOrder({id:third,version:1,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
+ await recordPaymentReference(third,'TRANSFER999',buyer.id);
+ await assert.rejects(cancelCustomerOrder(third,buyer.id),/payment/);
+ assert.equal((await query('SELECT status FROM orders WHERE id=$1',[third])).rows[0].status,'Pending');
 });

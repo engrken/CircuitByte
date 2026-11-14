@@ -33,6 +33,31 @@ function Payment({order,onUpdate}){
   {error&&<p role="alert">{error}</p>}
  </details>;
 }
+function CancelOrder({order,onUpdate}){
+ const [open,setOpen]=useState(false),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ if(order.status!=='Pending')return null;
+ const paid=Boolean(order.payment_reference||order.payment_verified_at);
+ async function cancel(){
+  setBusy(true);setError('');
+  try{
+   const response=await fetch('/api/orders/my',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:order.id,reason})});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||'Cancellation failed.');
+   await onUpdate();setOpen(false);
+  }catch(e){setError(e.message||'Cancellation failed.');}finally{setBusy(false);}
+ }
+ return <div className="buyer-cancel">
+  {paid?<p>Payment submitted. Please contact CircuitByte to request cancellation or a refund.</p>:<>
+   {!open?<button type="button" className="buyer-cancel-trigger" onClick={()=>setOpen(true)}>Cancel order</button>:
+    <div className="buyer-cancel-confirm">
+     <p><strong>Cancel {order.reference}?</strong> This cannot be undone. You can place a new order later.</p>
+     <label>Reason (optional)<textarea value={reason} onChange={e=>setReason(e.target.value)} maxLength={300} rows={2} placeholder="Tell us why you are cancelling"/></label>
+     <div className="buyer-cancel-actions"><button type="button" disabled={busy} onClick={cancel}>{busy?'Cancelling…':'Yes, cancel order'}</button><button type="button" disabled={busy} onClick={()=>{setOpen(false);setError('');}}>Keep order</button></div>
+    </div>}
+  </>}
+  {error&&<p role="alert" className="buyer-cancel-error">{error}</p>}
+ </div>;
+}
 export default function OrderList({orders,onUpdate}){
  return <section className="account-card"><div className="account-top"><div><h2>My orders</h2></div><a href="/catalog">Shop components →</a></div>
   {orders.length>0&&<p><a href="/faq#warranty">Warranty and replacement help</a></p>}
@@ -53,7 +78,7 @@ export default function OrderList({orders,onUpdate}){
    </>:<p>{order.confirmed_location?'Confirmed meetup':'Requested meetup'}: {order.confirmed_location||order.proposed_location}</p>}
    {order.customer_update&&<p>{order.customer_update}</p>}
    {order.invoice_number&&<p>Order invoice <strong>{order.invoice_number}</strong></p>}
-   {order.payment_method==='qrph'&&<Payment order={order} onUpdate={onUpdate}/>}
+   {order.payment_method==='qrph'&&<Payment order={order} onUpdate={onUpdate}/>}\n   <CancelOrder order={order} onUpdate={onUpdate}/>
   </li>)}</ul>:<p className="account-muted">Orders placed with this account will appear here.</p>}
  </section>;
 }

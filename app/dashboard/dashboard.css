@@ -43,3 +43,22 @@
 .buyer-cancel-actions button:first-child{background:#9b302b;color:white;border:1px solid #9b302b}
 .buyer-cancel-actions button:last-child{background:white;color:#244735;border:1px solid #a8bdae}
 .buyer-cancel-error{color:#9b302b!important}
+
+/* Buyer workspace on phones: preserve all actions and readable item details. */
+.buyer-order-items{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px}
+.buyer-order-items li{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 12px;border:1px solid #e4ece1;border-radius:8px;background:#fafcf9;min-width:0}
+.buyer-order-items li span:first-child{min-width:0;overflow-wrap:anywhere}
+.buyer-order-items .item-reviewed{color:#236039;font-weight:700;white-space:nowrap}
+.buyer-order-items .item-awaiting{color:#805b22;font-weight:700;white-space:nowrap}
+@media(max-width:600px){
+ .account-page{max-width:100%;min-width:0;padding:20px 12px 56px}
+ .account-card{min-width:0;padding:16px}
+ .account-top{flex-wrap:wrap}
+ .account-top :is(a,button){min-height:44px;display:inline-flex;align-items:center}
+ .account-projects.buyer-orders>li{min-width:0;overflow-wrap:anywhere}
+ .buyer-order-items li{flex-wrap:wrap}
+ .order-payment{min-width:0;overflow-wrap:anywhere}
+ .order-payment img{max-width:100%;height:auto}
+ .account-security-actions button,.account-verification-actions button{flex:1 1 150px}
+ .buyer-cancel-actions button{flex:1 1 135px}
+}

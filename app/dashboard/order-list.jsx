@@ -64,6 +64,7 @@ export default function OrderList({orders,onUpdate}){
   {orders.length?<ul className="account-projects buyer-orders">{orders.map(order=><li key={order.id}>
    <strong>{order.reference}</strong>
    <OrderProgress status={order.status}/>
+   <ul className="buyer-order-items" aria-label="Items in this order">{order.items.map((item,index)=><li key={index}><span>{item.quantity} × {item.name}{item.option_label?` · ${item.option_label}`:''}</span><span className={item.review_status==='confirmed'?'item-reviewed':'item-awaiting'}>{item.review_status==='confirmed'?'Item confirmed':order.status==='Pending'?'Awaiting stock check':'Included in order'}</span></li>)}</ul>
    <p>{order.items.reduce((n,item)=>n+item.quantity,0)} items · {peso(order.total_cents)} · {paymentLabel(order.payment_method,order.total_cents)}</p>
    {order.promotion&&<p>Promo <strong>{order.promotion.code}</strong>{order.promotion.discount_cents>0&&` · −${peso(order.promotion.discount_cents)}`}
     {order.promotion.gift&&` · ${order.promotion.gift.quantity} × ${order.promotion.gift.name} free`}</p>}

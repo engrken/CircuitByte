@@ -59,12 +59,13 @@ export async function POST(req){
  try{
   const body=await readBody(req),updated=await updateOrder(body,user.email);
   const origin=process.env.BETTER_AUTH_URL||new URL(req.url).origin;
-  let delivery='';
+  let delivery='',notification='not_required';
   if(updated.statusChanged&&updated.order.status==='Completed'&&updated.email){
    try{delivery=await deliverOrderInvoice(body.id,origin);}
    catch(e){console.error('Invoice delivery status unavailable:',e.code||e.name);delivery='failed';}
-  }else if((updated.statusChanged||updated.paymentOpened||updated.paymentVerified)&&updated.email&&gmailConfigured()){
-   try{
+  }else if((updated.statusChanged||updated.paymentOpened||updated.paymentVerified||body.customer_update?.trim())&&updated.email){
+   if(!gmailConfigured()){notification='not_configured';console.error('Order update email skipped: Gmail sender not configured');}
+   else try{
     const message=updated.paymentOpened?'QR Ph payment is now available. Open My Orders to see your total and payment code.':
      updated.paymentVerified?'Your QR Ph payment is verified. Open My Orders for handover details.':
       `Your CircuitByte order is now ${updated.order.status}.`;
@@ -72,10 +73,11 @@ export async function POST(req){
      to:updated.email,subject:`CircuitByte order update: ${updated.order.reference}`,
      body:`${message}\n\nView private order details in My Orders.\n${new URL('/dashboard',origin)}`
     });
-   }catch(e){console.error('Order status email failed:',e.code||e.name);}
+    notification='sent';
+   }catch(e){notification='failed';console.error('Order status email failed:',e.code||e.name);}
   }
   const {rows:[order]}=await db().query(orderDetails+' WHERE o.id=$1',[body.id]);
-  return Response.json({order,delivery},{headers});
+  return Response.json({order,delivery,notification},{headers});
  }catch(e){return errorResponse(e);}
 }
 

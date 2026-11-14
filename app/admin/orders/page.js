@@ -53,6 +53,7 @@ export default function Orders(){
  const [filter,setFilter]=useState(''),[query,setQuery]=useState(''),[offset,setOffset]=useState(0),[more,setMore]=useState(false);
  const [error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true);
  const [selected,setSelected]=useState(null);
+ const pendingItemReview=selected?.originalStatus==='Pending'&&selected.items?.some(item=>item.review_status!=='confirmed');
 
  async function load(signal){
   setLoading(true);
@@ -224,16 +225,17 @@ export default function Orders(){
     {selected.customer_update&&<p>{selected.customer_update}</p>}
    </>:<>
     <label>Status<select disabled={busy} value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})}>
-     {options[selected.originalStatus].filter(status=>!(selected.originalStatus==='Pending'&&selected.payment_method==='qrph'&&status==='Confirmed')).map(status=><option key={status}>{status}</option>)}
+     {options[selected.originalStatus].filter(status=>!(selected.originalStatus==='Pending'&&selected.payment_method==='qrph'&&status==='Confirmed')).map(status=>({status,disabled:pendingItemReview&&status==='Confirmed'})).map(({status,disabled})=><option key={status} disabled={disabled}>{status}</option>)}
     </select></label>
+    {pendingItemReview&&<p role="status">Item confirmation required: {selected.items.filter(item=>item.review_status==='confirmed').length} of {selected.items.length} confirmed. Confirm every remaining item before order confirmation or QR payment.</p>}
     <label>{selected.fulfillment_method==='maxim'?'Confirmed delivery address in Roxas City':selected.fulfillment_method==='lbc'?'Confirmed LBC delivery address':'Confirmed meetup location in Roxas City'}<input maxLength={300} required={['Confirmed','Ready','Completed'].includes(selected.status)}
      value={selected.confirmed_location} onChange={e=>setSelected({...selected,confirmed_location:e.target.value})}/></label>
     {(selected.fulfillment_method==='maxim'||selected.fulfillment_method==='lbc')&&<button className="secondary" type="button" disabled={busy}
      onClick={()=>setSelected({...selected,confirmed_location:selected.proposed_location})}>Use requested address</button>}
     <label>Update for customer<textarea maxLength={1000} placeholder={selected.fulfillment_method==='lbc'?'Shipping quote/payment details and LBC tracking number':'Agreed date, time or landmark'}
      value={selected.customer_update} onChange={e=>setSelected({...selected,customer_update:e.target.value})}/></label>
-    <button disabled={busy}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
-    {selected.payment_method==='qrph'&&selected.originalStatus==='Pending'&&selected.status==='Pending'&&!selected.qr_payment_opened_at&&<button className="secondary" type="submit" value="open-qr" disabled={busy}>Open QR Ph payment</button>}
+    <button disabled={busy||(pendingItemReview&&selected.status==='Confirmed')}>{busy?'Saving…':selected.verifyPayment?'Verify payment and save':'Save order update'}</button>
+    {selected.payment_method==='qrph'&&selected.originalStatus==='Pending'&&selected.status==='Pending'&&!selected.qr_payment_opened_at&&<button className="secondary" type="submit" value="open-qr" disabled={busy||pendingItemReview}>Open QR Ph payment</button>}
    </>}
    {selected.originalStatus==='Cancelled'&&<p><button type="button" className="secondary" disabled={busy} onClick={moveCancelledOrder}>
     {selected.deleted_at?'Restore cancelled order':'Delete cancelled order'}

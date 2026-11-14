@@ -16,7 +16,7 @@ const schema=z.object({
 // A confirmed line is a price commitment, even when the overall order is still Pending.
 async function synchronizePendingPrices(client,productId,newPrice,actor){
  const {rows:orders}=await client.query(`SELECT id,reference,items,total_cents,promotion FROM orders
-  WHERE status='Pending' AND deleted_at IS NULL AND qr_payment_opened_at IS NULL
+  WHERE status='Pending' AND qr_payment_opened_at IS NULL
    AND payment_reference IS NULL AND payment_verified_at IS NULL
    AND items @> $1::jsonb ORDER BY id FOR UPDATE`,[JSON.stringify([{id:productId}])]);
  let changed=0;

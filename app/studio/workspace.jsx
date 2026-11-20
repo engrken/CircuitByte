@@ -10,6 +10,7 @@ import {reviewElectricalDesign} from '../../lib/studio-electrical-verification.m
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {StudioUsbTools} from './usb-tools';
+import {StudioEsp32BoardExplorer} from './esp32-board-explorer';
 import {StudioCopilot} from './copilot';
 import {StudioAiDiagram,useAutomaticDiagram} from './ai-diagram';
 import {UPLOAD_PROFILES,decodeEspImage} from '../../lib/studio-upload-profiles.mjs';
@@ -333,6 +334,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   function confirmStep(key,value,checked){setApprovals(old=>({...old,[key]:checked?value:''}));}
   return <section className="studio-workspace" id="workspace">
     <header className="studio-workbench-header"><div><h2>Your workspace</h2><p>Desktop or laptop recommended for editing and USB flashing. Planning and diagrams work on mobile and tablet.</p></div><a href="#studio-workbench">Go to workbench ↓</a></header>
+    {board.startsWith("esp32:")&&<StudioEsp32BoardExplorer board={board}/> }
     <nav className="studio-wizard-tabs nav nav-pills" role="tablist" aria-label="Project build steps">{STUDIO_STEPS.map((label,i)=><button type="button" role="tab" className="nav-link" key={label} id={'studio-step-'+i} aria-selected={visibleStep===i} aria-controls="studio-step-content" disabled={i>firstUnmet||working} onClick={()=>goStep(i)}>{passed[i]?'✓':i+1} · {label}{i>firstUnmet?' · Locked':''}</button>)}</nav>
     <div className="studio-wizard-status" role="status"><strong>Step {visibleStep+1}: {STUDIO_STEPS[visibleStep]}</strong><p>{requirements[visibleStep]}</p><small>Changing earlier inputs requires their checks again. Completion records your review; it does not certify physical hardware.</small></div>
     <details className="studio-workspace-tools"><summary>Examples, saved drafts &amp; account settings</summary><div className="studio-quick-access">

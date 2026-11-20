@@ -434,3 +434,5 @@
 .studio-esp32-codegen-controls button{min-height:40px;padding:8px 14px;border:0;border-radius:7px;background:#176b43;color:#fff;font-weight:700}
 .studio-esp32-codegen-controls button:disabled{opacity:.55;cursor:not-allowed}
 .studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}
+
+.studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}

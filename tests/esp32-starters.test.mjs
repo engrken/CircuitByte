@@ -4,7 +4,7 @@ import { ESP32_CIRCUIT_STARTERS, buildEsp32CircuitStarter, getEsp32CircuitStarte
 import { reviewElectricalDesign } from '../lib/studio-electrical-verification.mjs';
 
 test('ESP32 starter catalog contains the LED and pushbutton learning circuits', () => {
-  assert.deepEqual(ESP32_CIRCUIT_STARTERS.map(item => item.id), ['external-led', 'button-input', 'ultrasonic-distance']);
+  assert.deepEqual(ESP32_CIRCUIT_STARTERS.map(item => item.id), ['external-led', 'button-input', 'ultrasonic-distance', 'i2c-scanner']);
 });
 
 test('LED starter uses a series resistor and a classic ESP32 output-capable GPIO', () => {
@@ -28,7 +28,7 @@ test('button starter uses INPUT_PULLUP and a valid classic ESP32 ADC1 GPIO', () 
 test('S3 and C3 starter templates use family-appropriate exposed GPIO pins', () => {
   for (const [board, led, button] of [['esp32:esp32:esp32s3',4,5],['esp32:esp32:esp32c3',3,4]]) {
     const starters=getEsp32CircuitStarters(board);
-    assert.deepEqual(starters.map(item=>item.id),['external-led','button-input','ultrasonic-distance']);
+    assert.deepEqual(starters.map(item=>item.id),['external-led','button-input','ultrasonic-distance','i2c-scanner']);
     const ledStarter=buildEsp32CircuitStarter('external-led',board);
     assert.match(ledStarter.code,new RegExp('LED_GPIO = '+led));
     assert.equal(ledStarter.netlist[0].pin,'GPIO'+led);
@@ -64,6 +64,21 @@ test('ultrasonic starter protects ESP32 ECHO input with a documented 5V-to-3.3V 
     assert.ok(!review.findings.some(item => item.code === 'LOGIC_OVERVOLTAGE'));
     assert.ok(!review.findings.some(item => item.code === 'GPIO_VOLTAGE_UNSPECIFIED'));
     assert.ok(review.findings.some(item => item.code === 'FIVE_VOLT_RAIL'));
+    assert.equal(review.hardwareValidated, false);
+  }
+});
+
+test('I2C scanner starter uses conservative board-family pins and 3.3V bus guidance', () => {
+  for (const [board, sda, scl] of [['esp32:esp32:esp32',21,22],['esp32:esp32:esp32s3',8,9],['esp32:esp32:esp32c3',6,7]]) {
+    const starter = buildEsp32CircuitStarter('i2c-scanner', board);
+    assert.match(starter.code, /#include <Wire.h>/);
+    assert.match(starter.code, new RegExp('Wire\\.begin\\(SDA_PIN, SCL_PIN\\)'));
+    assert.match(starter.code, new RegExp('SDA_PIN = '+sda));
+    assert.match(starter.code, new RegExp('SCL_PIN = '+scl));
+    assert.deepEqual(starter.netlist.map(row => row.pin), ['GPIO'+sda,'GPIO'+scl,'3.3V','GND']);
+    assert.ok(starter.warnings.some(item => /3\.3 V-compatible SDA\/SCL logic/i.test(item)));
+    const review = reviewElectricalDesign({board,connections:starter.netlist,components:[]});
+    assert.ok(!review.findings.some(item => item.severity === 'error'));
     assert.equal(review.hardwareValidated, false);
   }
 });

@@ -3,7 +3,7 @@
 import { getEsp32CircuitStarters } from '../../lib/esp32/starters.mjs';
 
 function Esp32WiringDiagram({ starter, board }) {
-  const gpio = starter.netlist[0]?.pin || 'GPIO';
+  const gpio = starter.netlist[0]?.pin || 'GPIO';\n  const echoGpio = starter.netlist[1]?.pin || 'GPIO';
   const led = starter.id === 'external-led';
   const ultrasonic = starter.id === 'ultrasonic-distance';
   const family = board === 'esp32:esp32:esp32s3' ? 'ESP32-S3' : board === 'esp32:esp32:esp32c3' ? 'ESP32-C3' : 'Classic ESP32';
@@ -19,8 +19,8 @@ function Esp32WiringDiagram({ starter, board }) {
       <text x="38" y="45" className="wiring-kicker">{family.toUpperCase()} · LOGICAL CONNECTIONS</text>
       <rect x="38" y="76" width="116" height="70" rx="8" className="wiring-module"/>
       <text x="96" y="104" textAnchor="middle" className="wiring-module-title">ESP32</text>
-      <text x="96" y="125" textAnchor="middle" className="wiring-module-pin">{gpio}</text>
-      <path d="M154 99 H218" className="wiring-signal"/>
+      {ultrasonic ? <><text x="96" y="113" textAnchor="middle" className="wiring-module-pin">TRIG {gpio}</text><text x="96" y="132" textAnchor="middle" className="wiring-module-pin">ECHO {echoGpio}</text></> : <text x="96" y="125" textAnchor="middle" className="wiring-module-pin">{gpio}</text>}
+      {!ultrasonic && <path d="M154 99 H218" className="wiring-signal"/>}
       {led ? <>
         <rect x="218" y="84" width="100" height="30" rx="5" className="wiring-part"/>
         <path d="M232 99 H304" className="wiring-part-line"/>
@@ -39,10 +39,10 @@ function Esp32WiringDiagram({ starter, board }) {
         <text x="310" y="129" textAnchor="middle" className="wiring-small">VCC · GND</text>
         <path d="M154 88 H228" className="wiring-signal"/>
         <text x="190" y="78" textAnchor="middle" className="wiring-small">TRIG</text>
-        <path d="M228 120 H190 V145 H154" className="wiring-signal"/>
+        <path d="M228 120 H410" className="wiring-signal"/>
         <rect x="410" y="105" width="70" height="28" rx="5" className="wiring-part"/>
         <text x="445" y="123" textAnchor="middle" className="wiring-small">1kΩ</text>
-        <path d="M392 105 H410 M480 119 H520" className="wiring-signal"/>
+        <path d="M392 120 H410 M480 119 H520 V145 H154" className="wiring-signal"/>
         <rect x="410" y="145" width="70" height="24" rx="5" className="wiring-part"/>
         <text x="445" y="161" textAnchor="middle" className="wiring-small">2kΩ</text>
         <path d="M445 133 V145 M445 169 V180 H96 V146" className="wiring-ground"/>

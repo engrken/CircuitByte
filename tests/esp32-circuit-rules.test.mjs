@@ -57,3 +57,20 @@ test('ESP32-C3 rejects unexposed flash GPIO and warns about strap, USB and UART 
  const uart=reviewElectricalDesign({board:'esp32:esp32:esp32c3',connections:[{pin:'GPIO20',to:'module RX',net:'uart',kind:'digital-output'}]});
  assert.ok(uart.findings.some(f=>f.code==='UART0_PIN_CONFLICT'));
 });
+
+test('ESP32 static review blocks LED wiring without a documented series resistor',()=>{
+ const result=reviewElectricalDesign({board:'esp32:esp32:esp32',connections:[{pin:'GPIO23',to:'LED anode',net:'led',kind:'digital-output',signalVoltage:3.3},{pin:'GND',to:'LED cathode',net:'ground',kind:'ground'}]});
+ assert.equal(result.status,'failed');
+ assert.ok(result.findings.some(f=>f.code==='LED_RESISTOR_MISSING'));
+});
+
+test('ESP32 static review blocks two digital outputs tied to the same net',()=>{
+ const result=reviewElectricalDesign({board:'esp32:esp32:esp32',connections:[{pin:'GPIO23',to:'driver input A',net:'shared-control',kind:'digital-output',signalVoltage:3.3},{pin:'GPIO22',to:'driver input B',net:'shared-control',kind:'digital-output',signalVoltage:3.3},{pin:'GND',to:'driver ground',net:'ground',kind:'ground'}]});
+ assert.equal(result.status,'failed');
+ assert.ok(result.findings.some(f=>f.code==='OUTPUT_CONTENTION'));
+});
+
+test('ESP32 static review flags an undeclared 5 V signal on a GPIO for verification',()=>{
+ const result=reviewElectricalDesign({board:'esp32:esp32:esp32',connections:[{pin:'GPIO23',to:'5V sensor output',net:'sensor',kind:'digital-input'},{pin:'GND',to:'sensor ground',net:'ground',kind:'ground'}]});
+ assert.ok(result.findings.some(f=>f.code==='GPIO_VOLTAGE_UNSPECIFIED'));
+});

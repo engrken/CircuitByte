@@ -2,7 +2,7 @@ name: CircuitByte validation
 
 on:
   push:
-    branches: [feature/esp32-studio-foundation]
+    branches: [feature/esp32-studio-foundation, 'feature/**']
   pull_request:
     branches: [main]
   workflow_dispatch:

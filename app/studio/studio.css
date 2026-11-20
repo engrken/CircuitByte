@@ -436,3 +436,26 @@
 .studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}
 
 .studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}
+
+
+/* Responsive conceptual ESP32 starter wiring diagrams; not physical pinout drawings. */
+.studio-esp32-wiring{margin:12px 0 0;padding:10px;border:1px solid #d8e3d8;border-radius:9px;background:#fff;min-width:0}
+.studio-esp32-wiring figcaption{display:grid;gap:3px;margin:0 0 8px;font-size:11px;line-height:1.5;color:#294c38}
+.studio-esp32-wiring figcaption span{color:#617366}
+.studio-esp32-wiring svg{display:block;width:100%;height:auto;max-width:100%;font-family:Arial,sans-serif}
+.studio-esp32-wiring .wiring-board{fill:#f4f8f1;stroke:#d5e1d3;stroke-width:1.5}
+.studio-esp32-wiring .wiring-kicker{font-size:10px;font-weight:700;letter-spacing:1px;fill:#6a7d6d}
+.studio-esp32-wiring .wiring-module{fill:#173f35;stroke:#638b74;stroke-width:2}
+.studio-esp32-wiring .wiring-module-title{font-size:15px;font-weight:700;fill:#f4f8ed}
+.studio-esp32-wiring .wiring-module-pin{font:700 12px monospace;fill:#c7e8c9}
+.studio-esp32-wiring .wiring-signal{fill:none;stroke:#c17b25;stroke-width:4;stroke-linecap:round}
+.studio-esp32-wiring .wiring-ground{fill:none;stroke:#647d69;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.studio-esp32-wiring .wiring-ground-label{font:700 10px monospace;fill:#526b58}
+.studio-esp32-wiring .wiring-part{fill:#eaf0e5;stroke:#748b76;stroke-width:2}
+.studio-esp32-wiring .wiring-part-line,.studio-esp32-wiring .wiring-switch{fill:none;stroke:#526b58;stroke-width:3;stroke-linecap:round}
+.studio-esp32-wiring .wiring-led{fill:#f4d77d;stroke:#a36a22;stroke-width:2}
+.studio-esp32-wiring .wiring-contact{fill:#fff;stroke:#526b58;stroke-width:2}
+.studio-esp32-wiring .wiring-label{font-size:11px;font-weight:700;fill:#314e3a}
+.studio-esp32-wiring .wiring-small{font-size:9px;fill:#617366}
+.studio-esp32-wiring-note{font-size:10px!important;line-height:1.55!important;color:#657568!important;margin:8px 0 0!important}
+@media(max-width:520px){.studio-esp32-wiring{padding:7px}.studio-esp32-wiring figcaption{font-size:10px}}

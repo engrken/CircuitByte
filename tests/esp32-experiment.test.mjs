@@ -18,6 +18,6 @@ test('INPUT_PULLUP button reads HIGH when released and LOW when pressed', () => 
 test('GPIO models accept family-specific pin assignments without changing logic behavior',()=>{
  assert.equal(modelEsp32LedOutput(true,4).gpio,4);
  assert.equal(modelEsp32LedOutput(true,3).level,'HIGH');
- assert.equal(modelEsp32PullupButton(true,5).explanation,/GPIO5/.test(modelEsp32PullupButton(true,5).explanation)?'GPIO5':'');
+ assert.match(modelEsp32PullupButton(true,5).explanation,/GPIO5/);
  assert.equal(modelEsp32PullupButton(false,4).level,'HIGH');
 });

@@ -4,16 +4,16 @@ import { getEsp32CircuitStarters } from '../../lib/esp32/starters.mjs';
 
 function Esp32WiringDiagram({ starter, board }) {
   const gpio = starter.netlist[0]?.pin || 'GPIO';
-  const led = starter.id === 'external-led';
+  const led = starter.id === 'external-led';\n  const ultrasonic = starter.id === 'ultrasonic-distance';
   const family = board === 'esp32:esp32:esp32s3' ? 'ESP32-S3' : board === 'esp32:esp32:esp32c3' ? 'ESP32-C3' : 'Classic ESP32';
   return <figure className="studio-esp32-wiring" aria-labelledby={'wiring-title-' + starter.id}>
     <figcaption id={'wiring-title-' + starter.id}>
       <strong>Conceptual wiring · {gpio}</strong>
-      <span> {led ? 'GPIO → series resistor → LED → GND' : 'GPIO → momentary switch → GND'}</span>
+      <span> {led ? 'GPIO → series resistor → LED → GND' : ultrasonic ? 'TRIG + divided ECHO · 5 V sensor supply · common GND' : 'GPIO → momentary switch → GND'}</span>
     </figcaption>
     <svg viewBox="0 0 620 210" role="img" aria-labelledby={'wiring-svg-title-' + starter.id} aria-describedby={'wiring-svg-desc-' + starter.id}>
       <title id={'wiring-svg-title-' + starter.id}>{starter.title} wiring reference</title>
-      <desc id={'wiring-svg-desc-' + starter.id}>{led ? gpio + ' connects through a 220 to 330 ohm resistor to the LED anode. The LED cathode connects to ground.' : gpio + ' connects to one side of a normally open momentary switch. The other side connects to ground. The firmware uses the internal pull-up.'}</desc>
+      <desc id={'wiring-svg-desc-' + starter.id}>{led ? gpio + ' connects through a 220 to 330 ohm resistor to the LED anode. The LED cathode connects to ground.' : ultrasonic ? 'The ESP32 trigger GPIO connects to HC-SR04 TRIG. HC-SR04 ECHO passes through a 1 kilo-ohm and 2 kilo-ohm divider before the ESP32 input. Sensor VCC uses a verified 5 volt supply and all grounds are common.' : gpio + ' connects to one side of a normally open momentary switch. The other side connects to ground. The firmware uses the internal pull-up.'}</desc>
       <rect x="18" y="18" width="584" height="174" rx="13" className="wiring-board"/>
       <text x="38" y="45" className="wiring-kicker">{family.toUpperCase()} · LOGICAL CONNECTIONS</text>
       <rect x="38" y="76" width="116" height="70" rx="8" className="wiring-module"/>
@@ -31,6 +31,23 @@ function Esp32WiringDiagram({ starter, board }) {
         <text x="399" y="62" textAnchor="middle" className="wiring-label">LED</text>
         <text x="380" y="139" className="wiring-small">Anode (+)</text>
         <text x="428" y="139" className="wiring-small">Cathode (−)</text>
+      </> : ultrasonic ? <>
+        <rect x="228" y="65" width="164" height="96" rx="8" className="wiring-module"/>
+        <text x="310" y="88" textAnchor="middle" className="wiring-module-title">HC-SR04</text>
+        <text x="310" y="108" textAnchor="middle" className="wiring-small">TRIG · ECHO</text>
+        <text x="310" y="129" textAnchor="middle" className="wiring-small">VCC · GND</text>
+        <path d="M154 88 H228" className="wiring-signal"/>
+        <text x="190" y="78" textAnchor="middle" className="wiring-small">TRIG</text>
+        <path d="M228 120 H190 V145 H154" className="wiring-signal"/>
+        <rect x="410" y="105" width="70" height="28" rx="5" className="wiring-part"/>
+        <text x="445" y="123" textAnchor="middle" className="wiring-small">1kΩ</text>
+        <path d="M392 105 H410 M480 119 H520" className="wiring-signal"/>
+        <rect x="410" y="145" width="70" height="24" rx="5" className="wiring-part"/>
+        <text x="445" y="161" textAnchor="middle" className="wiring-small">2kΩ</text>
+        <path d="M445 133 V145 M445 169 V180 H96 V146" className="wiring-ground"/>
+        <text x="445" y="95" textAnchor="middle" className="wiring-label">ECHO divider</text>
+        <text x="310" y="52" textAnchor="middle" className="wiring-label">Verified 5 V supply to VCC</text>
+        <text x="38" y="188" className="wiring-ground-label">COMMON GND · ESP32 + SENSOR + DIVIDER</text>
       </> : <>
         <rect x="245" y="77" width="150" height="45" rx="7" className="wiring-part"/>
         <circle cx="268" cy="99" r="5" className="wiring-contact"/>
@@ -42,7 +59,7 @@ function Esp32WiringDiagram({ starter, board }) {
       </>}
       <text x="38" y="173" className="wiring-ground-label">GND · COMMON GROUND</text>
     </svg>
-    <p className="studio-esp32-wiring-note">Illustrative signal path only — not to scale and not a physical header pinout. Match the GPIO label to your exact board, check the component pinout and keep all ESP32 GPIO signals at 3.3 V.</p>
+    <p className="studio-esp32-wiring-note">Illustrative signal path only — not to scale and not a physical header pinout. Match GPIO labels to your exact board. For HC-SR04 modules, use a verified 5 V supply and reduce ECHO to 3.3 V before it reaches the ESP32.</p>
   </figure>;
 }
 

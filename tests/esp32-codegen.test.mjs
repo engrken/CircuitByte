@@ -22,8 +22,10 @@ test('generated sketches include selected GPIO and board safety caveats',()=>{
  assert.match(sketch,/LED_GPIO = 23/);
  assert.match(sketch,/3.3V logic/);
  const fade=generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'pwm-fade',gpio:23});
- assert.match(fade,/analogWrite\\(LED_GPIO, brightness\\)/);
- assert.match(fade,/analogWrite\\(LED_GPIO, brightness\\)/);
+ assert.match(fade,/analogWrite\(LED_GPIO, brightness\)/);
+ assert.match(fade,/current Arduino-ESP32 core/);
+ assert.ok(getEsp32CodegenOptions('esp32:esp32:esp32s3','pwm-fade').length>0);
+ assert.ok(getEsp32CodegenOptions('esp32:esp32:esp32c3','pwm-fade').length>0);
  assert.match(generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'button-input',gpio:32}),/INPUT_PULLUP/);
  assert.match(generateEsp32Sketch({board:'esp32:esp32:esp32c3',experiment:'analog-read',gpio:0}),/analogRead/);
 });

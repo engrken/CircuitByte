@@ -21,7 +21,8 @@ export function StudioEsp32Experiment({ board }) {
     </section>;
   }
   const led = modelEsp32LedOutput(ledHigh,pins.led);
-  const button = modelEsp32PullupButton(buttonPressed,pins.button);\n  const ultrasonic = modelEsp32UltrasonicDistance(distanceCm,20);
+  const button = modelEsp32PullupButton(buttonPressed,pins.button);
+  const ultrasonic = modelEsp32UltrasonicDistance(distanceCm,20);
   return <section className="studio-esp32-experiment" aria-label="Interactive ESP32 GPIO logic experiment">
     <div className="studio-esp32-experiment-heading">
       <span className="edu-kicker">INTERACTIVE GPIO CONCEPT DEMO · {pins.family.toUpperCase()}</span>

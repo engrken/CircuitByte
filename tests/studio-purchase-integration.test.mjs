@@ -18,7 +18,7 @@ mock.module('../lib/studio-email.mjs',{namedExports:{
   sent.push(message);
  }
 }});
-const {createOrder,trackOrder,recordPaymentReference,updateOrder}=await import('../lib/orders.js');
+const {createOrder,trackOrder,recordPaymentReference,updateOrder,reviewOrderItem}=await import('../lib/orders.js');
 const {deliverOrderInvoice}=await import('../lib/order-invoices.js');
 const {deliverOrderNotifications}=await import('../lib/order-notifications.js');
 let activeUser;
@@ -27,6 +27,15 @@ mock.module('../lib/auth.js',{namedExports:{requireUser:async()=>{
  return activeUser;
 }}});
 const qrRoute=await import('../app/api/orders/my/qr/route.js');
+async function reviewAllItems(id){
+ const {rows:[order]}=await query('SELECT version,items FROM orders WHERE id=$1',[id]);
+ let version=order.version;
+ for(let index=0;index<order.items.length;index++){
+  await reviewOrderItem({id,version,index,action:'confirm',reason:''},'QA admin');
+  version++;
+ }
+ return version;
+}
 after(()=>pg.close());
 
 test('QR Ph reference belongs to the buyer and payment must be verified before completion',async()=>{
@@ -49,7 +58,8 @@ test('QR Ph reference belongs to the buyer and payment must be verified before c
  assert.equal((await qrRoute.GET(qrRequest)).status,401);
  activeUser=user;
  assert.equal((await qrRoute.GET(qrRequest)).status,404);
- const update={id:body.requestId,version:1,status:'Pending',confirmed_location:'Roxas City plaza',customer_update:''};
+ const reviewedVersion=await reviewAllItems(body.requestId);
+ const update={id:body.requestId,version:reviewedVersion,status:'Pending',confirmed_location:'Roxas City plaza',customer_update:''};
  await assert.rejects(updateOrder({...update,status:'Confirmed'},'admin'),/verify the transfer/);
  const opened=await updateOrder({...update,openQrPayment:true},'admin');
  assert.equal(opened.order.status,'Pending');
@@ -67,18 +77,19 @@ test('QR Ph reference belongs to the buyer and payment must be verified before c
  await recordPaymentReference(body.requestId,'ABC-123',user.id,shopEmail);
  assert.equal('payment_reference' in await trackOrder(body.token),false);
  assert.equal('customer_email' in await trackOrder(body.token),false);
- const verified=await updateOrder({...update,version:3,verifyPayment:true},'admin');
+ const verified=await updateOrder({...update,version:reviewedVersion+2,verifyPayment:true},'admin');
  assert.equal(verified.order.status,'Confirmed');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,1);
  assert.equal((await qrRoute.GET(qrRequest)).status,404);
- await updateOrder({...update,status:'Ready',version:4},'admin');
- await updateOrder({...update,status:'Completed',version:5},'admin');
+ await updateOrder({...update,status:'Ready',version:reviewedVersion+3},'admin');
+ await updateOrder({...update,status:'Completed',version:reviewedVersion+4},'admin');
  assert.deepEqual((await query("SELECT stock,reserved_stock FROM products WHERE id='board'")).rows[0],{stock:4,reserved_stock:0});
 
  const cancelled={...body,requestId:crypto.randomUUID(),token:'b'.repeat(64)};
  await createOrder(cancelled,'127.0.0.1',user,shopEmail);
- await updateOrder({...update,id:cancelled.requestId,openQrPayment:true},'admin');
- await updateOrder({...update,id:cancelled.requestId,status:'Cancelled',version:2},'admin');
+ const cancelledVersion=await reviewAllItems(cancelled.requestId);
+ await updateOrder({...update,id:cancelled.requestId,version:cancelledVersion,openQrPayment:true},'admin');
+ await updateOrder({...update,id:cancelled.requestId,status:'Cancelled',version:cancelledVersion+1},'admin');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,0);
 
  mailUnavailable=true;

@@ -56,3 +56,26 @@ test('generator rejects unsupported boards and invalid GPIO/experiment combinati
  assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'led-blink',gpio:34}),/does not support/i);
  assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'unknown',gpio:23}),/Unsupported/i);
 });
+
+
+test('I2C scanner uses explicit distinct GPIO selections and scans the standard address range on all supported boards',()=>{
+ for(const board of ['esp32:esp32:esp32','esp32:esp32:esp32s3','esp32:esp32:esp32c3']) {
+   const options=getEsp32CodegenOptions(board,'i2c-scanner');
+   assert.ok(options.length>1);
+   assert.ok(options.every(pin=>pin.capabilities.includes('Digital I/O')));
+   const sda=options[0];
+   const scl=options.find(pin=>pin.gpio!==sda.gpio);
+   const sketch=generateEsp32Sketch({board,experiment:'i2c-scanner',sdaGpio:sda.gpio,sclGpio:scl.gpio});
+   assert.match(sketch,/Wire\\.begin\\(SDA_GPIO, SCL_GPIO\\)/);
+   assert.match(sketch,/address = 0x03; address <= 0x77/);
+   assert.match(sketch,/Wire\\.endTransmission\\(\\)/);
+   assert.match(sketch,/3\\.3V-compatible I²C pull-ups/);
+   assert.match(sketch,/never pull SDA\\/SCL up to 5V/);
+ }
+});
+
+test('I2C scanner rejects identical, input-only and unexposed GPIO selections',()=>{
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'i2c-scanner',sdaGpio:21,sclGpio:21}),/different GPIO/i);
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'i2c-scanner',sdaGpio:34,sclGpio:21}),/two exposed digital GPIO/i);
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'i2c-scanner',sdaGpio:6,sclGpio:21}),/two exposed digital GPIO/i);
+});

@@ -351,3 +351,88 @@
 .studio-labwired-result details{margin-top:9px}
 .studio-labwired-result summary{cursor:pointer;font-size:12px;font-weight:700}
 .studio-labwired-result pre{max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:10px;border-radius:7px;background:#17221b;color:#e5eee7;font-size:11px}
+
+
+/* ESP32 board explorer — reference-only pin selection, independent of AVR simulation. */
+.studio-esp32-explorer{max-width:1170px;margin:22px auto 28px;padding:24px;background:#fff;border:1px solid #d6e2d2;border-radius:16px;box-shadow:0 3px 18px rgba(0,0,0,.035)}
+.studio-esp32-explorer-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.studio-esp32-explorer-heading h3{font-size:24px;margin:5px 0}
+.studio-esp32-explorer-heading p{margin:0;color:#65756a;font-size:13px}
+.studio-esp32-voltage{background:#eaf4e5;color:#285b3d;border:1px solid #c9dfc1;border-radius:30px;padding:8px 12px;font-size:11px;font-weight:800;white-space:nowrap}
+.studio-esp32-caution,.studio-esp32-not-ready{margin:18px 0;padding:13px 15px;border:1px solid #efcf94;background:#fff7e8;border-radius:9px;color:#70552e;font-size:12px;line-height:1.7}
+.studio-esp32-not-ready p{margin:5px 0 0}
+.studio-esp32-explorer-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px minmax(0,1fr);gap:12px;align-items:stretch;margin:18px 0}
+.studio-esp32-pin-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:center}
+.studio-esp32-pin-bank button{display:flex;align-items:center;gap:7px;min-width:0;text-align:left;padding:7px;border:1px solid #dbe5d8;border-radius:7px;background:#f8faf6;color:#263e30;cursor:pointer}
+.studio-esp32-pin-bank button span{display:grid;place-items:center;min-width:28px;height:25px;border-radius:5px;background:#e6eee1;font:800 11px/1 monospace}
+.studio-esp32-pin-bank button small{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.studio-esp32-pin-bank button.active{border-color:#286744;background:#e8f4e7;box-shadow:inset 0 0 0 1px #286744}
+.studio-esp32-pin-bank button:focus-visible{outline:2px solid #286744;outline-offset:2px}
+.studio-esp32-chip{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;min-height:290px;padding:12px 8px;border:5px solid #8c9d91;border-radius:14px;background:linear-gradient(145deg,#203b31,#102820);color:#f1f7ed;text-align:center;box-shadow:inset 0 0 0 2px #536b5b}
+.studio-esp32-chip-mark{font-size:26px;font-weight:900;letter-spacing:2px}
+.studio-esp32-chip strong{font-size:14px;letter-spacing:3px}
+.studio-esp32-chip small{font-size:9px;letter-spacing:2px;color:#c6d8c8}
+.studio-esp32-chip-foot{margin-top:14px;color:#c6d8c8;font:9px/1.6 monospace}
+.studio-esp32-pin-detail{padding:16px;border:1px solid #dce6d9;border-radius:10px;background:#fbfcf9}
+.studio-esp32-pin-detail-title{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.studio-esp32-pin-detail-title small{font-size:9px;font-weight:800;letter-spacing:1px;color:#718174}
+.studio-esp32-pin-detail-title h4{margin:3px 0;font-size:17px}
+.studio-esp32-pin-detail-title>span{font-size:10px;text-transform:uppercase;letter-spacing:.5px;background:#edf2e9;padding:6px 8px;border-radius:5px}
+.studio-esp32-capabilities{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.studio-esp32-capabilities span{padding:5px 8px;border-radius:20px;background:#eaf2e6;color:#315a3c;font-size:10px;font-weight:700}
+.studio-esp32-pin-detail ul,.studio-esp32-reserved ul{padding-left:19px;margin:8px 0;color:#72542c;font-size:11px;line-height:1.7}
+.studio-esp32-pin-detail>p{font-size:11px;color:#65756a;line-height:1.7}
+.studio-esp32-pin-detail .studio-esp32-adc-note{padding:9px 11px;border-left:3px solid #c18b36;background:#fff6e7;color:#72542c}
+.studio-esp32-reserved{margin-top:12px;padding:10px 12px;border:1px solid #e0e8dd;border-radius:8px;font-size:11px}
+.studio-esp32-reserved summary{cursor:pointer;font-weight:700;color:#385542}
+@media(max-width:760px){.studio-esp32-explorer{padding:17px}.studio-esp32-explorer-grid{grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr);gap:6px}.studio-esp32-chip{min-height:270px;padding:7px 3px}.studio-esp32-pin-bank button{padding:6px 4px;gap:4px}.studio-esp32-pin-bank button span{min-width:24px}.studio-esp32-pin-bank button small{font-size:9px}}
+@media(max-width:520px){.studio-esp32-explorer-heading h3{font-size:20px}.studio-esp32-explorer-grid{grid-template-columns:1fr 1fr}.studio-esp32-chip{grid-column:1/-1;grid-row:1;min-height:90px;gap:3px}.studio-esp32-chip-mark{font-size:20px}.studio-esp32-chip-foot{margin-top:2px}.studio-esp32-pin-bank{grid-template-columns:1fr}.studio-esp32-pin-bank button{min-height:34px}.studio-esp32-pin-bank button small{font-size:10px}}
+
+
+/* ESP32 guided circuit starter cards */
+.studio-esp32-starters{margin:1rem 0 1.25rem;padding:1.1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:1rem;background:var(--bs-body-bg,#fff)}
+.studio-esp32-starters-heading h3{margin:.25rem 0;font-size:1.15rem}
+.studio-esp32-starters-heading p{max-width:70rem;color:var(--bs-secondary-color,#52616b)}
+.studio-esp32-starter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:.85rem;margin-top:.85rem}
+.studio-esp32-starter-grid article{display:flex;flex-direction:column;justify-content:space-between;gap:.8rem;padding:1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:.8rem;background:var(--bs-tertiary-bg,#f7fafb)}
+.studio-esp32-starter-grid article strong{display:block}
+.studio-esp32-starter-grid article small{display:block;margin:.3rem 0;color:var(--bs-secondary-color,#52616b)}
+.studio-esp32-starter-grid article p{margin:.35rem 0;font-size:.92rem}
+.studio-esp32-starter-grid article button{align-self:flex-start;border:0;border-radius:.5rem;padding:.65rem .9rem;background:var(--bs-primary,#0d6efd);color:white;font-weight:600}
+.studio-esp32-starter-grid article button:disabled{opacity:.55;cursor:not-allowed}
+
+
+/* ESP32 GPIO concept experiment */
+.studio-esp32-experiment{margin:1rem 0 1.25rem;padding:1.1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:1rem;background:var(--bs-body-bg,#fff)}
+.studio-esp32-experiment-heading h3{margin:.25rem 0;font-size:1.15rem}
+.studio-esp32-experiment-heading p{max-width:70rem;color:var(--bs-secondary-color,#52616b)}
+.studio-esp32-experiment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:.85rem;margin-top:.85rem}
+.studio-esp32-experiment-grid article{display:flex;flex-direction:column;align-items:flex-start;gap:.45rem;padding:1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:.8rem;background:var(--bs-tertiary-bg,#f7fafb)}
+.studio-esp32-experiment-grid h4{margin:.2rem 0;font-size:1rem}
+.studio-esp32-experiment-grid p{margin:0;font-size:.92rem}
+.studio-esp32-experiment-grid button{margin-top:.4rem;border:0;border-radius:.5rem;padding:.65rem .9rem;background:var(--bs-primary,#0d6efd);color:#fff;font-weight:600}
+.studio-esp32-led-indicator{width:2.6rem;height:2.6rem;border-radius:50%;border:3px solid #687781;background:#4b5359;box-shadow:inset 0 0 0 5px #273139}
+.studio-esp32-led-indicator.is-on{background:#ffdf59;box-shadow:0 0 1.25rem #ffc928,inset 0 0 0 5px #d68c13}
+.studio-esp32-button-indicator{display:grid;place-items:center;min-width:8rem;min-height:2.6rem;padding:.5rem 1rem;border:2px solid #687781;border-radius:2rem;background:#dfe7ec;color:#263743;font-size:.8rem;font-weight:700}
+.studio-esp32-button-indicator.is-pressed{background:#b9d8e9;box-shadow:inset 0 2px 5px #687781}
+
+
+/* Exact S3/C3 physical-board profile selector */
+.studio-esp32-profile-select{display:grid;gap:7px;margin:16px 0;padding:13px 15px;border:1px solid #dce6d9;border-radius:9px;background:#f8faf6}
+.studio-esp32-profile-select label{font-size:12px;font-weight:800;color:#385542}
+.studio-esp32-profile-select select{width:100%;max-width:520px;padding:9px 11px;border:1px solid #cbd8ca;border-radius:7px;background:#fff;color:#263e30}
+.studio-esp32-profile-select p{margin:0;color:#65756a;font-size:11px;line-height:1.6}
+
+
+/* Board-aware ESP32 sketch generator */
+.studio-esp32-codegen{display:grid;gap:12px;margin:18px 0;padding:18px;border:1px solid #cbded0;border-radius:12px;background:linear-gradient(145deg,#f7fbf7,#fff)}
+.studio-esp32-codegen h3{margin:3px 0 6px;color:#183d2b;font-size:1.15rem}
+.studio-esp32-codegen p{margin:0;line-height:1.55}
+.studio-esp32-codegen-controls{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
+.studio-esp32-codegen-controls label{display:grid;gap:5px;min-width:180px;flex:1;font-size:.8rem;font-weight:700}
+.studio-esp32-codegen-controls select{width:100%;min-height:40px;padding:8px;border:1px solid #bac9bd;border-radius:7px;background:#fff;color:#1d3024}
+.studio-esp32-codegen-controls button{min-height:40px;padding:8px 14px;border:0;border-radius:7px;background:#176b43;color:#fff;font-weight:700}
+.studio-esp32-codegen-controls button:disabled{opacity:.55;cursor:not-allowed}
+.studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}
+
+.studio-esp32-codegen-warning{padding:10px 12px;border-left:3px solid #c58a22;background:#fff8e9;color:#604b23;font-size:.83rem}

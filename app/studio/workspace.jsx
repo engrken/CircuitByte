@@ -10,6 +10,11 @@ import {reviewElectricalDesign} from '../../lib/studio-electrical-verification.m
 import {STUDIO_BUILDS} from '../../lib/studio.mjs';
 import {StudioLibraryTools} from './library-tools';
 import {StudioUsbTools} from './usb-tools';
+import {StudioEsp32BoardExplorer} from './esp32-board-explorer';
+import {StudioEsp32CircuitStarters} from './esp32-circuit-starters';
+import {StudioEsp32Experiment} from './esp32-experiment';
+import {StudioEsp32CodeGenerator} from './esp32-code-generator';
+import {buildEsp32CircuitStarter} from '../../lib/esp32/starters.mjs';
 import {StudioCopilot} from './copilot';
 import {StudioAiDiagram,useAutomaticDiagram} from './ai-diagram';
 import {UPLOAD_PROFILES,decodeEspImage} from '../../lib/studio-upload-profiles.mjs';
@@ -144,10 +149,21 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     setSelected(starter.parts);setExtraModules([]);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
   }
+  function startEsp32CircuitStarter(starterId){    checkpoint();
+    try{
+      const starter=buildEsp32CircuitStarter(starterId,board);
+      setCloudProjectId('');setCloudRevision(0);
+      setAcceptance(createAcceptanceRecord());
+      setProject(starter);setCode(starter.code);setPrompt(starter.prompt);
+      setSelected(starter.parts);setOwnMaterials(starter.materials);setExtraModules([]);
+      setApprovals({});setStep(0);setCodeDirty(false);setCompile(null);setError('');
+      setNotice('ESP32 starter loaded. Confirm the idea, materials and exact board, then review every wiring warning before connecting hardware.');
+      setManualLibraries([]);setCustomLibrary(null);setTab('code');
+    }catch(error){setError(error.message||'ESP32 starter could not be loaded.');}
+  }
   function startModuleProject(starterId){
     checkpoint();
-    try{
-      const starter=moduleSerialStarter(board,starterId,selected);
+    try{      const starter=moduleSerialStarter(board,starterId,selected);
       setCloudProjectId('');setCloudRevision(0);
       setAcceptance(createAcceptanceRecord());setProject(starter);setCode(starter.code);setPrompt(starter.prompt);setSelected(starter.parts);
       const moduleId={'gps-neo6m':'neo6m','gsm-sim900a':'sim900a','bluetooth-hc05':'hc05'}[starterId];setExtraModules(moduleId?[moduleId]:[]);
@@ -282,8 +298,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],netlist:[{pin:'D13',to:'LED anode through series current-limiting resistor',net:'LED signal',kind:'digital-output',signalVoltage:5},{pin:'GND',to:'LED cathode',net:'Common ground',kind:'ground'}],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
     setTab('preview');setCompile(null);setError('');setNotice('Illustrative Blink LED demonstration loaded. Change the delay values and preview the output.');
   }
-  const missing=project?.missing||[];
-  const spec=project?.method==='guided-template' ? specs[project.slug] : null;
+  const missing=project?.missing||[];  const spec=project?.method==='guided-template' ? specs[project.slug] : null;
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
   const bom=useMemo(()=>estimateStudioBom(spec,parts),[spec,parts]);
   const rawConnections=spec?.connections||(project?.netlist?.length?project.netlist:project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[]);
@@ -296,8 +311,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     return {...review,status:review.status==='failed'?'failed':'incomplete',findings:[...review.findings,{severity:'unknown',code:'SKETCH_EDITED',message:'The sketch changed after this wiring reference was prepared. Recheck every connection and GPIO assignment.'}]};
   },[board,project?.board,project?.netlist,spec,codeDirty,connections,connectionPlan.rejected.length]);
   const {value:diagramImage,busy:diagramBusy}=useAutomaticDiagram({board,title:project?.title||'',connections,enabled:services?.diagramEnabled&&!codeDirty&&!connectionPlan.rejected.length&&connections.length>0&&electricalReview.status!=='failed',authenticated:services?.authenticated});
-  const diagramReady=Boolean(spec&&docProblems.length===0);
-  const compatibility=useMemo(()=>reviewStudioSketch({board,code,parts:selected,manualLibraries,customLibrary:Boolean(customLibrary?.base64)}),
+  const diagramReady=Boolean(spec&&docProblems.length===0);  const compatibility=useMemo(()=>reviewStudioSketch({board,code,parts:selected,manualLibraries,customLibrary:Boolean(customLibrary?.base64)}),
     [board,code,selected,manualLibraries,Boolean(customLibrary?.base64)]);
   const coachReport=useMemo(()=>assessStudioProject({board,parts:selected,moduleIds:extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems,preflight:compatibility}),[board,selected,extraModules,prompt,project,code,compile,electricalReview,codeDirty,docProblems,compatibility]);
   const sheetWarning=project?.method==='ai-draft'?'AI-generated draft: no reviewed schematic is available.':!spec?'This starter has no reviewed external wiring diagram.':codeDirty?'Sketch edited: reviewed drawings reflect the ORIGINAL template, not your latest code.':'Reviewed template diagrams are illustrative reference material, not breadboard pin-placement guarantees.';
@@ -333,6 +347,10 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
   function confirmStep(key,value,checked){setApprovals(old=>({...old,[key]:checked?value:''}));}
   return <section className="studio-workspace" id="workspace">
     <header className="studio-workbench-header"><div><h2>Your workspace</h2><p>Desktop or laptop recommended for editing and USB flashing. Planning and diagrams work on mobile and tablet.</p></div><a href="#studio-workbench">Go to workbench ↓</a></header>
+    {board.startsWith("esp32:")&&<StudioEsp32BoardExplorer board={board}/> }
+    {board.startsWith("esp32:")&&<StudioEsp32CircuitStarters board={board} disabled={working} onSelect={startEsp32CircuitStarter}/>}
+    {board.startsWith("esp32:")&&<StudioEsp32Experiment board={board}/>}
+    {board.startsWith("esp32:")&&<StudioEsp32CodeGenerator board={board} disabled={working} onUseCode={sketch=>{setCode(sketch);setCodeDirty(true);setCompile(null);setTab("code");setNotice("ESP32 sketch generated in the editor. Review the pin assignments and wiring cautions before use.");}}/>}
     <nav className="studio-wizard-tabs nav nav-pills" role="tablist" aria-label="Project build steps">{STUDIO_STEPS.map((label,i)=><button type="button" role="tab" className="nav-link" key={label} id={'studio-step-'+i} aria-selected={visibleStep===i} aria-controls="studio-step-content" disabled={i>firstUnmet||working} onClick={()=>goStep(i)}>{passed[i]?'✓':i+1} · {label}{i>firstUnmet?' · Locked':''}</button>)}</nav>
     <div className="studio-wizard-status" role="status"><strong>Step {visibleStep+1}: {STUDIO_STEPS[visibleStep]}</strong><p>{requirements[visibleStep]}</p><small>Changing earlier inputs requires their checks again. Completion records your review; it does not certify physical hardware.</small></div>
     <details className="studio-workspace-tools"><summary>Examples, saved drafts &amp; account settings</summary><div className="studio-quick-access">
@@ -431,8 +449,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         <section className="studio-panel" hidden={visibleStep!==0}>
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Describe your idea</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
-          <textarea id="studio-idea" className="form-control" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
-          <label><input type="checkbox" disabled={ideaKey.length<12} checked={approvals.idea===ideaKey} onChange={e=>confirmStep('idea',ideaKey,e.target.checked)}/> My idea states the input, expected output and success condition.</label>
+          <textarea id="studio-idea" className="form-control" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />          <label><input type="checkbox" disabled={ideaKey.length<12} checked={approvals.idea===ideaKey} onChange={e=>confirmStep('idea',ideaKey,e.target.checked)}/> My idea states the input, expected output and success condition.</label>
           <div className="studio-examples"><button type="button" disabled={working} onClick={startBlinkDemo}>Try live Blink LED preview</button>
             {[
               ['Distance alarm','Make an ultrasonic distance alarm that beeps near obstacles.'],
@@ -446,7 +463,6 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         </section>
       </div>
       <div className="studio-results" hidden={visibleStep<3} id="studio-workbench" tabIndex={-1}>
-
         {!project ? <div className="studio-empty"><span>⌘</span><h3>Build something useful.</h3><p>Complete the three setup steps, or open Examples &amp; modules to load a starter. Your sketch, preview and wiring will appear here.</p><button type="button" disabled={loading||busy} onClick={openDraft}>Load a saved draft</button></div> :
         <section className="studio-panel studio-output">
           <div className="studio-output-heading"><div><span className="edu-kicker">{project.method==='ai-draft'?'AI-GENERATED DRAFT':project.method==='board-starter'?'SERIAL STARTER':'CURATED STARTER PROJECT'}</span><h3>{project.title}</h3><p>{project.summary}</p></div><span className="studio-board">{BOARD_OPTIONS.find(x=>x.id===(project.board||board))?.name||"UNO R3"}</span></div>

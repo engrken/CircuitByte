@@ -7,7 +7,7 @@ const pg=new PGlite();
 const query=(sql,args)=>sql.startsWith('SELECT pg_advisory_xact_lock')?Promise.resolve({rows:[]}):pg.query(sql,args);
 const connection={query,release(){}};
 mock.module('../lib/db.js',{namedExports:{db:()=>({query,connect:async()=>connection})}});
-const {createOrder,updateOrder,trackOrder,listCustomerOrders,recordPaymentReference,cancelCustomerOrder}=await import('../lib/orders.js');
+const {createOrder,updateOrder,reviewOrderItem,trackOrder,listCustomerOrders,recordPaymentReference,cancelCustomerOrder}=await import('../lib/orders.js');
 let adminSignedIn=false;
 mock.module('../lib/auth.js',{namedExports:{requireAdmin:async()=>{
  if(!adminSignedIn)throw new Error('Unauthorized');
@@ -15,6 +15,15 @@ mock.module('../lib/auth.js',{namedExports:{requireAdmin:async()=>{
 },sameOrigin:()=>{}}});
 const {GET:adminOrders,DELETE:deleteOrder,PATCH:restoreOrder}=await import('../app/api/admin/orders/route.js');
 const schema=await readFile(new URL('../scripts/schema.sql',import.meta.url),'utf8');
+async function reviewAllItems(id){
+ const {rows:[order]}=await query('SELECT version,items FROM orders WHERE id=$1',[id]);
+ let version=order.version;
+ for(let index=0;index<order.items.length;index++){
+  await reviewOrderItem({id,version,index,action:'confirm',reason:''},'QA admin');
+  version++;
+ }
+ return version;
+}
 after(()=>pg.close());
 test('SQL migration and order lifecycle against isolated PostgreSQL engine',async()=>{
  await pg.exec(schema);await pg.exec(schema);
@@ -26,19 +35,20 @@ test('SQL migration and order lifecycle against isolated PostgreSQL engine',asyn
  await assert.rejects(createOrder({...body,name:'Different'},'test',user),/different details/);
  assert.equal((await trackOrder(body.token)).reference,first.reference);await assert.rejects(trackOrder('c'.repeat(64)),/not found/);
  assert.equal('contact' in await trackOrder(body.token),false);
- const update={id:body.requestId,version:1,status:'Confirmed',confirmed_location:'Agreed Roxas City test landmark',customer_update:'Tomorrow, 2 PM PHT'};
+ const reviewedVersion=await reviewAllItems(body.requestId);
+ const update={id:body.requestId,version:reviewedVersion,status:'Confirmed',confirmed_location:'Agreed Roxas City test landmark',customer_update:'Tomorrow, 2 PM PHT'};
  await updateOrder(update,'QA admin');let product=(await query("SELECT * FROM products WHERE id='board'")).rows[0];assert.equal(product.stock,5);assert.equal(product.reserved_stock,3);
  await assert.rejects(updateOrder(update,'QA admin'),/changed/);
  const second={...body,requestId:crypto.randomUUID(),token:'d'.repeat(64)};await assert.rejects(createOrder(second,'test',user),/Insufficient/);
- await updateOrder({...update,version:2,status:'Ready'},'QA admin');await updateOrder({...update,version:3,status:'Completed'},'QA admin');
+ await updateOrder({...update,version:reviewedVersion+1,status:'Ready'},'QA admin');await updateOrder({...update,version:reviewedVersion+2,status:'Completed'},'QA admin');
  product=(await query("SELECT * FROM products WHERE id='board'")).rows[0];assert.equal(product.stock,2);assert.equal(product.reserved_stock,0);
  const invoice=(await query('SELECT customer_email,subtotal_cents FROM order_invoices WHERE order_id=$1',[body.requestId])).rows[0];
  assert.equal(invoice.customer_email,user.email);assert.equal(invoice.subtotal_cents,45000);
- await assert.rejects(updateOrder({...update,version:4,status:'Completed'},'QA admin'),/closed/);
- const third={...body,requestId:crypto.randomUUID(),token:'e'.repeat(64),items:[{id:'board',quantity:2,price_cents:15000}]};await createOrder(third,'test',user);await updateOrder({...update,id:third.requestId},'QA admin');await updateOrder({...update,id:third.requestId,version:2,status:'Cancelled'},'QA admin');
+ await assert.rejects(updateOrder({...update,version:reviewedVersion+3,status:'Completed'},'QA admin'),/closed/);
+ const third={...body,requestId:crypto.randomUUID(),token:'e'.repeat(64),items:[{id:'board',quantity:2,price_cents:15000}]};await createOrder(third,'test',user);const thirdVersion=await reviewAllItems(third.requestId);await updateOrder({...update,id:third.requestId,version:thirdVersion},'QA admin');await updateOrder({...update,id:third.requestId,version:thirdVersion+1,status:'Cancelled'},'QA admin');
  product=(await query("SELECT * FROM products WHERE id='board'")).rows[0];assert.equal(product.stock,2);assert.equal(product.reserved_stock,0);
  // A multi-item confirmation failure rolls back reservations of every item.
- const fourth={...body,requestId:crypto.randomUUID(),token:'f'.repeat(64),items:[{id:'board',quantity:2,price_cents:15000},{id:'unknown',quantity:1,price_cents:100}]};await createOrder(fourth,'test',user);await assert.rejects(updateOrder({...update,id:fourth.requestId},'QA admin'),/Count and verify/);
+ const fourth={...body,requestId:crypto.randomUUID(),token:'f'.repeat(64),items:[{id:'board',quantity:2,price_cents:15000},{id:'unknown',quantity:1,price_cents:100}]};await createOrder(fourth,'test',user);const fourthVersion=await reviewAllItems(fourth.requestId);await assert.rejects(updateOrder({...update,id:fourth.requestId,version:fourthVersion},'QA admin'),/Count and verify/);
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='board'")).rows[0].reserved_stock,0);
  assert.equal((await query('SELECT status FROM orders WHERE id=$1',[fourth.requestId])).rows[0].status,'Pending');
  await assert.rejects(query("UPDATE products SET reserved_stock=3 WHERE id='board'"),/products_reservation_check/);
@@ -87,7 +97,8 @@ test('Maxim checkout records fee acknowledgment and limits delivery data to the 
  assert.equal(order.proposed_location,address);
  assert.equal(order.customer_email,buyer.email);
  assert.ok(order.delivery_fee_acknowledged_at);
- const update={id:body.requestId,version:1,status:'Confirmed',confirmed_location:'',customer_update:''};
+ const reviewedVersion=await reviewAllItems(body.requestId);
+ const update={id:body.requestId,version:reviewedVersion,status:'Confirmed',confirmed_location:'',customer_update:''};
  await assert.rejects(updateOrder(update,'QA admin'),/Confirm the delivery address/);
  const confirmed=await updateOrder({...update,confirmed_location:address},'QA admin');
  assert.equal(confirmed.order.status,'Confirmed');
@@ -111,21 +122,22 @@ test('admins can delete and restore cancelled orders while retaining the payment
   assert.equal(response.status,200);
   return response.json();
  };
+ const reviewedVersion=await reviewAllItems(id);
  adminSignedIn=false;
- assert.equal((await deleteOrder(action('DELETE',1))).status,403);
+ assert.equal((await deleteOrder(action('DELETE',reviewedVersion))).status,403);
  adminSignedIn=true;
  assert.equal((await deleteOrder(action('DELETE',1))).status,409);
- const update={id,version:1,status:'Pending',confirmed_location:'Test landmark, Roxas City',customer_update:''};
+ const update={id,version:reviewedVersion,status:'Pending',confirmed_location:'Test landmark, Roxas City',customer_update:''};
  await updateOrder({...update,openQrPayment:true},'QA admin');
  await recordPaymentReference(id,'ABC123456',buyer.id);
- await updateOrder({...update,version:3,verifyPayment:true},'QA admin');
- await updateOrder({...update,version:4,status:'Cancelled'},'QA admin');
+ await updateOrder({...update,version:reviewedVersion+1+1,verifyPayment:true},'QA admin');
+ await updateOrder({...update,version:reviewedVersion+3,status:'Cancelled'},'QA admin');
  const stock=()=>query("SELECT stock,reserved_stock FROM products WHERE id='cancel-fixture'").then(result=>result.rows[0]);
  assert.deepEqual(await stock(),{stock:1,reserved_stock:0});
  const cancelled=await list('Cancelled');
  assert.equal(cancelled.orders.length,1);
- assert.equal((await deleteOrder(action('DELETE',4))).status,409);
- const deletion=await deleteOrder(action('DELETE',5));
+ assert.equal((await deleteOrder(action('DELETE',reviewedVersion+2))).status,409);
+ const deletion=await deleteOrder(action('DELETE',reviewedVersion+4));
  assert.equal(deletion.status,200);
  assert.ok((await deletion.json()).order.deleted_at);
  assert.equal((await list('Cancelled')).orders.length,0);
@@ -139,7 +151,7 @@ test('admins can delete and restore cancelled orders while retaining the payment
  assert.equal(buyerOrder.payment_reference,'ABC123456');
  assert.ok(buyerOrder.payment_verified_at);
  assert.deepEqual(await stock(),{stock:1,reserved_stock:0});
- assert.equal((await restoreOrder(action('PATCH',6))).status,200);
+ assert.equal((await restoreOrder(action('PATCH',reviewedVersion+5))).status,200);
  assert.equal((await list('Deleted')).orders.length,0);
  assert.equal((await list('Cancelled')).orders.length,1);
  const audit=(await query("SELECT note FROM order_events WHERE order_id=$1 AND actor='admin@example.invalid' ORDER BY id",[id])).rows;
@@ -157,13 +169,15 @@ test('buyer cancellation is ownership-scoped, pending-only, and releases a QR st
  assert.equal(cancelled.status,'Cancelled');
  assert.equal((await query('SELECT status FROM orders WHERE id=$1',[first])).rows[0].status,'Cancelled');
  await assert.rejects(cancelCustomerOrder(first,buyer.id),/pending/);
- const second=await create('b'.repeat(64));
- await updateOrder({id:second,version:1,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
+ const second=await create('8'.repeat(64));
+ const secondVersion=await reviewAllItems(second);
+ await updateOrder({id:second,version:secondVersion,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='buyer-cancel-fixture'")).rows[0].reserved_stock,1);
  await cancelCustomerOrder(second,buyer.id,'No longer needed');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='buyer-cancel-fixture'")).rows[0].reserved_stock,0);
  const third=await create('c'.repeat(64));
- await updateOrder({id:third,version:1,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
+ const thirdVersion=await reviewAllItems(third);
+ await updateOrder({id:third,version:thirdVersion,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
  await recordPaymentReference(third,'TRANSFER999',buyer.id);
  await assert.rejects(cancelCustomerOrder(third,buyer.id),/payment/);
  assert.equal((await query('SELECT status FROM orders WHERE id=$1',[third])).rows[0].status,'Pending');

@@ -415,3 +415,10 @@
 .studio-esp32-led-indicator.is-on{background:#ffdf59;box-shadow:0 0 1.25rem #ffc928,inset 0 0 0 5px #d68c13}
 .studio-esp32-button-indicator{display:grid;place-items:center;min-width:8rem;min-height:2.6rem;padding:.5rem 1rem;border:2px solid #687781;border-radius:2rem;background:#dfe7ec;color:#263743;font-size:.8rem;font-weight:700}
 .studio-esp32-button-indicator.is-pressed{background:#b9d8e9;box-shadow:inset 0 2px 5px #687781}
+
+
+/* Exact S3/C3 physical-board profile selector */
+.studio-esp32-profile-select{display:grid;gap:7px;margin:16px 0;padding:13px 15px;border:1px solid #dce6d9;border-radius:9px;background:#f8faf6}
+.studio-esp32-profile-select label{font-size:12px;font-weight:800;color:#385542}
+.studio-esp32-profile-select select{width:100%;max-width:520px;padding:9px 11px;border:1px solid #cbd8ca;border-radius:7px;background:#fff;color:#263e30}
+.studio-esp32-profile-select p{margin:0;color:#65756a;font-size:11px;line-height:1.6}

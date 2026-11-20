@@ -16,7 +16,7 @@ export function StudioEsp32BoardExplorer({board='esp32:esp32:esp32'}) {
       <span className="studio-esp32-voltage">3.3V GPIO</span>
     </div>
     <div className="studio-esp32-caution" role="note"><strong>Check your exact board revision.</strong> {ESP32_CLASSIC_REFERENCE.note} This pin map is a classic ESP32 reference, not an S3/C3 pinout.</div>
-    <div className="studio-esp32-explorer-grid">
+    {board !== 'esp32:esp32:esp32' ? <div className="studio-esp32-not-ready"><strong>Pinout profile not included in this release.</strong><p>The interactive pin map currently covers the classic ESP32 Dev Module reference only. S3 and C3 have different GPIO capabilities and need their own verified board profiles.</p></div> : <><div className="studio-esp32-explorer-grid">
       <div className="studio-esp32-pin-bank" aria-label="GPIO pin selector, first group">
         {leftPins.map(pin => <button type="button" key={pin.gpio} className={selectedGpio === pin.gpio ? 'active' : ''} aria-pressed={selectedGpio === pin.gpio} onClick={() => setSelectedGpio(pin.gpio)}><span>{pin.gpio}</span><small>{pin.label.replace('GPIO '+pin.gpio, '').replace(/^ · /, '') || 'GPIO'}</small></button>)}
       </div>
@@ -34,6 +34,7 @@ export function StudioEsp32BoardExplorer({board='esp32:esp32:esp32'}) {
       {selectedPin.capabilities.includes('ADC2') && <p className="studio-esp32-adc-note">ADC2 note: classic ESP32 ADC2 access is restricted while Wi-Fi is active. Prefer ADC1 pins for analog readings when Wi-Fi is required.</p>}
     </div>}
     <details className="studio-esp32-reserved"><summary>Reserved / unavailable GPIO reference</summary><ul>{ESP32_CLASSIC_REFERENCE.reserved.map(item => <li key={item.label}><strong>{item.label}</strong> — {item.reason}</li>)}</ul></details>
+    </>}
     <p className="studio-help">GPIO is not 5V tolerant. Never connect a 5V signal directly to an ESP32 input. Verify supply current, logic levels, boot strapping and external pull resistors for your actual module.</p>
   </section>;
 }

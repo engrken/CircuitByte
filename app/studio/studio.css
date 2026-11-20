@@ -400,3 +400,18 @@
 .studio-esp32-starter-grid article p{margin:.35rem 0;font-size:.92rem}
 .studio-esp32-starter-grid article button{align-self:flex-start;border:0;border-radius:.5rem;padding:.65rem .9rem;background:var(--bs-primary,#0d6efd);color:white;font-weight:600}
 .studio-esp32-starter-grid article button:disabled{opacity:.55;cursor:not-allowed}
+
+
+/* ESP32 GPIO concept experiment */
+.studio-esp32-experiment{margin:1rem 0 1.25rem;padding:1.1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:1rem;background:var(--bs-body-bg,#fff)}
+.studio-esp32-experiment-heading h3{margin:.25rem 0;font-size:1.15rem}
+.studio-esp32-experiment-heading p{max-width:70rem;color:var(--bs-secondary-color,#52616b)}
+.studio-esp32-experiment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:.85rem;margin-top:.85rem}
+.studio-esp32-experiment-grid article{display:flex;flex-direction:column;align-items:flex-start;gap:.45rem;padding:1rem;border:1px solid var(--bs-border-color,#d6e0e5);border-radius:.8rem;background:var(--bs-tertiary-bg,#f7fafb)}
+.studio-esp32-experiment-grid h4{margin:.2rem 0;font-size:1rem}
+.studio-esp32-experiment-grid p{margin:0;font-size:.92rem}
+.studio-esp32-experiment-grid button{margin-top:.4rem;border:0;border-radius:.5rem;padding:.65rem .9rem;background:var(--bs-primary,#0d6efd);color:#fff;font-weight:600}
+.studio-esp32-led-indicator{width:2.6rem;height:2.6rem;border-radius:50%;border:3px solid #687781;background:#4b5359;box-shadow:inset 0 0 0 5px #273139}
+.studio-esp32-led-indicator.is-on{background:#ffdf59;box-shadow:0 0 1.25rem #ffc928,inset 0 0 0 5px #d68c13}
+.studio-esp32-button-indicator{display:grid;place-items:center;min-width:8rem;min-height:2.6rem;padding:.5rem 1rem;border:2px solid #687781;border-radius:2rem;background:#dfe7ec;color:#263743;font-size:.8rem;font-weight:700}
+.studio-esp32-button-indicator.is-pressed{background:#b9d8e9;box-shadow:inset 0 2px 5px #687781}

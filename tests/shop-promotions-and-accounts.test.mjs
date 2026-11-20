@@ -21,7 +21,7 @@ mock.module('../lib/studio-email.mjs',{namedExports:{
 const accounts=await import('../app/api/admin/accounts/route.js');
 const promotions=await import('../app/api/admin/promotions/route.js');
 const {POST:quote}=await import('../app/api/orders/promotion/route.js');
-const {createOrder,listCustomerOrders,updateOrder}=await import('../lib/orders.js');
+const {createOrder,listCustomerOrders,updateOrder,reviewOrderItem}=await import('../lib/orders.js');
 const {deliverOrderInvoice}=await import('../lib/order-invoices.js');
 const request=(path,body,source=origin)=>new Request(origin+path,body===undefined?{}:{
  method:'POST',headers:{Origin:source,'Content-Type':'application/json'},body:JSON.stringify(body)
@@ -33,6 +33,15 @@ const orderBody=(items,extra={})=>({name:'Test Buyer',contact:'09170000001',loca
  city:'Roxas City, Capiz',notes:'',requestId:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','').repeat(2),items,...extra});
 const part=(id,price_cents,fields={})=>({id,price_cents,quantity:1,...fields});
 const usePromo=({promotion,total_cents})=>({couponCode:promotion.code,couponId:promotion.id,couponVersion:promotion.version,couponTotalCents:total_cents});
+async function reviewAllItems(id){
+ const {rows:[order]}=await query('SELECT version,items FROM orders WHERE id=$1',[id]);
+ let version=order.version;
+ for(let index=0;index<order.items.length;index++){
+  await reviewOrderItem({id,version,index,action:'confirm',reason:''},'QA admin');
+  version++;
+ }
+ return version;
+}
 async function getQuote(couponCode,items,fulfillmentMethod='meetup'){
  return quote(request('/api/orders/promotion',{couponCode,items,fulfillmentMethod}));
 }
@@ -114,8 +123,9 @@ test('a discount quote rejects stale or altered terms and survives order retries
  assert.equal((await promoRequest({...promotion,id,version:2,enabled:false})).status,200);
  assert.equal((await getQuote('SAVE10',items)).status,409);
  assert.deepEqual(await createOrder(order,'discount',buyer),receipt);
+ const reviewedVersion=await reviewAllItems(order.requestId);
  for(const [index,status] of ['Confirmed','Ready','Completed'].entries()){
-  await updateOrder({id:order.requestId,version:index+1,status,confirmed_location:'Confirmed Roxas City pickup',customer_update:''},'QA admin');
+  await updateOrder({id:order.requestId,version:reviewedVersion+index,status,confirmed_location:'Confirmed Roxas City pickup',customer_update:''},'QA admin');
  }
  const {rows:[invoice]}=await query('SELECT subtotal_cents,promotion FROM order_invoices WHERE order_id=$1',[order.requestId]);
  assert.equal(invoice.subtotal_cents,12004);
@@ -137,10 +147,11 @@ test('bundle gifts reserve actual stock and free Maxim codes apply only to Maxim
  await createOrder(order,'bundle',buyer);
  const [record]=await listCustomerOrders(buyer.id);
  assert.equal(record.items.find(item=>item.promotion_gift).price_cents,0);
- const update={id:order.requestId,version:1,status:'Confirmed',confirmed_location:'Confirmed Roxas City pickup',customer_update:''};
+ const reviewedVersion=await reviewAllItems(order.requestId);
+ const update={id:order.requestId,version:reviewedVersion,status:'Confirmed',confirmed_location:'Confirmed Roxas City pickup',customer_update:''};
  await updateOrder(update,'QA admin');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='cb-076'")).rows[0].reserved_stock,2);
- await updateOrder({...update,version:2,status:'Cancelled'},'QA admin');
+ await updateOrder({...update,version:reviewedVersion+1,status:'Cancelled'},'QA admin');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='cb-076'")).rows[0].reserved_stock,0);
 
  await addPromo(offer('SHIPFREE','maxim'));

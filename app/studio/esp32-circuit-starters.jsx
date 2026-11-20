@@ -3,7 +3,8 @@
 import { getEsp32CircuitStarters } from '../../lib/esp32/starters.mjs';
 
 function Esp32WiringDiagram({ starter, board }) {
-  const gpio = starter.netlist[0]?.pin || 'GPIO';\n  const echoGpio = starter.netlist[1]?.pin || 'GPIO';
+  const gpio = starter.netlist[0]?.pin || 'GPIO';
+  const echoGpio = starter.netlist[1]?.pin || 'GPIO';
   const led = starter.id === 'external-led';
   const ultrasonic = starter.id === 'ultrasonic-distance';
   const family = board === 'esp32:esp32:esp32s3' ? 'ESP32-S3' : board === 'esp32:esp32:esp32c3' ? 'ESP32-C3' : 'Classic ESP32';

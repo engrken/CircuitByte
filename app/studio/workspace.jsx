@@ -13,6 +13,7 @@ import {StudioUsbTools} from './usb-tools';
 import {StudioEsp32BoardExplorer} from './esp32-board-explorer';
 import {StudioEsp32CircuitStarters} from './esp32-circuit-starters';
 import {StudioEsp32Experiment} from './esp32-experiment';
+import {StudioEsp32CodeGenerator} from './esp32-code-generator';
 import {buildEsp32CircuitStarter} from '../../lib/esp32/starters.mjs';
 import {StudioCopilot} from './copilot';
 import {StudioAiDiagram,useAutomaticDiagram} from './ai-diagram';

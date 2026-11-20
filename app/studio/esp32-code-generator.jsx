@@ -24,7 +24,8 @@ export function StudioEsp32CodeGenerator({board,onUseCode,disabled=false}) {
   const selected=options.some(pin=>String(pin.gpio)===gpio)?gpio:(preferred?String(preferred.gpio):'');
   const selectedEcho=echoOptions.some(pin=>String(pin.gpio)===echoGpio)?echoGpio:(echoOptions.find(pin=>String(pin.gpio)!==selected)?String(echoOptions.find(pin=>String(pin.gpio)!==selected).gpio):'');
   const sclOptions=options;
-  const selectedScl=sclOptions.some(pin=>String(pin.gpio)===sclGpio&&String(pin.gpio)!==selected)?sclGpio:(sclOptions.find(pin=>String(pin.gpio)!==selected)?String(sclOptions.find(pin=>String(pin.gpio)!==selected).gpio):'');
+  const preferredScl=sclOptions.find(pin=>String(pin.gpio)!==selected&&pin.restrictions.length===0)||sclOptions.find(pin=>String(pin.gpio)!==selected);
+  const selectedScl=sclOptions.some(pin=>String(pin.gpio)===sclGpio&&String(pin.gpio)!==selected)?sclGpio:(preferredScl?String(preferredScl.gpio):'');
   const sclPin=sclOptions.find(pin=>String(pin.gpio)===selectedScl);
   const pin=options.find(item=>String(item.gpio)===selected);
   const echoPin=echoOptions.find(item=>String(item.gpio)===selectedEcho);

@@ -10,6 +10,7 @@ test('board-aware generator only offers exposed output-capable GPIOs for LED',()
 
 test('button and analog examples filter pins by capability',()=>{
  assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32','button-input').some(pin=>pin.gpio===34),false);
+ assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32','pwm-fade').some(pin=>pin.gpio===34),false);
  assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32s3','button-input').some(pin=>pin.gpio===46),false);
  assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32','analog-read').some(pin=>pin.gpio===32),true);
  assert.ok(getEsp32CodegenOptions('esp32:esp32:esp32s3','analog-read').length>0);
@@ -20,6 +21,9 @@ test('generated sketches include selected GPIO and board safety caveats',()=>{
  const sketch=generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'led-blink',gpio:23});
  assert.match(sketch,/LED_GPIO = 23/);
  assert.match(sketch,/3.3V logic/);
+ const fade=generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'pwm-fade',gpio:23});
+ assert.match(fade,/analogWrite\\(LED_GPIO, brightness\\)/);
+ assert.match(fade,/analogWrite\\(LED_GPIO, brightness\\)/);
  assert.match(generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'button-input',gpio:32}),/INPUT_PULLUP/);
  assert.match(generateEsp32Sketch({board:'esp32:esp32:esp32c3',experiment:'analog-read',gpio:0}),/analogRead/);
 });

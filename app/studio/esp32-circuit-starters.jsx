@@ -4,7 +4,8 @@ import { getEsp32CircuitStarters } from '../../lib/esp32/starters.mjs';
 
 function Esp32WiringDiagram({ starter, board }) {
   const gpio = starter.netlist[0]?.pin || 'GPIO';
-  const led = starter.id === 'external-led';\n  const ultrasonic = starter.id === 'ultrasonic-distance';
+  const led = starter.id === 'external-led';
+  const ultrasonic = starter.id === 'ultrasonic-distance';
   const family = board === 'esp32:esp32:esp32s3' ? 'ESP32-S3' : board === 'esp32:esp32:esp32c3' ? 'ESP32-C3' : 'Classic ESP32';
   return <figure className="studio-esp32-wiring" aria-labelledby={'wiring-title-' + starter.id}>
     <figcaption id={'wiring-title-' + starter.id}>

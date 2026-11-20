@@ -12,6 +12,7 @@ import {StudioLibraryTools} from './library-tools';
 import {StudioUsbTools} from './usb-tools';
 import {StudioEsp32BoardExplorer} from './esp32-board-explorer';
 import {StudioEsp32CircuitStarters} from './esp32-circuit-starters';
+import {StudioEsp32Experiment} from './esp32-experiment';
 import {buildEsp32CircuitStarter} from '../../lib/esp32/starters.mjs';
 import {StudioCopilot} from './copilot';
 import {StudioAiDiagram,useAutomaticDiagram} from './ai-diagram';
@@ -147,8 +148,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     setSelected(starter.parts);setExtraModules([]);setCodeDirty(false);setCompile(null);setError('');setNotice('Serial starter loaded. Download the sketch and select the matching board in Arduino IDE.');
     setManualLibraries([]);setCustomLibrary(null);setTab('code');
   }
-  function startEsp32CircuitStarter(starterId){
-    checkpoint();
+  function startEsp32CircuitStarter(starterId){    checkpoint();
     try{
       const starter=buildEsp32CircuitStarter(starterId,board);
       setCloudProjectId('');setCloudRevision(0);
@@ -297,8 +297,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     setProject({slug:'blink-led-demo',title:'Blinking LED on D13',summary:'Demonstration of HIGH/LOW signals on Arduino UNO pin 13.',method:'demo',parts:['cb-059','cb-009','cb-002'],netlist:[{pin:'D13',to:'LED anode through series current-limiting resistor',net:'LED signal',kind:'digital-output',signalVoltage:5},{pin:'GND',to:'LED cathode',net:'Common ground',kind:'ground'}],wires:[['UNO D13','Built-in LED or external LED with series resistor'],['UNO GND','LED cathode']],missing:[],warnings:['The preview animates digital output instructions; it does not emulate actual AVR firmware.']});
     setTab('preview');setCompile(null);setError('');setNotice('Illustrative Blink LED demonstration loaded. Change the delay values and preview the output.');
   }
-  const missing=project?.missing||[];
-  const spec=project?.method==='guided-template' ? specs[project.slug] : null;
+  const missing=project?.missing||[];  const spec=project?.method==='guided-template' ? specs[project.slug] : null;
   const docProblems=spec ? validateStudioSpecification(spec,project.slug) : [];
   const bom=useMemo(()=>estimateStudioBom(spec,parts),[spec,parts]);
   const rawConnections=spec?.connections||(project?.netlist?.length?project.netlist:project?.wires?.map(([pin,to])=>({pin,to,net:'Unreviewed',kind:'unverified'}))||[]);
@@ -349,6 +348,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     <header className="studio-workbench-header"><div><h2>Your workspace</h2><p>Desktop or laptop recommended for editing and USB flashing. Planning and diagrams work on mobile and tablet.</p></div><a href="#studio-workbench">Go to workbench ↓</a></header>
     {board.startsWith("esp32:")&&<StudioEsp32BoardExplorer board={board}/> }
     {board.startsWith("esp32:")&&<StudioEsp32CircuitStarters board={board} disabled={working} onSelect={startEsp32CircuitStarter}/>}
+    {board.startsWith("esp32:")&&<StudioEsp32Experiment board={board}/>}
     <nav className="studio-wizard-tabs nav nav-pills" role="tablist" aria-label="Project build steps">{STUDIO_STEPS.map((label,i)=><button type="button" role="tab" className="nav-link" key={label} id={'studio-step-'+i} aria-selected={visibleStep===i} aria-controls="studio-step-content" disabled={i>firstUnmet||working} onClick={()=>goStep(i)}>{passed[i]?'✓':i+1} · {label}{i>firstUnmet?' · Locked':''}</button>)}</nav>
     <div className="studio-wizard-status" role="status"><strong>Step {visibleStep+1}: {STUDIO_STEPS[visibleStep]}</strong><p>{requirements[visibleStep]}</p><small>Changing earlier inputs requires their checks again. Completion records your review; it does not certify physical hardware.</small></div>
     <details className="studio-workspace-tools"><summary>Examples, saved drafts &amp; account settings</summary><div className="studio-quick-access">
@@ -447,8 +447,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
         <section className="studio-panel" hidden={visibleStep!==0}>
           <div className="studio-panel-heading"><span className="studio-step">01</span><h3>Describe your idea</h3></div>
           <label className="studio-label" htmlFor="studio-idea">Project description</label>
-          <textarea id="studio-idea" className="form-control" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />
-          <label><input type="checkbox" disabled={ideaKey.length<12} checked={approvals.idea===ideaKey} onChange={e=>confirmStep('idea',ideaKey,e.target.checked)}/> My idea states the input, expected output and success condition.</label>
+          <textarea id="studio-idea" className="form-control" value={prompt} maxLength={800} rows={5} onChange={e=>setPrompt(e.target.value)} placeholder="Using my UNO and sensor, detect... then activate..." />          <label><input type="checkbox" disabled={ideaKey.length<12} checked={approvals.idea===ideaKey} onChange={e=>confirmStep('idea',ideaKey,e.target.checked)}/> My idea states the input, expected output and success condition.</label>
           <div className="studio-examples"><button type="button" disabled={working} onClick={startBlinkDemo}>Try live Blink LED preview</button>
             {[
               ['Distance alarm','Make an ultrasonic distance alarm that beeps near obstacles.'],

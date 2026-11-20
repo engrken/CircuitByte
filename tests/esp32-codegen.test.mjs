@@ -30,6 +30,27 @@ test('generated sketches include selected GPIO and board safety caveats',()=>{
  assert.match(generateEsp32Sketch({board:'esp32:esp32:esp32c3',experiment:'analog-read',gpio:0}),/analogRead/);
 });
 
+test('ultrasonic distance example assigns separate trigger and echo GPIOs and warns about 5V echo',()=>{
+ for(const board of ['esp32:esp32:esp32','esp32:esp32:esp32s3','esp32:esp32:esp32c3']) {
+   const triggerOptions=getEsp32CodegenOptions(board,'ultrasonic-distance','trigger');
+   const echoOptions=getEsp32CodegenOptions(board,'ultrasonic-distance','echo');
+   assert.ok(triggerOptions.length>0);
+   assert.ok(echoOptions.length>0);
+   assert.equal(triggerOptions.some(pin=>pin.gpio===34),false);
+   const sketch=generateEsp32Sketch({board,experiment:'ultrasonic-distance',triggerGpio:triggerOptions[0].gpio,echoGpio:echoOptions.find(pin=>pin.gpio!==triggerOptions[0].gpio).gpio});
+   assert.match(sketch,/pulseIn\(ECHO_GPIO, HIGH, ECHO_TIMEOUT_US\)/);
+   assert.match(sketch,/distanceCm/);
+   assert.match(sketch,/resistor divider or proper level shifter/);
+   assert.match(sketch,/Never connect a 5V ECHO signal directly/);
+ }
+});
+
+test('ultrasonic generator rejects identical or unsupported trigger/echo pins',()=>{
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'ultrasonic-distance',triggerGpio:23,echoGpio:23}),/different GPIO/i);
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'ultrasonic-distance',triggerGpio:34,echoGpio:32}),/valid output and input/i);
+ assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'ultrasonic-distance',triggerGpio:23,echoGpio:6}),/valid output and input/i);
+});
+
 test('generator rejects unsupported boards and invalid GPIO/experiment combinations',()=>{
  assert.throws(()=>generateEsp32Sketch({board:'generic-s3',gpio:4}),/supported physical-board/i);
  assert.throws(()=>generateEsp32Sketch({board:'esp32:esp32:esp32',experiment:'led-blink',gpio:34}),/does not support/i);

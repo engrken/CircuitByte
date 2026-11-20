@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { modelEsp32LedOutput, modelEsp32PullupButton } from '../../lib/esp32/experiment.mjs';
+import { modelEsp32LedOutput, modelEsp32PullupButton, modelEsp32UltrasonicDistance } from '../../lib/esp32/experiment.mjs';
 
 const GPIO_DEMOS = {
   'esp32:esp32:esp32': { family:'Classic ESP32', led:23, button:32 },
@@ -11,7 +11,7 @@ const GPIO_DEMOS = {
 
 export function StudioEsp32Experiment({ board }) {
   const [ledHigh, setLedHigh] = useState(false);
-  const [buttonPressed, setButtonPressed] = useState(false);
+  const [buttonPressed, setButtonPressed] = useState(false);\n  const [distanceCm, setDistanceCm] = useState(35);
   const pins = GPIO_DEMOS[board];
   if (!pins) {
     return <section className="studio-esp32-experiment" aria-label="ESP32 GPIO experiment">
@@ -20,7 +20,7 @@ export function StudioEsp32Experiment({ board }) {
     </section>;
   }
   const led = modelEsp32LedOutput(ledHigh,pins.led);
-  const button = modelEsp32PullupButton(buttonPressed,pins.button);
+  const button = modelEsp32PullupButton(buttonPressed,pins.button);\n  const ultrasonic = modelEsp32UltrasonicDistance(distanceCm,20);
   return <section className="studio-esp32-experiment" aria-label="Interactive ESP32 GPIO logic experiment">
     <div className="studio-esp32-experiment-heading">
       <span className="edu-kicker">INTERACTIVE GPIO CONCEPT DEMO · {pins.family.toUpperCase()}</span>
@@ -42,7 +42,16 @@ export function StudioEsp32Experiment({ board }) {
         <p>{button.explanation}</p>
         <button type="button" aria-pressed={buttonPressed} onClick={() => setButtonPressed(value => !value)}>{buttonPressed?'Release button':'Press button'}</button>
       </article>
+      <article>
+        <h4>Ultrasonic echo timing · HC-SR04</h4>
+        <p>Set a simulated target distance to see the ideal echo pulse duration.</p>
+        <label htmlFor="studio-ultrasonic-distance">Target distance: <strong>{distanceCm} cm</strong></label>
+        <input id="studio-ultrasonic-distance" type="range" min="2" max="400" step="1" value={distanceCm} onChange={event => setDistanceCm(Number(event.target.value))} />
+        <p><strong>Echo pulse:</strong> {ultrasonic.echoPulseUs.toFixed(1)} µs</p>
+        <p><strong>20 cm alarm threshold:</strong> {ultrasonic.withinThreshold?'WITHIN RANGE':'CLEAR'}</p>
+        <p>{ultrasonic.explanation}</p>
+      </article>
     </div>
-    <p className="studio-help">Logic-state teaching model only. It does not execute firmware or model current, voltage transients, switch bounce, peripheral behavior, timing or physical hardware. The LED still needs a series resistor in a real circuit. Confirm the GPIO is exposed and unused on your exact board.</p>
+    <p className="studio-help">These are simplified teaching models, not firmware execution or physical sensor readings. The ultrasonic slider models ideal echo timing only. For a real HC-SR04, power it from a verified 5 V source and reduce its 5 V ECHO output with a resistor divider before the ESP32 GPIO. The LED still needs a series resistor. Confirm the exact board and module pinouts before wiring.</p>
   </section>;
 }

@@ -70,7 +70,7 @@ test('I2C scanner uses explicit distinct GPIO selections and scans the standard 
    assert.match(sketch,/address = 0x03; address <= 0x77/);
    assert.match(sketch,/Wire\.endTransmission\(\)/);
    assert.match(sketch,/3\.3V-compatible I²C pull-ups/);
-   assert.match(sketch,/never pull SDA\\/SCL up to 5V/);
+   assert.ok(sketch.includes('never pull SDA/SCL up to 5V'));
  }
 });
 

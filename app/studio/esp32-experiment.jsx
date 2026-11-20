@@ -11,7 +11,8 @@ const GPIO_DEMOS = {
 
 export function StudioEsp32Experiment({ board }) {
   const [ledHigh, setLedHigh] = useState(false);
-  const [buttonPressed, setButtonPressed] = useState(false);\n  const [distanceCm, setDistanceCm] = useState(35);
+  const [buttonPressed, setButtonPressed] = useState(false);
+  const [distanceCm, setDistanceCm] = useState(35);
   const pins = GPIO_DEMOS[board];
   if (!pins) {
     return <section className="studio-esp32-experiment" aria-label="ESP32 GPIO experiment">

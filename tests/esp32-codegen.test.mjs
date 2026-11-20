@@ -66,10 +66,10 @@ test('I2C scanner uses explicit distinct GPIO selections and scans the standard 
    const sda=options[0];
    const scl=options.find(pin=>pin.gpio!==sda.gpio);
    const sketch=generateEsp32Sketch({board,experiment:'i2c-scanner',sdaGpio:sda.gpio,sclGpio:scl.gpio});
-   assert.match(sketch,/Wire\\.begin\\(SDA_GPIO, SCL_GPIO\\)/);
+   assert.match(sketch,/Wire\.begin\(SDA_GPIO, SCL_GPIO\\)/);
    assert.match(sketch,/address = 0x03; address <= 0x77/);
-   assert.match(sketch,/Wire\\.endTransmission\\(\\)/);
-   assert.match(sketch,/3\\.3V-compatible I²C pull-ups/);
+   assert.match(sketch,/Wire\.endTransmission\(\\)/);
+   assert.match(sketch,/3\.3V-compatible I²C pull-ups/);
    assert.match(sketch,/never pull SDA\\/SCL up to 5V/);
  }
 });

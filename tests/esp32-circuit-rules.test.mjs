@@ -36,3 +36,24 @@ test('classic ESP32 accepts ADC1 analog pins as the preferred Wi-Fi-compatible i
  assert.ok(!result.findings.some(f=>f.code==='ADC2_WIFI_CONFLICT'));
  assert.ok(!result.findings.some(f=>f.code==='PIN_UNKNOWN'));
 });
+
+test('ESP32-S3 static review blocks input-only GPIO46 output and warns about USB and flash variants',()=>{
+ const output=reviewElectricalDesign({board:'esp32:esp32:esp32s3',connections:[{pin:'GPIO46',to:'LED anode',net:'led',kind:'digital-output'}]});
+ assert.equal(output.status,'failed');
+ assert.ok(output.findings.some(f=>f.code==='INPUT_ONLY_PIN'));
+ const usb=reviewElectricalDesign({board:'esp32:esp32:esp32s3',connections:[{pin:'GPIO19',to:'sensor signal',net:'sig',kind:'digital-input'}]});
+ assert.ok(usb.findings.some(f=>f.code==='USB_PIN_CONFLICT'));
+ const flash=reviewElectricalDesign({board:'esp32:esp32:esp32s3',connections:[{pin:'GPIO36',to:'sensor signal',net:'sig',kind:'digital-input'}]});
+ assert.ok(flash.findings.some(f=>f.code==='S3_FLASH_PSRAM_PIN'));
+});
+
+test('ESP32-C3 rejects unexposed flash GPIO and warns about strap, USB and UART pins',()=>{
+ const flash=reviewElectricalDesign({board:'esp32:esp32:esp32c3',connections:[{pin:'GPIO12',to:'LED anode',net:'led',kind:'digital-output'}]});
+ assert.ok(flash.findings.some(f=>f.code==='PIN_UNKNOWN'));
+ const strap=reviewElectricalDesign({board:'esp32:esp32:esp32c3',connections:[{pin:'GPIO9',to:'button signal',net:'button',kind:'digital-input'}]});
+ assert.ok(strap.findings.some(f=>f.code==='BOOT_STRAPPING_PIN'));
+ const usb=reviewElectricalDesign({board:'esp32:esp32:esp32c3',connections:[{pin:'GPIO18',to:'sensor signal',net:'sig',kind:'digital-input'}]});
+ assert.ok(usb.findings.some(f=>f.code==='USB_PIN_CONFLICT'));
+ const uart=reviewElectricalDesign({board:'esp32:esp32:esp32c3',connections:[{pin:'GPIO20',to:'module RX',net:'uart',kind:'digital-output'}]});
+ assert.ok(uart.findings.some(f=>f.code==='UART0_PIN_CONFLICT'));
+});

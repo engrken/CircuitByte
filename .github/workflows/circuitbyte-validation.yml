@@ -1,0 +1,39 @@
+name: CircuitByte validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: circuitbyte-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-quality:
+    name: Tests, learning validation, and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      VERCEL_ENV: preview
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Run automated tests
+        run: npm test
+      - name: Validate learning content
+        run: node scripts/validate-learning.mjs
+      - name: Build production application
+        run: npm run build

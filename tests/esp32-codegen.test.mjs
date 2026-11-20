@@ -10,6 +10,7 @@ test('board-aware generator only offers exposed output-capable GPIOs for LED',()
 
 test('button and analog examples filter pins by capability',()=>{
  assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32','button-input').some(pin=>pin.gpio===34),false);
+ assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32s3','button-input').some(pin=>pin.gpio===46),false);
  assert.equal(getEsp32CodegenOptions('esp32:esp32:esp32','analog-read').some(pin=>pin.gpio===32),true);
  assert.ok(getEsp32CodegenOptions('esp32:esp32:esp32s3','analog-read').length>0);
  assert.ok(getEsp32CodegenOptions('esp32:esp32:esp32c3','analog-read').length>0);

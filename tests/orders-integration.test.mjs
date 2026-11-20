@@ -169,7 +169,7 @@ test('buyer cancellation is ownership-scoped, pending-only, and releases a QR st
  assert.equal(cancelled.status,'Cancelled');
  assert.equal((await query('SELECT status FROM orders WHERE id=$1',[first])).rows[0].status,'Cancelled');
  await assert.rejects(cancelCustomerOrder(first,buyer.id),/pending/);
- const second=await create('b'.repeat(64));
+ const second=await create('8'.repeat(64));
  const secondVersion=await reviewAllItems(second);
  await updateOrder({id:second,version:secondVersion,status:'Pending',confirmed_location:'Roxas City test landmark',customer_update:'',openQrPayment:true},'QA admin');
  assert.equal((await query("SELECT reserved_stock FROM products WHERE id='buyer-cancel-fixture'")).rows[0].reserved_stock,1);

@@ -41,7 +41,6 @@ function Esp32WiringDiagram({ starter, board }) {
         <text x="310" y="129" textAnchor="middle" className="wiring-small">VCC · GND</text>
         <path d="M154 88 H228" className="wiring-signal"/>
         <text x="190" y="78" textAnchor="middle" className="wiring-small">TRIG</text>
-        <path d="M228 120 H410" className="wiring-signal"/>
         <rect x="410" y="105" width="70" height="28" rx="5" className="wiring-part"/>
         <text x="445" y="123" textAnchor="middle" className="wiring-small">1kΩ</text>
         <path d="M392 120 H410 M480 119 H520 V145 H154" className="wiring-signal"/>

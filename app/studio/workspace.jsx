@@ -350,6 +350,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
     {board.startsWith("esp32:")&&<StudioEsp32BoardExplorer board={board}/> }
     {board.startsWith("esp32:")&&<StudioEsp32CircuitStarters board={board} disabled={working} onSelect={startEsp32CircuitStarter}/>}
     {board.startsWith("esp32:")&&<StudioEsp32Experiment board={board}/>}
+    {board.startsWith("esp32:")&&<StudioEsp32CodeGenerator board={board} disabled={working} onUseCode={sketch=>{setCode(sketch);setCodeDirty(true);setCompile(null);setTab("code");setNotice("ESP32 sketch generated in the editor. Review the pin assignments and wiring cautions before use.");}}/>}
     <nav className="studio-wizard-tabs nav nav-pills" role="tablist" aria-label="Project build steps">{STUDIO_STEPS.map((label,i)=><button type="button" role="tab" className="nav-link" key={label} id={'studio-step-'+i} aria-selected={visibleStep===i} aria-controls="studio-step-content" disabled={i>firstUnmet||working} onClick={()=>goStep(i)}>{passed[i]?'✓':i+1} · {label}{i>firstUnmet?' · Locked':''}</button>)}</nav>
     <div className="studio-wizard-status" role="status"><strong>Step {visibleStep+1}: {STUDIO_STEPS[visibleStep]}</strong><p>{requirements[visibleStep]}</p><small>Changing earlier inputs requires their checks again. Completion records your review; it does not certify physical hardware.</small></div>
     <details className="studio-workspace-tools"><summary>Examples, saved drafts &amp; account settings</summary><div className="studio-quick-access">

@@ -5,6 +5,7 @@ import {getEsp32CodegenOptions,generateEsp32Sketch,getEsp32CodegenProfile} from 
 
 const EXPERIMENTS=[
   {id:'led-blink',label:'Blink an external LED'},
+  {id:'pwm-fade',label:'Fade an LED with PWM'},
   {id:'button-input',label:'Read a pull-up button'},
   {id:'analog-read',label:'Read an analog sensor'}
 ];
@@ -31,7 +32,7 @@ export function StudioEsp32CodeGenerator({board,onUseCode,disabled=false}) {
       <button type="button" disabled={disabled||!selected} onClick={generate}>Generate sketch into editor</button>
     </div>
     {pin&&pin.restrictions.length>0&&<p className="studio-esp32-codegen-warning"><strong>Pin cautions:</strong> {pin.restrictions.join(' ')}</p>}
-    {experiment==='led-blink'&&<p className="studio-help">Use an external LED with a 220–330 Ω series resistor. Never connect an LED directly to a GPIO.</p>}
+    {(experiment==='led-blink'||experiment==='pwm-fade')&&<p className="studio-help">Use an external LED with a 220–330 Ω series resistor. Never connect an LED directly to a GPIO. PWM fading requires a current Arduino-ESP32 core with analogWrite() support.</p>}
     {experiment==='analog-read'&&<p className="studio-help">Keep the analog signal within the board's permitted input range (normally 0–3.3 V). ADC behavior and attenuation vary by chip.</p>}
     {error&&<p role="alert" className="studio-help">{error}</p>}
   </section>;

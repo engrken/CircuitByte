@@ -59,7 +59,7 @@ function Esp32WiringDiagram({ starter, board }) {
         <path d="M395 99 H520 V150 H96 V146" className="wiring-ground"/>
         <text x="320" y="143" textAnchor="middle" className="wiring-small">Press to connect GPIO to GND</text>
       </>}
-      <text x="38" y="173" className="wiring-ground-label">GND · COMMON GROUND</text>
+      {!ultrasonic && <text x="38" y="173" className="wiring-ground-label">GND · COMMON GROUND</text>}
     </svg>
     <p className="studio-esp32-wiring-note">Illustrative signal path only — not to scale and not a physical header pinout. Match GPIO labels to your exact board. For HC-SR04 modules, use a verified 5 V supply and reduce ECHO to 3.3 V before it reaches the ESP32.</p>
   </figure>;

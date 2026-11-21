@@ -33,7 +33,7 @@ import {createAcceptanceRecord,acceptanceScope,acceptanceSummary} from '../../li
 import {assessStudioProject} from '../../lib/studio-project-coach.mjs';
 import {COMMON_MODULES} from '../../lib/studio-modules.mjs';
 import {studioRequest,studioProgressRequest} from '../../lib/studio-request.mjs';
-import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
+import {DRAFT_KEY,RECOVERY_KEY,parseStudioDraft,parseStudioProjectSnapshot,serializeStudioDraft} from '../../lib/studio-drafts.mjs';
 
 const DEFAULT_PROMPT = 'Make an ultrasonic distance alarm that beeps when an object comes within 20 cm.';
 const INITIAL_PARTS = ['cb-059','cb-074','cb-029','cb-009','cb-002','cb-076'];
@@ -252,6 +252,7 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       const isUpdate=Boolean(cloudProjectId);
       const body={
         title:project.title,templateSlug:project.slug==='studio-generated'?'':project.slug||'',
+        projectSnapshot:{slug:project.slug,title:project.title,summary:project.summary||'',method:project.method,prompt:project.prompt||prompt,wires:project.wires||[],netlist:project.netlist||[],warnings:project.warnings||[]},
         code,board,parts:selected,moduleIds:extraModules,prompt,ownMaterials,acceptance,
         ...(isUpdate?{id:cloudProjectId,revision:cloudRevision}:{})
       };
@@ -283,7 +284,8 @@ export function StudioWorkspace({parts,specs={},releaseRevision=''}) {
       setBoard(savedBoard);if(savedBoard!=='arduino:avr:uno')setMode('ai');
       setPrompt(saved.prompt||'');setOwnMaterials(saved.own_materials||'');
       const guide=savedBoard==='arduino:avr:uno'?STUDIO_BUILDS.find(x=>x.slug===saved.template_slug):null;
-      setProject(guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],warnings:['Saved sketch: no verified circuit schematic is associated with this project.']});
+      let snapshot=null;try{if(saved.project_snapshot&&Object.keys(saved.project_snapshot).length)snapshot=parseStudioProjectSnapshot(saved.project_snapshot);}catch{}
+      setProject(snapshot?{...(snapshot.method==='guided-template'&&guide?guide:{}),...snapshot,method:snapshot.method==='guided-template'&&!guide?'ai-draft':snapshot.method,board:savedBoard,prompt:snapshot.prompt||saved.prompt,guideUrl:snapshot.method==='guided-template'&&guide?'/diy/'+guide.slug:undefined,missing:snapshot.method==='guided-template'&&guide?guide.parts.filter(id=>!(saved.selected_parts||[]).includes(id)):[],warnings:snapshot.warnings?.length?snapshot.warnings:(guide?.notes||[])}:guide?{...guide,method:'guided-template',slug:guide.slug,guideUrl:'/diy/'+guide.slug,missing:[],warnings:guide.notes||[]}: {slug:'studio-generated',board:savedBoard,title:saved.title,summary:'Restored from your private dashboard.',method:'ai-draft',wires:[],netlist:[],warnings:['Legacy saved sketch: no wiring metadata was stored. Review all connections before use.']});
       setSelected(Array.isArray(saved.selected_parts)?saved.selected_parts:[]);
       setExtraModules(Array.isArray(saved.selected_modules)?saved.selected_modules:[]);
       setCode(saved.code);setCodeDirty(true);setTab('code');setNotice('Private project loaded with its user-reported acceptance evidence. Verify the saved sketch, requirements and wiring before compiling.');

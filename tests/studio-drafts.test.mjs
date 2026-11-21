@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseStudioDraft,serializeStudioDraft} from '../lib/studio-drafts.mjs';
+import {parseStudioDraft,parseStudioProjectSnapshot,serializeStudioDraft} from '../lib/studio-drafts.mjs';
 import {boardSerialStarter,BOARD_OPTIONS} from '../lib/studio-boards.mjs';
 const draft=()=>({board:'arduino:avr:uno',code:'void setup(){} void loop(){}',prompt:'Create a serial heartbeat.',selected:['cb-059'],mode:'guide',
  project:{slug:'ultrasonic-distance-alarm',title:'My project',method:'guided-template'}});
@@ -57,4 +57,22 @@ test('Imported AI wiring is bounded and never treated as verified metadata',()=>
  assert.throws(()=>parseStudioDraft(value),/invalid/i);
  value.project.netlist=[{pin:'D2',to:'LED',net:'OUTPUT',kind:'digital-output',signalVoltage:240}];
  assert.throws(()=>parseStudioDraft(value),/invalid/i);
+});
+
+
+test('Cloud project snapshots preserve validated wiring, netlists and safety notes',()=>{
+ const snapshot={slug:'studio-generated',title:'ESP32 ultrasonic alarm',summary:'Distance alarm with a bounded echo timeout.',method:'ai-draft',prompt:'Build an ultrasonic alarm.',
+  wires:[['GPIO4','HC-SR04 TRIG'],['HC-SR04 ECHO through divider','GPIO5']],
+  netlist:[{pin:'GPIO4',to:'HC-SR04 TRIG',net:'TRIG',kind:'digital-output',signalVoltage:3.3},{pin:'GPIO5',to:'divider midpoint',net:'ECHO_SAFE',kind:'digital-input',signalVoltage:3.3}],
+  warnings:['Power the HC-SR04 from the documented 5 V supply.','Use a resistor divider on ECHO before the ESP32 GPIO.']};
+ const restored=parseStudioProjectSnapshot(snapshot);
+ assert.deepEqual(restored.wires,snapshot.wires);
+ assert.deepEqual(restored.netlist,snapshot.netlist);
+ assert.deepEqual(restored.warnings,snapshot.warnings);
+ assert.equal(restored.method,'ai-draft');
+});
+test('Cloud project snapshots reject malformed or unbounded wiring metadata',()=>{
+ assert.throws(()=>parseStudioProjectSnapshot({slug:'../bad',title:'Invalid',method:'ai-draft'}));
+ assert.throws(()=>parseStudioProjectSnapshot({slug:'studio-generated',title:'Invalid',method:'ai-draft',netlist:[{pin:'GPIO5',to:'sensor',net:'DATA',kind:'verified'}]}));
+ assert.throws(()=>parseStudioProjectSnapshot({slug:'studio-generated',title:'Invalid',method:'ai-draft',warnings:['x'.repeat(501)]}));
 });

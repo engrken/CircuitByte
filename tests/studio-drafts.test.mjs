@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseStudioDraft,serializeStudioDraft} from '../lib/studio-drafts.mjs';
+import {parseStudioDraft,parseStudioProjectSnapshot,serializeStudioDraft} from '../lib/studio-drafts.mjs';
 import {boardSerialStarter,BOARD_OPTIONS} from '../lib/studio-boards.mjs';
 const draft=()=>({board:'arduino:avr:uno',code:'void setup(){} void loop(){}',prompt:'Create a serial heartbeat.',selected:['cb-059'],mode:'guide',
  project:{slug:'ultrasonic-distance-alarm',title:'My project',method:'guided-template'}});

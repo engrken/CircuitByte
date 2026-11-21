@@ -114,3 +114,31 @@
   .edu-ascii-wrap{color:#000;background:#fff;border:1px solid #ccc}
   .edu-ascii-wrap pre{color:#000}
 }
+
+
+/* Student-owned learning progress: local to this browser, no account required. */
+.edu-progress-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.65fr);gap:24px;align-items:center;margin:28px 0 34px;padding:22px 24px;border:1px solid #d5dfce;border-radius:13px;background:#eef3e8}
+.edu-progress-copy h2{font-size:clamp(20px,2.4vw,27px);margin:5px 0 6px;letter-spacing:-.6px}
+.edu-progress-copy p,.edu-lesson-progress p{font-size:12px;line-height:1.65;color:#5d6d62;margin:0 0 12px}
+.edu-progress-bar{height:9px;border-radius:20px;background:#d7e1cf;overflow:hidden;max-width:560px}
+.edu-progress-bar span{display:block;height:100%;background:#64894d;border-radius:inherit;transition:width .2s ease}
+.edu-progress-resume{display:flex;flex-direction:column;gap:6px;padding:17px 19px;border:1px solid #d2dec9;border-radius:9px;background:#fff;text-decoration:none}
+.edu-progress-resume small{font:700 10px/1.5 monospace;letter-spacing:1px;color:#58764c}
+.edu-progress-resume strong{font-size:15px;line-height:1.4}
+.edu-progress-resume span{font-size:12px;font-weight:700;color:#456c3e}
+.edu-foundations-progress-wrap{max-width:1260px;margin:0 auto;padding:0 5%}
+.edu-lesson-progress{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:18px 21px;border:1px solid #d6e0ce;border-radius:11px;background:#f0f5e9}
+.edu-lesson-progress>div:first-child{min-width:0}
+.edu-lesson-progress strong{display:block;font-size:17px;margin:4px 0}
+.edu-lesson-progress p{margin:0}
+.edu-lesson-progress-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.edu-lesson-progress-actions button{min-height:44px;padding:10px 15px;border:1px solid #244c39;border-radius:7px;background:#204c39;color:white;font-size:12px;font-weight:700;cursor:pointer}
+.edu-lesson-progress-actions button:disabled{opacity:.6;cursor:wait}
+.edu-lesson-progress-actions a{font-size:12px;font-weight:700;white-space:nowrap}
+@media(max-width:700px){
+ .edu-progress-panel{grid-template-columns:1fr;padding:18px;gap:14px}
+ .edu-foundations-progress-wrap{padding:0 4%}
+ .edu-lesson-progress{align-items:flex-start;flex-direction:column;padding:16px}
+ .edu-lesson-progress-actions{width:100%;justify-content:flex-start}
+ .edu-lesson-progress-actions button{flex:1 1 180px}
+}

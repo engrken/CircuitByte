@@ -1,6 +1,7 @@
 import './foundations.css';
 import lessons from '../../content/foundation-lessons.json';
 import {LessonCode} from './lesson-code';
+import {LearningProgress,LessonProgress} from './progress';
 
 const tracks = [
   {name:'Electronics fundamentals',id:'electronics',number:'01',subtitle:'Understand the language of circuits',description:'Start with voltage, current, resistance, components, symbols and how a breadboard is connected.'},
@@ -16,6 +17,7 @@ export function LearningTracks(){
       <h2 id="learning-paths-title">Your electronics learning path</h2>
       <p>{lessons.length} bite-sized lessons. Learn the principles, follow a connection map, then write Arduino code and test a real circuit. No previous experience is required.</p>
     </div>
+    <LearningProgress lessons={lessons}/>
     <nav className="edu-track-jump" aria-label="Choose a learning topic">
       {tracks.map(track=><a href={'#'+track.id} key={track.id}>{track.name}<span aria-hidden="true"> ↓</span></a>)}
     </nav>
@@ -48,6 +50,7 @@ export function LessonView({lesson}){
       </div>
       <aside className="edu-foundation-objectives"><h2>By the end, you can…</h2><ul>{lesson.learn.map(x=><li key={x}>{x}</li>)}</ul></aside>
     </header>
+    <div className="edu-foundations-progress-wrap"><LessonProgress lesson={lesson} nextLesson={next}/></div>
     <div className="edu-foundation-layout">
       <aside className="edu-foundation-toc"><strong>ON THIS PAGE</strong><nav aria-label="Lesson sections">
         {[['lesson-main','Key concepts'],['connection-map','Circuit / logic map'],['activity','Try it yourself'],...(lesson.code?[['sketch','Arduino code']]:[]),['check','Check your understanding'],['sources','Reference reading']].map(([id,name])=><a key={id} href={'#'+id}>{name}</a>)}

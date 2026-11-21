@@ -36,3 +36,4 @@ ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS prompt text NOT NULL DEFAUL
 ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS own_materials text NOT NULL DEFAULT '';
 ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS acceptance_record jsonb NOT NULL DEFAULT '{}'::jsonb;
 ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1;
+ALTER TABLE studio_projects ADD COLUMN IF NOT EXISTS project_snapshot jsonb NOT NULL DEFAULT '{}'::jsonb;
